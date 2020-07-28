@@ -1,7 +1,8 @@
 # Личный проект «Большое путешествие» [![Build status][travis-image]][travis-url]
 
 * Студент: [Дмитрий Выгловский](https://up.htmlacademy.ru/ecmascript/12/user/1226749).
-* Наставник: `Неизвестно`.
+* Наставник: [Даниил Царёв](https://up.htmlacademy.ru/ecmascript/12/user/945835).
+
 
 ---
 
