@@ -3,10 +3,10 @@
 const TRIP_EVENT_COUNT = 3;
 
 const headerNode = document.querySelector(`.trip-main`);
-const menuHeaderNode = headerNode.querySelector(`#js-menu-header`);
-const filtersHeaderNode = headerNode.querySelector(`#js-filters-header`);
+const menuHeaderNode = headerNode.querySelectorAll(`.trip-controls h2`)[0];
+const filtersHeaderNode = headerNode.querySelectorAll(`.trip-controls h2`)[1];
 const bodyContainerNode = document.querySelector(`.trip-events`);
-const sortHeaderNode = bodyContainerNode.querySelector(`#js-sort-header`);
+const sortHeaderNode = bodyContainerNode.querySelector(`.trip-events h2`);
 
 const render = (container, template, place) => {
   container.insertAdjacentHTML(place, template);
