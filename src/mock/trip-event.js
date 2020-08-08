@@ -155,15 +155,15 @@ const generateTimeInterval = () => {
   start.setHours(
       getRandomInteger(1, 23),
       getRandomInteger(0, 59),
-      getRandomInteger(0, 59),
-      getRandomInteger(0, 999)
+      0,
+      0
   );
 
   end.setHours(
       getRandomInteger(start.getHours(), 23),
       getRandomInteger(start.getMinutes(), 59),
-      getRandomInteger(0, 59),
-      getRandomInteger(0, 999)
+      0,
+      0
   );
 
   return {
@@ -181,12 +181,12 @@ export const generateTripEvent = () => {
     type,
     target: generateTarget(),
     offers,
-    destination: generateDestination(),
-    photos: generatePhotos(),
     timeStart: timeInterval.start,
     timeEnd: timeInterval.end,
     price: getRandomInteger(0, PRICE_LIMIT),
     isFavorite: Boolean(getRandomInteger()),
+    destination: generateDestination(),
+    photos: generatePhotos(),
   };
 };
 

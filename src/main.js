@@ -49,5 +49,5 @@ render(daysListNode, createTripDayTemplate(), `afterBegin`);
 const tripEventsListNode = daysListNode.querySelector(`.trip-events__list`);
 
 for (let i = 0; i < TRIP_EVENT_COUNT; i++) {
-  render(tripEventsListNode, createTripEventTemplate(), `afterBegin`);
+  render(tripEventsListNode, createTripEventTemplate(tripEvents[i]), `afterBegin`);
 }
