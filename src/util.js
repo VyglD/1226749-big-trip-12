@@ -7,3 +7,7 @@ export const generateTripEventLabel = (type) => {
 
   return `${type} to`;
 };
+
+export const getDateAtShortFormat = (date) => {
+  return date.toLocaleString(`en-US`, {month: `short`, day: `2-digit`});
+};

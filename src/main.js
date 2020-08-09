@@ -65,11 +65,11 @@ const renderTripEventsList = (tripPoints) => {
   }
 };
 
-render(headerNode, createTripInfoTemplate(), `afterBegin`);
+render(headerNode, createTripInfoTemplate(tripEvents.slice(1)), `afterBegin`);
 
 const tripInfoNode = headerNode.querySelector(`.trip-info`);
 
-render(tripInfoNode, createTripCostTemplate(tripEvents), `beforeEnd`);
+render(tripInfoNode, createTripCostTemplate(tripEvents.slice(1)), `beforeEnd`);
 
 render(menuHeaderNode, createMenuTemplate(), `afterEnd`);
 render(filtersHeaderNode, createFiltersTemplate(), `afterEnd`);

@@ -1,8 +1,6 @@
-const REGEX_SYSTEM_DATE = /(\d{2}).(\d{2}).(\d{4})/;
+import {getDateAtShortFormat} from "../util.js";
 
-const getHumanFormattedDate = (date) => {
-  return new Date(date).toLocaleString(`en-US`, {month: `short`, day: `2-digit`});
-};
+const REGEX_SYSTEM_DATE = /(\d{2}).(\d{2}).(\d{4})/;
 
 const getSystemFormattedDate = (date) => {
   const dateArgs = REGEX_SYSTEM_DATE.exec(new Date(date).toLocaleString(
@@ -19,7 +17,7 @@ export const createTripDayTemplate = (date, index) => {
       <div class="day__info">
         <span class="day__counter">${index}</span>
         <time class="day__date" datetime="${getSystemFormattedDate(date)}">
-          ${getHumanFormattedDate(date)}
+          ${getDateAtShortFormat(new Date(date))}
         </time>
       </div>
 
