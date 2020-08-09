@@ -17,11 +17,6 @@ const filtersHeaderNode = headerNode.querySelectorAll(`.trip-controls h2`)[1];
 const bodyContainerNode = document.querySelector(`.trip-events`);
 const sortHeaderNode = bodyContainerNode.querySelector(`.trip-events h2`);
 
-const tripEvents = new Array(TRIP_EVENT_COUNT)
-  .fill()
-  .map(generateTripEvent)
-  .sort((a, b) => a.timeStart - b.timeStart);
-
 const render = (container, template, place) => {
   container.insertAdjacentHTML(place, template);
 };
@@ -42,28 +37,12 @@ const getTripEventsByDays = (tripPoints) => {
   return tripDays;
 };
 
-const renderTripEventsList = (tripPoints) => {
-  const daysListNode = document.querySelector(`.trip-days`);
-  const tripDays = getTripEventsByDays(tripPoints.slice(1));
+const tripEvents = new Array(TRIP_EVENT_COUNT)
+  .fill()
+  .map(generateTripEvent)
+  .sort((a, b) => a.timeStart - b.timeStart);
 
-  let currentTripDayIndex = 1;
-
-  for (const date of tripDays.keys()) {
-    render(daysListNode, createTripDayTemplate(date, currentTripDayIndex), `beforeEnd`);
-
-    const currentTripEventsListNode = daysListNode.querySelector(
-        `#trip-events__list-${currentTripDayIndex}`
-    );
-
-    render(
-        currentTripEventsListNode,
-        tripDays.get(date).map(createTripEventTemplate).join(``),
-        `beforeEnd`
-    );
-
-    currentTripDayIndex++;
-  }
-};
+const tripDays = getTripEventsByDays(tripEvents.slice(1));
 
 render(headerNode, createTripInfoTemplate(tripEvents.slice(1)), `afterBegin`);
 
@@ -84,4 +63,18 @@ const formEditNode = bodyContainerNode.querySelector(`.event--edit`);
 
 render(formEditNode, createTripDaysListTemplate(), `afterEnd`);
 
-renderTripEventsList(tripEvents);
+const daysListNode = bodyContainerNode.querySelector(`.trip-days`);
+
+for (let i = 0; i < tripDays.size; i++) {
+  const date = tripDays.keys().next().value;
+
+  render(daysListNode, createTripDayTemplate(date, i + 1), `beforeEnd`);
+
+  const eventListNode = daysListNode.querySelector(`#trip-events__list-${i + 1}`);
+
+  render(
+      eventListNode,
+      tripDays.get(date).map(createTripEventTemplate).join(``),
+      `beforeEnd`
+  );
+}
