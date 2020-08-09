@@ -42,7 +42,7 @@ const getTripEventsByDays = (tripPoints) => {
   return tripDays;
 };
 
-const renderTripDaysList = (tripPoints) => {
+const renderTripEventsList = (tripPoints) => {
   const daysListNode = document.querySelector(`.trip-days`);
   const tripDays = getTripEventsByDays(tripPoints.slice(1));
 
@@ -69,7 +69,7 @@ render(headerNode, createTripInfoTemplate(), `afterBegin`);
 
 const tripInfoNode = headerNode.querySelector(`.trip-info`);
 
-render(tripInfoNode, createTripCostTemplate(), `beforeEnd`);
+render(tripInfoNode, createTripCostTemplate(tripEvents), `beforeEnd`);
 
 render(menuHeaderNode, createMenuTemplate(), `afterEnd`);
 render(filtersHeaderNode, createFiltersTemplate(), `afterEnd`);
@@ -84,4 +84,4 @@ const formEditNode = bodyContainerNode.querySelector(`.event--edit`);
 
 render(formEditNode, createTripDaysListTemplate(), `afterEnd`);
 
-renderTripDaysList(tripEvents);
+renderTripEventsList(tripEvents);
