@@ -134,6 +134,11 @@ const generatePhotos = () => {
 const generateTimeInterval = () => {
   const start = new Date();
   const end = new Date();
+  const negativeShift = getRandomInteger(-1, 1);
+  const positiveShift = getRandomInteger(negativeShift, 1);
+
+  start.setDate(start.getDate() + negativeShift);
+  end.setDate(end.getDate() + positiveShift);
 
   start.setHours(
       getRandomInteger(1, 23),

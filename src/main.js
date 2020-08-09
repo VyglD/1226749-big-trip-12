@@ -17,10 +17,52 @@ const filtersHeaderNode = headerNode.querySelectorAll(`.trip-controls h2`)[1];
 const bodyContainerNode = document.querySelector(`.trip-events`);
 const sortHeaderNode = bodyContainerNode.querySelector(`.trip-events h2`);
 
-const tripEvents = new Array(TRIP_EVENT_COUNT).fill().map(generateTripEvent);
+const tripEvents = new Array(TRIP_EVENT_COUNT)
+  .fill()
+  .map(generateTripEvent)
+  .sort((a, b) => a.timeStart - b.timeStart);
 
 const render = (container, template, place) => {
   container.insertAdjacentHTML(place, template);
+};
+
+const getTripEventsByDays = (tripPoints) => {
+  const tripDays = new Map();
+
+  for (const tripEvent of tripPoints) {
+    const date = new Date(tripEvent.timeStart).setHours(0, 0, 0, 0);
+
+    if (tripDays.has(date)) {
+      tripDays.get(date).push(tripEvent);
+    } else {
+      tripDays.set(date, [tripEvent]);
+    }
+  }
+
+  return tripDays;
+};
+
+const renderTripDaysList = (tripPoints) => {
+  const daysListNode = document.querySelector(`.trip-days`);
+  const tripDays = getTripEventsByDays(tripPoints.slice(1));
+
+  let currentTripDayIndex = 1;
+
+  for (const date of tripDays.keys()) {
+    render(daysListNode, createTripDayTemplate(date, currentTripDayIndex), `beforeEnd`);
+
+    const currentTripEventsListNode = daysListNode.querySelector(
+        `#trip-events__list-${currentTripDayIndex}`
+    );
+
+    render(
+        currentTripEventsListNode,
+        tripDays.get(date).map(createTripEventTemplate).join(``),
+        `beforeEnd`
+    );
+
+    currentTripDayIndex++;
+  }
 };
 
 render(headerNode, createTripInfoTemplate(), `afterBegin`);
@@ -42,12 +84,4 @@ const formEditNode = bodyContainerNode.querySelector(`.event--edit`);
 
 render(formEditNode, createTripDaysListTemplate(), `afterEnd`);
 
-const daysListNode = bodyContainerNode.querySelector(`.trip-days`);
-
-render(daysListNode, createTripDayTemplate(), `afterBegin`);
-
-const tripEventsListNode = daysListNode.querySelector(`.trip-events__list`);
-
-for (let i = 1; i < TRIP_EVENT_COUNT; i++) {
-  render(tripEventsListNode, createTripEventTemplate(tripEvents[i]), `beforeEnd`);
-}
+renderTripDaysList(tripEvents);
