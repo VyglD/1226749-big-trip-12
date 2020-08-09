@@ -1,3 +1,5 @@
+import {tripEventTypes, tripTargets} from "../data.js";
+
 const DESTINATION_LIMIT = 5;
 const PHOTOS_LIMIT = 5;
 const PRICE_LIMIT = 600;
@@ -27,37 +29,17 @@ const getRandomSubArray = function (arr, length = arr.length) {
 };
 
 const generateType = () => {
-  const types = [
-    `Taxi`,
-    `Bus`,
-    `Train`,
-    `Ship`,
-    `Transport`,
-    `Drive`,
-    `Flight`,
-    `Check-in`,
-    `Sightseeing`,
-    `Restaurant`,
-  ];
-
+  const types = Array.from(tripEventTypes.values())
+    .reduce((one, two) => one.concat(two));
   const randomIndex = getRandomInteger(0, types.length - 1);
 
   return types[randomIndex];
 };
 
 const generateTarget = () => {
-  const targets = [
-    `Amsterdam`,
-    `Chamonix`,
-    `Geneva`,
-    `Berlin`,
-    `Vena`,
-    `Paris`
-  ];
+  const randomIndex = getRandomInteger(0, tripTargets.length - 1);
 
-  const randomIndex = getRandomInteger(0, targets.length - 1);
-
-  return targets[randomIndex];
+  return tripTargets[randomIndex];
 };
 
 const generateOffers = (type) => {
@@ -145,7 +127,8 @@ const generateDestination = () => {
 
 const generatePhotos = () => {
   return new Array(getRandomInteger(0, PHOTOS_LIMIT))
-    .fill(`http://picsum.photos/248/152?r=${Math.random()}`);
+    .fill()
+    .map(() => `http://picsum.photos/248/152?r=${Math.random()}`);
 };
 
 const generateTimeInterval = () => {

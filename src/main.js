@@ -36,7 +36,7 @@ render(sortHeaderNode, createSortTemplate(), `afterEnd`);
 
 const sortNode = bodyContainerNode.querySelector(`.trip-sort`);
 
-render(sortNode, createTripEventEditTemplate(), `afterEnd`);
+render(sortNode, createTripEventEditTemplate(tripEvents[0]), `afterEnd`);
 
 const formEditNode = bodyContainerNode.querySelector(`.event--edit`);
 
@@ -48,6 +48,6 @@ render(daysListNode, createTripDayTemplate(), `afterBegin`);
 
 const tripEventsListNode = daysListNode.querySelector(`.trip-events__list`);
 
-for (let i = 0; i < TRIP_EVENT_COUNT; i++) {
-  render(tripEventsListNode, createTripEventTemplate(tripEvents[i]), `afterBegin`);
+for (let i = 1; i < TRIP_EVENT_COUNT; i++) {
+  render(tripEventsListNode, createTripEventTemplate(tripEvents[i]), `beforeEnd`);
 }

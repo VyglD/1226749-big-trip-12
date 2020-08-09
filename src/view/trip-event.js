@@ -1,13 +1,4 @@
-const generateTripEventName = (type, target) => {
-  switch (type) {
-    case `Check-in`:
-    case `Sightseeing`:
-    case `Restaurant`:
-      return `${type} in ${target}`;
-    default:
-      return `${type} to ${target}`;
-  }
-};
+import {generateTripEventLabel} from "../util.js";
 
 const createTripEventOffersTemplate = (offers) => {
   return offers.map((offer) => {
@@ -75,9 +66,15 @@ export const createTripEventTemplate = (tripEvent) => {
     `<li class="trip-events__item">
       <div class="event">
         <div class="event__type">
-          <img class="event__type-icon" width="42" height="42" src="img/icons/taxi.png" alt="Event type icon">
+          <img
+            class="event__type-icon"
+            width="42"
+            height="42"
+            src="img/icons/${type}.png"
+            alt="Event type icon"
+          >
         </div>
-        <h3 class="event__title">${generateTripEventName(type, target)}</h3>
+        <h3 class="event__title">${generateTripEventLabel(type)} ${target}</h3>
 
         <div class="event__schedule">
           ${createTimeTemplate(timeStart, timeEnd)}
