@@ -9,7 +9,7 @@ import {createTripEventTemplate} from "./view/trip-event.js";
 import {createTripEventEditTemplate} from "./view/trip-event-edit.js";
 import {generateTripEvent} from "./mock/trip-event.js";
 
-const TRIP_EVENT_COUNT = 20;
+const TRIP_EVENT_COUNT = 5;
 
 const headerNode = document.querySelector(`.trip-main`);
 const menuHeaderNode = headerNode.querySelectorAll(`.trip-controls h2`)[0];
@@ -42,7 +42,12 @@ const tripEvents = new Array(TRIP_EVENT_COUNT)
   .map(generateTripEvent)
   .sort((a, b) => a.timeStart - b.timeStart);
 
+
 const tripDays = getTripEventsByDays(tripEvents.slice(1));
+
+
+console.log(tripEvents);
+console.log(tripDays);
 
 render(headerNode, createTripInfoTemplate(tripEvents.slice(1)), `afterBegin`);
 
@@ -66,7 +71,7 @@ render(formEditNode, createTripDaysListTemplate(), `afterEnd`);
 const daysListNode = bodyContainerNode.querySelector(`.trip-days`);
 
 for (let i = 0; i < tripDays.size; i++) {
-  const date = tripDays.keys().next().value;
+  const date = Array.from(tripDays.keys())[i];
 
   render(daysListNode, createTripDayTemplate(date, i + 1), `beforeEnd`);
 
