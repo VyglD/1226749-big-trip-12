@@ -1,4 +1,4 @@
-const LIMIT_ROUTE_TARGET = 3;
+const LIMIT_ROUTE_CITY = 3;
 
 import {getDateAtShortFormat} from "../util.js";
 
@@ -16,12 +16,12 @@ const getTripDateInterval = (tripEvents) => {
 const getTripRoute = (tripEvents) => {
   const route = [];
   for (const tripEvent of tripEvents) {
-    if (route[route.length - 1] !== tripEvent.target) {
-      route.push(tripEvent.target);
+    if (route[route.length - 1] !== tripEvent.city) {
+      route.push(tripEvent.city);
     }
 
-    if (route.length > LIMIT_ROUTE_TARGET) {
-      return `${tripEvents[0].target} &mdash; ... &mdash; ${tripEvents[tripEvents.length - 1].target}`;
+    if (route.length > LIMIT_ROUTE_CITY) {
+      return `${tripEvents[0].city} &mdash; ... &mdash; ${tripEvents[tripEvents.length - 1].city}`;
     }
   }
 

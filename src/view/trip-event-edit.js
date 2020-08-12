@@ -1,19 +1,6 @@
-import {tripEventTypes, tripTargets} from "../data.js";
+import {TRIP_EVENT_TYPES, CITIES} from "../data.js";
 import {generateTripEventLabel} from "../util.js";
-
-const getFormattedTimeString = (time) => {
-  return time.toLocaleString(
-      `en-US`,
-      {
-        year: `2-digit`,
-        month: `2-digit`,
-        day: `2-digit`,
-        hour: `2-digit`,
-        minute: `2-digit`,
-        hour12: false
-      }
-  ).replace(`,`, ``);
-};
+import {getFormattedTimeString} from "../date-util.js";
 
 const createTypeItemTripEventTemplate = (type, checkedType) => {
   return (
@@ -35,7 +22,7 @@ const createTypeItemTripEventTemplate = (type, checkedType) => {
 };
 
 const createTypesListTripEventTemplate = (checkedType) => {
-  return Array.from(tripEventTypes.entries())
+  return Array.from(TRIP_EVENT_TYPES.entries())
     .map(([kind, types]) => {
       return (
         `<fieldset class="event__type-group">
@@ -48,7 +35,7 @@ const createTypesListTripEventTemplate = (checkedType) => {
     }).join(``);
 };
 
-const createTripTargetTemplate = (type, target) => {
+const createTripCityTemplate = (type, city) => {
   return (
     `<div class="event__field-group event__field-group--destination">
       <label class="event__label event__type-output" for="event-destination-1">
@@ -59,11 +46,11 @@ const createTripTargetTemplate = (type, target) => {
         id="event-destination-1"
         type="text"
         name="event-destination"
-        value="${target}"
+        value="${city}"
         list="destination-list-1"
       >
       <datalist id="destination-list-1">
-        ${tripTargets.map((it) => `<option value="${it}"></option>`).join(``)}
+        ${CITIES.map((it) => `<option value="${it}"></option>`).join(``)}
       </datalist>
     </div>`
   );
@@ -166,7 +153,7 @@ const createTripDetailsTemplate = (offers, destination, photos) => {
 export const createTripEventEditTemplate = (tripEvent = {}) => {
   const {
     type = `Flight`,
-    target = ``,
+    city = ``,
     offers = [],
     timeStart = new Date(),
     timeEnd = new Date(),
@@ -200,7 +187,7 @@ export const createTripEventEditTemplate = (tripEvent = {}) => {
         </div>
       </div>
 
-      ${createTripTargetTemplate(type, target)}
+      ${createTripCityTemplate(type, city)}
 
       <div class="event__field-group event__field-group--time">
         <label class="visually-hidden" for="event-start-time-1">

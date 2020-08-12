@@ -1,4 +1,5 @@
 import {generateTripEventLabel} from "../util.js";
+import {getHumanizeTime, getHumanizeTimeInterval} from "../date-util.js";
 
 const createTripEventOffersTemplate = (offers) => {
   return offers.map((offer) => {
@@ -10,31 +11,6 @@ const createTripEventOffersTemplate = (offers) => {
       </li>`
     );
   }).join(``);
-};
-
-const getHumanizeTime = (time) => {
-  return time.toLocaleTimeString(
-      `en-US`,
-      {hour12: false, hour: `numeric`, minute: `numeric`}
-  );
-};
-
-const humanizeTimeFormat = (value, letter, ...conditions) => {
-  conditions.push(value);
-  return conditions.some(Boolean)
-    ? `${(value < 10) ? `0` : ``}${value}${letter}`
-    : ``;
-};
-
-const getHumanizeTimeInterval = (interval) => {
-  const excessDays = new Date(0).getDate();
-  const excessHours = new Date(0).getTimezoneOffset() / 60;
-  const diff = new Date(interval);
-  const days = humanizeTimeFormat((diff.getDate() - excessDays), `D`);
-  const hours = humanizeTimeFormat((diff.getHours() + excessHours), `H`, days);
-  const minutes = humanizeTimeFormat((diff.getMinutes()), `M`, days, hours);
-
-  return `${days} ${hours} ${minutes}`;
 };
 
 const createTimeTemplate = (start, end) => {
@@ -55,7 +31,7 @@ const createTimeTemplate = (start, end) => {
 export const createTripEventTemplate = (tripEvent) => {
   const {
     type,
-    target,
+    city,
     offers,
     timeStart,
     timeEnd,
@@ -74,7 +50,7 @@ export const createTripEventTemplate = (tripEvent) => {
             alt="Event type icon"
           >
         </div>
-        <h3 class="event__title">${generateTripEventLabel(type)} ${target}</h3>
+        <h3 class="event__title">${generateTripEventLabel(type)} ${city}</h3>
 
         <div class="event__schedule">
           ${createTimeTemplate(timeStart, timeEnd)}
