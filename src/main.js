@@ -34,15 +34,42 @@ const getTripEventsByDays = (tripPoints) => {
   return tripDays;
 };
 
+const getTripEventElement = (tripEventData) => {
+  const tripEventNode = new TripEventView(tripEventData).getElement();
+  const tripEventEditNode = new TripEventEditView(tripEventData).getElement();
+
+  const replacePointToForm = () => {
+    tripEventNode.parentElement.replaceChild(tripEventEditNode, tripEventNode);
+  };
+
+  const replaceFormToPoint = () => {
+    tripEventEditNode.parentElement.replaceChild(tripEventNode, tripEventEditNode);
+  };
+
+  tripEventNode
+    .querySelector(`.event__rollup-btn`)
+    .addEventListener(`click`, () => {
+      replacePointToForm();
+    });
+
+  tripEventEditNode
+    .addEventListener(`submit`, (evt) => {
+      evt.preventDefault();
+      replaceFormToPoint();
+    });
+
+  return tripEventNode;
+};
+
 const tripEvents = new Array(TRIP_EVENT_COUNT)
   .fill()
   .map(generateTripEvent)
   .sort((a, b) => a.timeStart - b.timeStart);
 
-const tripDays = getTripEventsByDays(tripEvents.slice(1));
+const tripDays = getTripEventsByDays(tripEvents);
 
-const tripInfoNode = new TripInfoView(tripEvents.slice(1)).getElement();
-const tripCostNode = new TripCostView(tripEvents.slice(1)).getElement();
+const tripInfoNode = new TripInfoView(tripEvents).getElement();
+const tripCostNode = new TripCostView(tripEvents).getElement();
 const daysListNode = new DaysListView().getElement();
 
 tripInfoNode.append(tripCostNode);
@@ -53,8 +80,8 @@ for (let i = 0; i < tripDays.size; i++) {
   const tripDay = new TripDayView(date, i + 1).getElement();
   const tripDayList = tripDay.querySelector(`#trip-events__list-${i + 1}`);
 
-  for (const tripEvent of tripDays.get(date)) {
-    tripDayList.append(new TripEventView(tripEvent).getElement());
+  for (const tripEventData of tripDays.get(date)) {
+    tripDayList.append(getTripEventElement(tripEventData));
   }
 
   daysListNode.append(tripDay);
@@ -79,11 +106,6 @@ render(
     sortHeaderNode,
     new SortView().getElement(),
     RenderPosition.AFTEREND
-);
-render(
-    bodyContainerNode,
-    new TripEventEditView(tripEvents[0]).getElement(),
-    RenderPosition.BEFOREEND
 );
 render(
     bodyContainerNode,
