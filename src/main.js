@@ -41,20 +41,30 @@ const tripEvents = new Array(TRIP_EVENT_COUNT)
 
 const tripDays = getTripEventsByDays(tripEvents.slice(1));
 
+const tripInfoNode = new TripInfoView(tripEvents.slice(1)).getElement();
+const tripCostNode = new TripCostView(tripEvents.slice(1)).getElement();
+const daysListNode = new DaysListView().getElement();
+
+tripInfoNode.append(tripCostNode);
+
+for (let i = 0; i < tripDays.size; i++) {
+  const date = Array.from(tripDays.keys())[i];
+
+  const tripDay = new TripDayView(date, i + 1).getElement();
+  const tripDayList = tripDay.querySelector(`#trip-events__list-${i + 1}`);
+
+  for (const tripEvent of tripDays.get(date)) {
+    tripDayList.append(new TripEventView(tripEvent).getElement());
+  }
+
+  daysListNode.append(tripDay);
+}
+
 render(
     headerNode,
-    new TripInfoView(tripEvents.slice(1)).getElement(),
+    tripInfoNode,
     RenderPosition.AFTERBEGIN
 );
-
-const tripInfoNode = headerNode.querySelector(`.trip-info`);
-
-render(
-    tripInfoNode,
-    new TripCostView(tripEvents.slice(1)).getElement(),
-    RenderPosition.BEFOREEND
-);
-
 render(
     menuHeaderNode,
     new MenuView().getElement(),
@@ -70,38 +80,13 @@ render(
     new SortView().getElement(),
     RenderPosition.AFTEREND
 );
-
-const sortNode = bodyContainerNode.querySelector(`.trip-sort`);
-
 render(
-    sortNode,
+    bodyContainerNode,
     new TripEventEditView(tripEvents[0]).getElement(),
-    RenderPosition.AFTEREND
+    RenderPosition.BEFOREEND
 );
-
-const formEditNode = bodyContainerNode.querySelector(`.event--edit`);
-
 render(
-    formEditNode,
-    new DaysListView().getElement(),
-    RenderPosition.AFTEREND
+    bodyContainerNode,
+    daysListNode,
+    RenderPosition.BEFOREEND
 );
-
-const daysListNode = bodyContainerNode.querySelector(`.trip-days`);
-
-for (let i = 0; i < tripDays.size; i++) {
-  const date = Array.from(tripDays.keys())[i];
-
-  const tripDay = new TripDayView(date, i + 1).getElement();
-  const tripDayList = tripDay.querySelector(`#trip-events__list-${i + 1}`);
-
-  for (const tripEvent of tripDays.get(date)) {
-    tripDayList.append(new TripEventView(tripEvent).getElement());
-  }
-
-  render(
-      daysListNode,
-      tripDay,
-      RenderPosition.BEFOREEND
-  );
-}
