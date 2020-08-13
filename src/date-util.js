@@ -43,6 +43,21 @@ export const generateTimeInterval = () => {
   };
 };
 
+export const getDateAtShortFormat = (date) => {
+  return date.toLocaleString(`en-US`, {month: `short`, day: `2-digit`});
+};
+
+export const getTripDateInterval = (tripEvents) => {
+  const start = getDateAtShortFormat(tripEvents[0].timeStart).split(` `);
+  const end = getDateAtShortFormat(tripEvents[tripEvents.length - 1].timeStart).split(` `);
+
+  if (start[0] === end[0]) {
+    end[0] = ``;
+  }
+
+  return `${start[0]} ${start[1]}&nbsp;&mdash;&nbsp;${end[1]} ${end[0]}`;
+};
+
 export const getSystemFormattedDate = (date) => {
   const dateArgs = REGEX_SYSTEM_DATE.exec(new Date(date).toLocaleString(
       `en-US`,

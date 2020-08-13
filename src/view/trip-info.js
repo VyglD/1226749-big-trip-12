@@ -1,43 +1,55 @@
+import {getTripDateInterval} from "../date-util.js";
+import {createElement} from "../dom-util.js";
+
 const LIMIT_ROUTE_CITY = 3;
 
-import {getDateAtShortFormat} from "../util.js";
-
-const getTripDateInterval = (tripEvents) => {
-  const start = getDateAtShortFormat(tripEvents[0].timeStart).split(` `);
-  const end = getDateAtShortFormat(tripEvents[tripEvents.length - 1].timeStart).split(` `);
-
-  if (start[0] === end[0]) {
-    end[0] = ``;
+export default class TripInfo {
+  constructor(tripEvents) {
+    this._tripEvents = tripEvents;
+    this._element = null;
   }
 
-  return `${start[0]} ${start[1]}&nbsp;&mdash;&nbsp;${end[1]} ${end[0]}`;
-};
 
-const getTripRoute = (tripEvents) => {
-  const route = [];
-  for (const tripEvent of tripEvents) {
-    if (route[route.length - 1] !== tripEvent.city) {
-      route.push(tripEvent.city);
+  _getTripRoute() {
+    const points = this._tripEvents;
+    const route = [];
+
+    for (const tripEvent of points) {
+      if (route[route.length - 1] !== tripEvent.city) {
+        route.push(tripEvent.city);
+      }
+
+      if (route.length > LIMIT_ROUTE_CITY) {
+        return `${points[0].city} &mdash; ... &mdash; ${points[points.length - 1].city}`;
+      }
     }
 
-    if (route.length > LIMIT_ROUTE_CITY) {
-      return `${tripEvents[0].city} &mdash; ... &mdash; ${tripEvents[tripEvents.length - 1].city}`;
-    }
+    return route.join(` &mdash; `);
   }
 
-  return route.join(` &mdash; `);
-};
+  getTemplate() {
+    return (
+      `<section class="trip-main__trip-info  trip-info">
+        <div class="trip-info__main">
+          <h1 class="trip-info__title">
+            ${this._getTripRoute()}
+          </h1>
 
-export const createTripInfoTemplate = (tripEvents) => {
-  return (
-    `<section class="trip-main__trip-info  trip-info">
-      <div class="trip-info__main">
-        <h1 class="trip-info__title">
-          ${getTripRoute(tripEvents)}
-        </h1>
+          <p class="trip-info__dates">${getTripDateInterval(this._tripEvents)}</p>
+        </div>
+      </section>`
+    );
+  }
 
-        <p class="trip-info__dates">${getTripDateInterval(tripEvents)}</p>
-      </div>
-    </section>`
-  );
-};
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

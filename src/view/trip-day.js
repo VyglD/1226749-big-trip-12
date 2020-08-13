@@ -1,18 +1,38 @@
-import {getDateAtShortFormat} from "../util.js";
-import {getSystemFormattedDate} from "../date-util";
+import {getSystemFormattedDate, getDateAtShortFormat} from "../date-util";
+import {createElement} from "../dom-util.js";
 
-export const createTripDayTemplate = (date, index) => {
-  return (
-    `<li class="trip-days__item  day">
-      <div class="day__info">
-        <span class="day__counter">${index}</span>
-        <time class="day__date" datetime="${getSystemFormattedDate(date)}">
-          ${getDateAtShortFormat(new Date(date))}
-        </time>
-      </div>
+export default class TripDay {
+  constructor(date, index) {
+    this._date = date;
+    this._index = index;
+    this._element = null;
+  }
 
-      <ul class="trip-events__list" id="trip-events__list-${index}">
-      </ul>
-    </li>`
-  );
-};
+  getTemplate() {
+    return (
+      `<li class="trip-days__item  day">
+        <div class="day__info">
+          <span class="day__counter">${this._index}</span>
+          <time class="day__date" datetime="${getSystemFormattedDate(this._date)}">
+            ${getDateAtShortFormat(new Date(this._date))}
+          </time>
+        </div>
+
+        <ul class="trip-events__list" id="trip-events__list-${this._index}">
+        </ul>
+      </li>`
+    );
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

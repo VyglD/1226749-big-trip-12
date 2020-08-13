@@ -116,3 +116,9 @@ export const DESTINATIONS = [
   `Nunc fermentum tortor ac porta dapibus.`,
   `In rutrum ac purus sit amet tempus.`
 ];
+
+export const FILTERS = [
+  `everything`,
+  `future`,
+  `past`
+];

@@ -8,7 +8,7 @@ const PRICE_LIMIT = 600;
 
 const generateType = () => {
   const types = Array.from(TRIP_EVENT_TYPES.values())
-    .reduce((one, two) => one.concat(two));
+    .reduce((one, two) => one.concat(two), []);
 
   return getRandomElement(types);
 };
