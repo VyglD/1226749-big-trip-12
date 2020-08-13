@@ -1,13 +1,14 @@
-import {createTripInfoTemplate} from "./view/trip-info.js";
-import {createTripCostTemplate} from "./view/trip-cost.js";
-import {createMenuTemplate} from "./view/menu.js";
-import {createFiltersTemplate} from "./view/filters.js";
-import {createSortTemplate} from "./view/sort.js";
-import {createTripDaysListTemplate} from "./view/trip-days.js";
-import {createTripDayTemplate} from "./view/trip-day.js";
-import {createTripEventTemplate} from "./view/trip-event.js";
-import {createTripEventEditTemplate} from "./view/trip-event-edit.js";
+import TripInfoView from "./view/trip-info.js";
+import TripCostView from "./view/trip-cost.js";
+import MenuView from "./view/menu.js";
+import FilterView from "./view/filters.js";
+import SortView from "./view/sort.js";
+import DaysListView from "./view/trip-days.js";
+import TripDayView from "./view/trip-day.js";
+import TripEventView from "./view/trip-event.js";
+import TripEventEditView from "./view/trip-event-edit.js";
 import {generateTripEvent} from "./mock/trip-event.js";
+import {render, RenderPosition} from "./dom-util.js";
 
 const TRIP_EVENT_COUNT = 15;
 
@@ -16,10 +17,6 @@ const menuHeaderNode = headerNode.querySelectorAll(`.trip-controls h2`)[0];
 const filtersHeaderNode = headerNode.querySelectorAll(`.trip-controls h2`)[1];
 const bodyContainerNode = document.querySelector(`.trip-events`);
 const sortHeaderNode = bodyContainerNode.querySelector(`.trip-events h2`);
-
-const render = (container, template, place) => {
-  container.insertAdjacentHTML(place, template);
-};
 
 const getTripEventsByDays = (tripPoints) => {
   const tripDays = new Map();
@@ -37,45 +34,81 @@ const getTripEventsByDays = (tripPoints) => {
   return tripDays;
 };
 
+const getTripEventElement = (tripEventData) => {
+  const tripEventNode = new TripEventView(tripEventData).getElement();
+  const tripEventEditNode = new TripEventEditView(tripEventData).getElement();
+
+  const replacePointToForm = () => {
+    tripEventNode.parentElement.replaceChild(tripEventEditNode, tripEventNode);
+  };
+
+  const replaceFormToPoint = () => {
+    tripEventEditNode.parentElement.replaceChild(tripEventNode, tripEventEditNode);
+  };
+
+  tripEventNode
+    .querySelector(`.event__rollup-btn`)
+    .addEventListener(`click`, () => {
+      replacePointToForm();
+    });
+
+  tripEventEditNode
+    .addEventListener(`submit`, (evt) => {
+      evt.preventDefault();
+      replaceFormToPoint();
+    });
+
+  return tripEventNode;
+};
+
 const tripEvents = new Array(TRIP_EVENT_COUNT)
   .fill()
   .map(generateTripEvent)
   .sort((a, b) => a.timeStart - b.timeStart);
 
+const tripDays = getTripEventsByDays(tripEvents);
 
-const tripDays = getTripEventsByDays(tripEvents.slice(1));
+const tripInfoNode = new TripInfoView(tripEvents).getElement();
+const tripCostNode = new TripCostView(tripEvents).getElement();
+const daysListNode = new DaysListView().getElement();
 
-render(headerNode, createTripInfoTemplate(tripEvents.slice(1)), `afterBegin`);
-
-const tripInfoNode = headerNode.querySelector(`.trip-info`);
-
-render(tripInfoNode, createTripCostTemplate(tripEvents.slice(1)), `beforeEnd`);
-
-render(menuHeaderNode, createMenuTemplate(), `afterEnd`);
-render(filtersHeaderNode, createFiltersTemplate(), `afterEnd`);
-
-render(sortHeaderNode, createSortTemplate(), `afterEnd`);
-
-const sortNode = bodyContainerNode.querySelector(`.trip-sort`);
-
-render(sortNode, createTripEventEditTemplate(tripEvents[0]), `afterEnd`);
-
-const formEditNode = bodyContainerNode.querySelector(`.event--edit`);
-
-render(formEditNode, createTripDaysListTemplate(), `afterEnd`);
-
-const daysListNode = bodyContainerNode.querySelector(`.trip-days`);
+tripInfoNode.append(tripCostNode);
 
 for (let i = 0; i < tripDays.size; i++) {
   const date = Array.from(tripDays.keys())[i];
 
-  render(daysListNode, createTripDayTemplate(date, i + 1), `beforeEnd`);
+  const tripDay = new TripDayView(date, i + 1).getElement();
+  const tripDayList = tripDay.querySelector(`#trip-events__list-${i + 1}`);
 
-  const eventListNode = daysListNode.querySelector(`#trip-events__list-${i + 1}`);
+  for (const tripEventData of tripDays.get(date)) {
+    tripDayList.append(getTripEventElement(tripEventData));
+  }
 
-  render(
-      eventListNode,
-      tripDays.get(date).map(createTripEventTemplate).join(``),
-      `beforeEnd`
-  );
+  daysListNode.append(tripDay);
 }
+
+render(
+    headerNode,
+    tripInfoNode,
+    RenderPosition.AFTERBEGIN
+);
+render(
+    menuHeaderNode,
+    new MenuView().getElement(),
+    RenderPosition.AFTEREND
+);
+render(
+    filtersHeaderNode,
+    new FilterView().getElement(),
+    RenderPosition.AFTEREND
+);
+render(
+    sortHeaderNode,
+    new SortView().getElement(),
+    RenderPosition.AFTEREND
+);
+render(
+    bodyContainerNode,
+    daysListNode,
+    RenderPosition.BEFOREEND
+);

@@ -1,28 +1,38 @@
-import {getDateAtShortFormat} from "../util.js";
+import {getSystemFormattedDate, getDateAtShortFormat} from "../date-util";
+import {createElement} from "../dom-util.js";
 
-const REGEX_SYSTEM_DATE = /(\d{2}).(\d{2}).(\d{4})/;
+export default class TripDay {
+  constructor(date, index) {
+    this._date = date;
+    this._index = index;
+    this._element = null;
+  }
 
-const getSystemFormattedDate = (date) => {
-  const dateArgs = REGEX_SYSTEM_DATE.exec(new Date(date).toLocaleString(
-      `en-US`,
-      {year: `numeric`, month: `2-digit`, day: `2-digit`}
-  ));
+  getTemplate() {
+    return (
+      `<li class="trip-days__item  day">
+        <div class="day__info">
+          <span class="day__counter">${this._index}</span>
+          <time class="day__date" datetime="${getSystemFormattedDate(this._date)}">
+            ${getDateAtShortFormat(new Date(this._date))}
+          </time>
+        </div>
 
-  return `${dateArgs[3]}-${dateArgs[2]}-${dateArgs[1]}`;
-};
+        <ul class="trip-events__list" id="trip-events__list-${this._index}">
+        </ul>
+      </li>`
+    );
+  }
 
-export const createTripDayTemplate = (date, index) => {
-  return (
-    `<li class="trip-days__item  day">
-      <div class="day__info">
-        <span class="day__counter">${index}</span>
-        <time class="day__date" datetime="${getSystemFormattedDate(date)}">
-          ${getDateAtShortFormat(new Date(date))}
-        </time>
-      </div>
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
 
-      <ul class="trip-events__list" id="trip-events__list-${index}">
-      </ul>
-    </li>`
-  );
-};
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
