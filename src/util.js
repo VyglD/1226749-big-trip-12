@@ -1,5 +1,7 @@
 import {TRIP_EVENT_TYPES} from "./data.js";
 
+const ESC_KEYCODE = 27;
+
 const shuffleArray = function (arr) {
   return arr.slice().sort(function () {
     return 0.5 - Math.random();
@@ -36,4 +38,8 @@ export const getRandomElement = (list) => {
   const randomIndex = getRandomInteger(0, list.length - 1);
 
   return list[randomIndex];
+};
+
+export const isEscEvent = function (evt) {
+  return evt.keyCode === ESC_KEYCODE;
 };

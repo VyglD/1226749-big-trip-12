@@ -9,6 +9,7 @@ import TripEventView from "./view/trip-event.js";
 import TripEventEditView from "./view/trip-event-edit.js";
 import {generateTripEvent} from "./mock/trip-event.js";
 import {render, RenderPosition} from "./dom-util.js";
+import {isEscEvent} from "./util.js";
 
 const TRIP_EVENT_COUNT = 15;
 
@@ -46,16 +47,26 @@ const getTripEventElement = (tripEventData) => {
     tripEventEditNode.parentElement.replaceChild(tripEventNode, tripEventEditNode);
   };
 
+  const onEscKeyDown = (evt) => {
+    if (isEscEvent(evt)) {
+      evt.preventDefault();
+      replaceFormToPoint();
+      document.removeEventListener(`keydown`, onEscKeyDown);
+    }
+  };
+
   tripEventNode
     .querySelector(`.event__rollup-btn`)
     .addEventListener(`click`, () => {
       replacePointToForm();
+      document.addEventListener(`keydown`, onEscKeyDown);
     });
 
   tripEventEditNode
     .addEventListener(`submit`, (evt) => {
       evt.preventDefault();
       replaceFormToPoint();
+      document.addEventListener(`keydown`, onEscKeyDown);
     });
 
   return tripEventNode;
