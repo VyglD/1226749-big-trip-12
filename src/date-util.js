@@ -48,6 +48,10 @@ export const getDateAtShortFormat = (date) => {
 };
 
 export const getTripDateInterval = (tripEvents) => {
+  if (!tripEvents.length) {
+    return ``;
+  }
+
   const start = getDateAtShortFormat(tripEvents[0].timeStart).split(` `);
   const end = getDateAtShortFormat(tripEvents[tripEvents.length - 1].timeStart).split(` `);
 
