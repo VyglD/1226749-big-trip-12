@@ -1,11 +1,11 @@
 import {getSystemFormattedDate, getDateAtShortFormat} from "../date-util";
-import {createElement} from "../dom-util.js";
+import AbstractView from "./abstract.js";
 
-export default class TripDay {
+export default class TripDay extends AbstractView {
   constructor(date, index) {
+    super();
     this._date = date;
     this._index = index;
-    this._element = null;
   }
 
   getTemplate() {
@@ -22,17 +22,5 @@ export default class TripDay {
         </ul>
       </li>`
     );
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

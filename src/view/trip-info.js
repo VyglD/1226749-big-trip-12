@@ -1,12 +1,12 @@
 import {getTripDateInterval} from "../date-util.js";
-import {createElement} from "../dom-util.js";
+import AbstractView from "./abstract.js";
 
 const LIMIT_ROUTE_CITY = 3;
 
-export default class TripInfo {
+export default class TripInfo extends AbstractView {
   constructor(tripEvents) {
+    super();
     this._tripEvents = tripEvents;
-    this._element = null;
   }
 
 
@@ -39,17 +39,5 @@ export default class TripInfo {
         </div>
       </section>`
     );
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

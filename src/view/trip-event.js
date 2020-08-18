@@ -1,11 +1,11 @@
 import {generateTripEventLabel} from "../util.js";
 import {getHumanizeTime, getHumanizeTimeInterval} from "../date-util.js";
-import {createElement} from "../dom-util.js";
+import AbstractView from "./abstract.js";
 
-export default class TripEvent {
+export default class TripEvent extends AbstractView {
   constructor(tripEvent) {
+    super();
     this._tripEvent = tripEvent;
-    this._element = null;
   }
 
   _createTimeTemplate() {
@@ -76,17 +76,5 @@ export default class TripEvent {
         </div>
       </li>`
     );
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

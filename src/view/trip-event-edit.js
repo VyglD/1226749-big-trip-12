@@ -1,7 +1,7 @@
 import {TRIP_EVENT_TYPES, CITIES} from "../data.js";
 import {generateTripEventLabel} from "../util.js";
 import {getFormattedTimeString} from "../date-util.js";
-import {createElement} from "../dom-util.js";
+import AbstractView from "./abstract.js";
 
 const BLANK_TRIP_EVENT = {
   type: `Flight`,
@@ -15,10 +15,10 @@ const BLANK_TRIP_EVENT = {
   photos: []
 };
 
-export default class TripEventEdit {
+export default class TripEventEdit extends AbstractView {
   constructor(tripEvent = BLANK_TRIP_EVENT) {
+    super();
     this._tripEvent = tripEvent;
-    this._element = null;
   }
 
   _createTripFavoriteButtonTemplate() {
@@ -258,17 +258,5 @@ export default class TripEventEdit {
 
     </form>`
     );
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
