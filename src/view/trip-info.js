@@ -1,4 +1,4 @@
-import {getTripDateInterval} from "../date-util.js";
+import {getTripDateInterval} from "../utils/date.js";
 import AbstractView from "./abstract.js";
 
 const LIMIT_ROUTE_CITY = 3;

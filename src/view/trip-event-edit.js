@@ -1,6 +1,6 @@
 import {TRIP_EVENT_TYPES, CITIES} from "../data.js";
-import {generateTripEventLabel} from "../util.js";
-import {getFormattedTimeString} from "../date-util.js";
+import {generateTripEventLabel} from "../utils/common.js";
+import {getFormattedTimeString} from "../utils/date.js";
 import AbstractView from "./abstract.js";
 
 const BLANK_TRIP_EVENT = {

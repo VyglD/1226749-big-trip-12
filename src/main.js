@@ -5,12 +5,13 @@ import FilterView from "./view/filters.js";
 import SortView from "./view/sort.js";
 import DaysListView from "./view/trip-days.js";
 import TripDayView from "./view/trip-day.js";
+import TripEventsListView from "./view/trip-events-list.js";
 import TripEventView from "./view/trip-event.js";
 import TripEventEditView from "./view/trip-event-edit.js";
 import NoTripEventsView from "./view/no-trip-events.js";
 import {generateTripEvent} from "./mock/trip-event.js";
-import {render, RenderPosition} from "./dom-util.js";
-import {isEscEvent} from "./util.js";
+import {render, RenderPosition, replace, append} from "./utils/render.js";
+import {isEscEvent} from "./utils/common.js";
 
 const TRIP_EVENT_COUNT = 15;
 
@@ -40,13 +41,11 @@ const getTripEventElement = (tripEventData) => {
   const tripEventEditNode = new TripEventEditView(tripEventData);
 
   const replacePointToForm = () => {
-    tripEventNode.getElement().parentElement
-      .replaceChild(tripEventEditNode.getElement(), tripEventNode.getElement());
+    replace(tripEventEditNode, tripEventNode);
   };
 
   const replaceFormToPoint = () => {
-    tripEventEditNode.getElement().parentElement
-      .replaceChild(tripEventNode.getElement(), tripEventEditNode.getElement());
+    replace(tripEventNode, tripEventEditNode);
   };
 
   const closeEditForm = () => {
@@ -69,38 +68,40 @@ const getTripEventElement = (tripEventData) => {
   tripEventEditNode.setFormSubmitHandler(closeEditForm);
   tripEventEditNode.setFormCloseHandler(closeEditForm);
 
-  return tripEventNode.getElement();
+  return tripEventNode;
 };
 
 const renderBoard = (container, boardTripEvents) => {
   if (!boardTripEvents.length) {
     render(
         container,
-        new NoTripEventsView().getElement(),
+        new NoTripEventsView(),
         RenderPosition.BEFOREEND
     );
     return;
   }
 
-  const daysListNode = new DaysListView().getElement();
+  const daysListNode = new DaysListView();
   const tripDays = getTripEventsByDays(boardTripEvents);
 
   for (let i = 0; i < tripDays.size; i++) {
     const date = Array.from(tripDays.keys())[i];
 
-    const tripDay = new TripDayView(date, i + 1).getElement();
-    const tripDayList = tripDay.querySelector(`#trip-events__list-${i + 1}`);
+    const tripDay = new TripDayView(date, i + 1);
+    const tripDayList = new TripEventsListView(i + 1);
+
+    append(tripDay, tripDayList);
 
     for (const tripEventData of tripDays.get(date)) {
-      tripDayList.append(getTripEventElement(tripEventData));
+      append(tripDayList, getTripEventElement(tripEventData));
     }
 
-    daysListNode.append(tripDay);
+    append(daysListNode, tripDay);
   }
 
   render(
       container,
-      new SortView().getElement(),
+      new SortView(),
       RenderPosition.BEFOREEND
   );
   render(
@@ -116,10 +117,10 @@ const tripEvents = new Array(TRIP_EVENT_COUNT)
   .sort((a, b) => a.timeStart - b.timeStart);
 
 
-const tripInfoNode = new TripInfoView(tripEvents).getElement();
-const tripCostNode = new TripCostView(tripEvents).getElement();
+const tripInfoNode = new TripInfoView(tripEvents);
+const tripCostNode = new TripCostView(tripEvents);
 
-tripInfoNode.append(tripCostNode);
+append(tripInfoNode, tripCostNode);
 
 render(
     headerNode,
@@ -128,12 +129,12 @@ render(
 );
 render(
     menuHeaderNode,
-    new MenuView().getElement(),
+    new MenuView(),
     RenderPosition.AFTEREND
 );
 render(
     filtersHeaderNode,
-    new FilterView().getElement(),
+    new FilterView(),
     RenderPosition.AFTEREND
 );
 renderBoard(boardContainerNode, tripEvents);

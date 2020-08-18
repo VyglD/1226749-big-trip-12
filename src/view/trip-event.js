@@ -1,5 +1,5 @@
-import {generateTripEventLabel} from "../util.js";
-import {getHumanizeTime, getHumanizeTimeInterval} from "../date-util.js";
+import {generateTripEventLabel} from "../utils/common.js";
+import {getHumanizeTime, getHumanizeTimeInterval} from "../utils/date.js";
 import AbstractView from "./abstract.js";
 
 export default class TripEvent extends AbstractView {

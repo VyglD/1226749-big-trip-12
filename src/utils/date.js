@@ -1,4 +1,4 @@
-import {getRandomInteger} from "./util";
+import {getRandomInteger} from "./common";
 
 const REGEX_SYSTEM_DATE = /(\d{2}).(\d{2}).(\d{4})/;
 const END_OF_SINGLE_DIGITS = 10;

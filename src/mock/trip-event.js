@@ -1,6 +1,6 @@
 import {TRIP_EVENT_TYPES, CITIES, OFFERS, DESTINATIONS} from "../data.js";
-import {getRandomInteger, getRandomElement, getRandomSubArray} from "../util.js";
-import {generateTimeInterval} from "../date-util.js";
+import {getRandomInteger, getRandomElement, getRandomSubArray} from "../utils/common.js";
+import {generateTimeInterval} from "../utils/date.js";
 
 const DESTINATION_LIMIT = 5;
 const PHOTOS_LIMIT = 5;
