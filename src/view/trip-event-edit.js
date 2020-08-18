@@ -19,6 +19,8 @@ export default class TripEventEdit extends AbstractView {
   constructor(tripEvent = BLANK_TRIP_EVENT) {
     super();
     this._tripEvent = tripEvent;
+    this._formSubmitHandler = this._formSubmitHandler.bind(this);
+    this._formCloseHandler = this._formCloseHandler.bind(this);
   }
 
   _createTripFavoriteButtonTemplate() {
@@ -258,5 +260,26 @@ export default class TripEventEdit extends AbstractView {
 
     </form>`
     );
+  }
+
+  _formSubmitHandler(evt) {
+    evt.preventDefault();
+    this._callback.formSubmit();
+  }
+
+  setFormSubmitHandler(callback) {
+    this._callback.formSubmit = callback;
+    this.getElement().addEventListener(`submit`, this._formSubmitHandler);
+  }
+
+  _formCloseHandler(evt) {
+    evt.preventDefault();
+    this._callback.formClose();
+  }
+
+  setFormCloseHandler(callback) {
+    this._callback.formClose = callback;
+    this.getElement().querySelector(`.event__rollup-btn`)
+      .addEventListener(`click`, this._formCloseHandler);
   }
 }

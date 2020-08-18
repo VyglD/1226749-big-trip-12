@@ -36,40 +36,40 @@ const getTripEventsByDays = (tripPoints) => {
 };
 
 const getTripEventElement = (tripEventData) => {
-  const tripEventNode = new TripEventView(tripEventData).getElement();
-  const tripEventEditNode = new TripEventEditView(tripEventData).getElement();
+  const tripEventNode = new TripEventView(tripEventData);
+  const tripEventEditNode = new TripEventEditView(tripEventData);
 
   const replacePointToForm = () => {
-    tripEventNode.parentElement.replaceChild(tripEventEditNode, tripEventNode);
+    tripEventNode.getElement().parentElement
+      .replaceChild(tripEventEditNode.getElement(), tripEventNode.getElement());
   };
 
   const replaceFormToPoint = () => {
-    tripEventEditNode.parentElement.replaceChild(tripEventNode, tripEventEditNode);
+    tripEventEditNode.getElement().parentElement
+      .replaceChild(tripEventNode.getElement(), tripEventEditNode.getElement());
+  };
+
+  const closeEditForm = () => {
+    replaceFormToPoint();
+    document.removeEventListener(`keydown`, onEscKeyDown);
   };
 
   const onEscKeyDown = (evt) => {
     if (isEscEvent(evt)) {
       evt.preventDefault();
-      replaceFormToPoint();
-      document.removeEventListener(`keydown`, onEscKeyDown);
+      closeEditForm();
     }
   };
 
-  tripEventNode
-    .querySelector(`.event__rollup-btn`)
-    .addEventListener(`click`, () => {
-      replacePointToForm();
-      document.addEventListener(`keydown`, onEscKeyDown);
-    });
+  tripEventNode.setEditClickHandler(() => {
+    replacePointToForm();
+    document.addEventListener(`keydown`, onEscKeyDown);
+  });
 
-  tripEventEditNode
-    .addEventListener(`submit`, (evt) => {
-      evt.preventDefault();
-      replaceFormToPoint();
-      document.addEventListener(`keydown`, onEscKeyDown);
-    });
+  tripEventEditNode.setFormSubmitHandler(closeEditForm);
+  tripEventEditNode.setFormCloseHandler(closeEditForm);
 
-  return tripEventNode;
+  return tripEventNode.getElement();
 };
 
 const renderBoard = (container, boardTripEvents) => {
