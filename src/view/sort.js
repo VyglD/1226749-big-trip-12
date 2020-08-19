@@ -1,12 +1,24 @@
 import AbstractView from "./abstract.js";
+import {SortType} from "../data.js";
+
+const DAY = `Day`;
 
 export default class Sort extends AbstractView {
+  constructor() {
+    super();
+
+    this._sortTypeChangeHandler = this._sortTypeChangeHandler.bind(this);
+  }
+
   getTemplate() {
     return (
       `<form class="trip-events__trip-sort trip-sort" action="#" method="get">
-        <span class="trip-sort__item trip-sort__item--day">Day</span>
+        <span class="trip-sort__item trip-sort__item--day">${DAY}</span>
 
-        <div class="trip-sort__item trip-sort__item--event">
+        <div
+          class="trip-sort__item trip-sort__item--event"
+          data-sort-type="${SortType.DEFAULT}"
+        >
           <input
             id="sort-event"
             class="trip-sort__input visually-hidden"
@@ -18,7 +30,10 @@ export default class Sort extends AbstractView {
           <label class="trip-sort__btn" for="sort-event">Event</label>
         </div>
 
-        <div class="trip-sort__item trip-sort__item--time">
+        <div
+          class="trip-sort__item trip-sort__item--time"
+          data-sort-type="${SortType.TIME}"
+        >
           <input
             id="sort-time"
             class="trip-sort__input visually-hidden"
@@ -41,7 +56,10 @@ export default class Sort extends AbstractView {
           </label>
         </div>
 
-        <div class="trip-sort__item trip-sort__item--price">
+        <div
+          class="trip-sort__item trip-sort__item--price"
+          data-sort-type="${SortType.PRICE}"
+        >
           <input
             id="sort-price"
             class="trip-sort__input visually-hidden"
@@ -67,5 +85,30 @@ export default class Sort extends AbstractView {
         <span class="trip-sort__item trip-sort__item--offers">Offers</span>
       </form>`
     );
+  }
+
+  _showDay(visible) {
+    const dayItemNode = this.getElement().querySelector(`.trip-sort__item--day`);
+
+    if (visible) {
+      dayItemNode.textContent = DAY;
+    } else {
+      dayItemNode.textContent = ``;
+    }
+  }
+
+  _sortTypeChangeHandler(evt) {
+    if (!(evt.target.tagName === `LABEL` || evt.target.tagName === `INPUT`)) {
+      return;
+    }
+
+    this._showDay(evt.target.parentElement.dataset.sortType === SortType.DEFAULT);
+
+    this._callback.sortTypeChange(evt.target.parentElement.dataset.sortType);
+  }
+
+  setSortTypeChangeHandler(callback) {
+    this._callback.sortTypeChange = callback;
+    this.getElement().addEventListener(`click`, this._sortTypeChangeHandler);
   }
 }

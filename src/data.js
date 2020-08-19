@@ -122,3 +122,9 @@ export const FILTERS = [
   `future`,
   `past`
 ];
+
+export const SortType = {
+  DEFAULT: `Event`,
+  TIME: `Time`,
+  PRICE: `Price`
+};
