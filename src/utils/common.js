@@ -1,4 +1,4 @@
-import {TRIP_EVENT_TYPES} from "./data.js";
+import {TRIP_EVENT_TYPES} from "../data.js";
 
 const ESC_KEYCODE = 27;
 

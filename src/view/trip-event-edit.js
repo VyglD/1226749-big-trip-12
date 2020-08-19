@@ -1,7 +1,7 @@
 import {TRIP_EVENT_TYPES, CITIES} from "../data.js";
-import {generateTripEventLabel} from "../util.js";
-import {getFormattedTimeString} from "../date-util.js";
-import {createElement} from "../dom-util.js";
+import {generateTripEventLabel} from "../utils/common.js";
+import {getFormattedTimeString} from "../utils/date.js";
+import AbstractView from "./abstract.js";
 
 const BLANK_TRIP_EVENT = {
   type: `Flight`,
@@ -15,10 +15,12 @@ const BLANK_TRIP_EVENT = {
   photos: []
 };
 
-export default class TripEventEdit {
+export default class TripEventEdit extends AbstractView {
   constructor(tripEvent = BLANK_TRIP_EVENT) {
+    super();
     this._tripEvent = tripEvent;
-    this._element = null;
+    this._formSubmitHandler = this._formSubmitHandler.bind(this);
+    this._formCloseHandler = this._formCloseHandler.bind(this);
   }
 
   _createTripFavoriteButtonTemplate() {
@@ -260,15 +262,24 @@ export default class TripEventEdit {
     );
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  _formSubmitHandler(evt) {
+    evt.preventDefault();
+    this._callback.formSubmit();
   }
 
-  removeElement() {
-    this._element = null;
+  setFormSubmitHandler(callback) {
+    this._callback.formSubmit = callback;
+    this.getElement().addEventListener(`submit`, this._formSubmitHandler);
+  }
+
+  _formCloseHandler(evt) {
+    evt.preventDefault();
+    this._callback.formClose();
+  }
+
+  setFormCloseHandler(callback) {
+    this._callback.formClose = callback;
+    this.getElement().querySelector(`.event__rollup-btn`)
+      .addEventListener(`click`, this._formCloseHandler);
   }
 }

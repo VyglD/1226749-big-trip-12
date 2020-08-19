@@ -1,11 +1,12 @@
-import {generateTripEventLabel} from "../util.js";
-import {getHumanizeTime, getHumanizeTimeInterval} from "../date-util.js";
-import {createElement} from "../dom-util.js";
+import {generateTripEventLabel} from "../utils/common.js";
+import {getHumanizeTime, getHumanizeTimeInterval} from "../utils/date.js";
+import AbstractView from "./abstract.js";
 
-export default class TripEvent {
+export default class TripEvent extends AbstractView {
   constructor(tripEvent) {
+    super();
     this._tripEvent = tripEvent;
-    this._element = null;
+    this._editClickHandler = this._editClickHandler.bind(this);
   }
 
   _createTimeTemplate() {
@@ -78,15 +79,14 @@ export default class TripEvent {
     );
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  _editClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.editClick();
   }
 
-  removeElement() {
-    this._element = null;
+  setEditClickHandler(callback) {
+    this._callback.editClick = callback;
+    this.getElement().querySelector(`.event__rollup-btn`)
+      .addEventListener(`click`, this._editClickHandler);
   }
 }

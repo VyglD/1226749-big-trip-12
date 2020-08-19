@@ -2,15 +2,9 @@ import TripInfoView from "./view/trip-info.js";
 import TripCostView from "./view/trip-cost.js";
 import MenuView from "./view/menu.js";
 import FilterView from "./view/filters.js";
-import SortView from "./view/sort.js";
-import DaysListView from "./view/trip-days.js";
-import TripDayView from "./view/trip-day.js";
-import TripEventView from "./view/trip-event.js";
-import TripEventEditView from "./view/trip-event-edit.js";
-import NoTripEventsView from "./view/no-trip-events.js";
 import {generateTripEvent} from "./mock/trip-event.js";
-import {render, RenderPosition} from "./dom-util.js";
-import {isEscEvent} from "./util.js";
+import {render, RenderPosition, append} from "./utils/render.js";
+import TripPresenter from "./presenter/trip.js";
 
 const TRIP_EVENT_COUNT = 15;
 
@@ -19,107 +13,17 @@ const menuHeaderNode = headerNode.querySelectorAll(`.trip-controls h2`)[0];
 const filtersHeaderNode = headerNode.querySelectorAll(`.trip-controls h2`)[1];
 const boardContainerNode = document.querySelector(`.trip-events`);
 
-const getTripEventsByDays = (tripPoints) => {
-  const tripDays = new Map();
-
-  for (const tripEvent of tripPoints) {
-    const date = new Date(tripEvent.timeStart).setHours(0, 0, 0, 0);
-
-    if (tripDays.has(date)) {
-      tripDays.get(date).push(tripEvent);
-    } else {
-      tripDays.set(date, [tripEvent]);
-    }
-  }
-
-  return tripDays;
-};
-
-const getTripEventElement = (tripEventData) => {
-  const tripEventNode = new TripEventView(tripEventData).getElement();
-  const tripEventEditNode = new TripEventEditView(tripEventData).getElement();
-
-  const replacePointToForm = () => {
-    tripEventNode.parentElement.replaceChild(tripEventEditNode, tripEventNode);
-  };
-
-  const replaceFormToPoint = () => {
-    tripEventEditNode.parentElement.replaceChild(tripEventNode, tripEventEditNode);
-  };
-
-  const onEscKeyDown = (evt) => {
-    if (isEscEvent(evt)) {
-      evt.preventDefault();
-      replaceFormToPoint();
-      document.removeEventListener(`keydown`, onEscKeyDown);
-    }
-  };
-
-  tripEventNode
-    .querySelector(`.event__rollup-btn`)
-    .addEventListener(`click`, () => {
-      replacePointToForm();
-      document.addEventListener(`keydown`, onEscKeyDown);
-    });
-
-  tripEventEditNode
-    .addEventListener(`submit`, (evt) => {
-      evt.preventDefault();
-      replaceFormToPoint();
-      document.addEventListener(`keydown`, onEscKeyDown);
-    });
-
-  return tripEventNode;
-};
-
-const renderBoard = (container, boardTripEvents) => {
-  if (!boardTripEvents.length) {
-    render(
-        container,
-        new NoTripEventsView().getElement(),
-        RenderPosition.BEFOREEND
-    );
-    return;
-  }
-
-  const daysListNode = new DaysListView().getElement();
-  const tripDays = getTripEventsByDays(boardTripEvents);
-
-  for (let i = 0; i < tripDays.size; i++) {
-    const date = Array.from(tripDays.keys())[i];
-
-    const tripDay = new TripDayView(date, i + 1).getElement();
-    const tripDayList = tripDay.querySelector(`#trip-events__list-${i + 1}`);
-
-    for (const tripEventData of tripDays.get(date)) {
-      tripDayList.append(getTripEventElement(tripEventData));
-    }
-
-    daysListNode.append(tripDay);
-  }
-
-  render(
-      container,
-      new SortView().getElement(),
-      RenderPosition.BEFOREEND
-  );
-  render(
-      container,
-      daysListNode,
-      RenderPosition.BEFOREEND
-  );
-};
-
 const tripEvents = new Array(TRIP_EVENT_COUNT)
   .fill()
   .map(generateTripEvent)
   .sort((a, b) => a.timeStart - b.timeStart);
 
 
-const tripInfoNode = new TripInfoView(tripEvents).getElement();
-const tripCostNode = new TripCostView(tripEvents).getElement();
+const tripInfoNode = new TripInfoView(tripEvents);
+const tripCostNode = new TripCostView(tripEvents);
+const tripPresenter = new TripPresenter(boardContainerNode);
 
-tripInfoNode.append(tripCostNode);
+append(tripInfoNode, tripCostNode);
 
 render(
     headerNode,
@@ -128,12 +32,13 @@ render(
 );
 render(
     menuHeaderNode,
-    new MenuView().getElement(),
+    new MenuView(),
     RenderPosition.AFTEREND
 );
 render(
     filtersHeaderNode,
-    new FilterView().getElement(),
+    new FilterView(),
     RenderPosition.AFTEREND
 );
-renderBoard(boardContainerNode, tripEvents);
+
+tripPresenter.init(tripEvents);

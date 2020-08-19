@@ -1,9 +1,9 @@
-import {createElement} from "../dom-util.js";
+import AbstractView from "./abstract.js";
 
-export default class TripCost {
+export default class TripCost extends AbstractView {
   constructor(tripEvents) {
+    super();
     this._totalCost = this._getTotalTripCost(tripEvents);
-    this._element = null;
   }
 
   _getTotalTripCost(tripEvents) {
@@ -23,20 +23,11 @@ export default class TripCost {
   getTemplate() {
     return (
       `<p class="trip-info__cost">
-          Total: &euro;&nbsp;<span class="trip-info__cost-value">${this._totalCost}</span>
+          Total: &euro;&nbsp;
+          <span class="trip-info__cost-value">
+            ${this._totalCost}
+          </span>
         </p>`
     );
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
