@@ -45,49 +45,26 @@ export default class Trip {
 
     const replacePointToForm = () => {
       replace(tripEventEditComponent, tripEventComponent);
+      document.addEventListener(`keydown`, onEscKeyDown);
     };
 
     const replaceFormToPoint = () => {
       replace(tripEventComponent, tripEventEditComponent);
-    };
-
-    const closeEditForm = () => {
-      replaceFormToPoint();
       document.removeEventListener(`keydown`, onEscKeyDown);
     };
 
     const onEscKeyDown = (evt) => {
       if (isEscEvent(evt)) {
         evt.preventDefault();
-        closeEditForm();
+        replaceFormToPoint();
       }
     };
 
-    tripEventComponent.setEditClickHandler(() => {
-      replacePointToForm();
-      document.addEventListener(`keydown`, onEscKeyDown);
-    });
-
-    tripEventEditComponent.setFormSubmitHandler(closeEditForm);
-    tripEventEditComponent.setFormCloseHandler(closeEditForm);
+    tripEventComponent.setEditClickHandler(replacePointToForm);
+    tripEventEditComponent.setFormSubmitHandler(replaceFormToPoint);
+    tripEventEditComponent.setFormCloseHandler(replaceFormToPoint);
 
     return tripEventComponent;
-  }
-
-  _getSplitByDays() {
-    const tripDays = new Map();
-
-    for (const tripEvent of this._tripEvents.slice()) {
-      const date = new Date(tripEvent.timeStart).setHours(0, 0, 0, 0);
-
-      if (tripDays.has(date)) {
-        tripDays.get(date).push(tripEvent);
-      } else {
-        tripDays.set(date, [tripEvent]);
-      }
-    }
-
-    return tripDays;
   }
 
   _createDayTrip(date, index) {
@@ -100,25 +77,25 @@ export default class Trip {
 
     append(tripDayComponent, tripEventsListComponent);
 
-    this._tripEventsSplit.get(date).forEach((tripEventData) => {
+    this._tripSplit.get(date).forEach((tripEventData) => {
       append(tripEventsListComponent, this._getTripEventElement(tripEventData));
     });
 
     append(this._daysListComponent, tripDayComponent);
   }
 
-  _createTripByDays() {
-    Array.from(this._tripEventsSplit.keys()).forEach((key, index) => {
+  _createTripBoard() {
+    Array.from(this._tripSplit.keys()).forEach((key, index) => {
       this._createDayTrip(key, index + 1);
     });
   }
 
-  _getSplitBySort(tripEvents) {
-    return new Map([[`sort`, tripEvents]]);
+  _createSplitBySort(tripEvents) {
+    this._tripSplit = new Map([[`sort`, tripEvents]]);
   }
 
   _renderTripBoard() {
-    this._createTripByDays();
+    this._createTripBoard();
 
     render(
         this._tripContainer,
@@ -137,9 +114,38 @@ export default class Trip {
     this._renderTripBoard();
   }
 
+  _createSplitByDays() {
+    const tripDays = new Map();
+
+    for (const tripEvent of this._tripEvents.slice()) {
+      const date = new Date(tripEvent.timeStart).setHours(0, 0, 0, 0);
+
+      if (tripDays.has(date)) {
+        tripDays.get(date).push(tripEvent);
+      } else {
+        tripDays.set(date, [tripEvent]);
+      }
+    }
+
+    this._tripSplit = tripDays;
+  }
+
+  _createTripSplit() {
+    switch (this._currentSortType) {
+      case SortType.TIME:
+        this._createSplitBySort(this._getEventsByTime());
+        break;
+      case SortType.PRICE:
+        this._createSplitBySort(this._getEventsByPrice());
+        break;
+      default:
+        this._createSplitByDays();
+    }
+  }
+
   init(tripEvents) {
     this._tripEvents = tripEvents.slice();
-    this._tripEventsSplit = this._getSplitByDays();
+    this._createTripSplit();
 
     this._renderTrip();
   }
@@ -154,21 +160,6 @@ export default class Trip {
       .sort((eventA, eventB) => getTimeInterval(eventB) - getTimeInterval(eventA));
   }
 
-  _sortTripEvents(sortType) {
-    switch (sortType) {
-      case SortType.TIME:
-        this._tripEventsSplit = this._getSplitBySort(this._getEventsByTime());
-        break;
-      case SortType.PRICE:
-        this._tripEventsSplit = this._getSplitBySort(this._getEventsByPrice());
-        break;
-      default:
-        this._tripEventsSplit = this._getSplitByDays();
-    }
-
-    this._currentSortType = sortType;
-  }
-
   _clearTrip() {
     this._daysListComponent.getElement().innerHTML = ``;
   }
@@ -179,7 +170,8 @@ export default class Trip {
     }
 
     this._clearTrip();
-    this._sortTripEvents(sortType);
+    this._currentSortType = sortType;
+    this._createTripSplit();
     this._renderTripBoard();
   }
 }
