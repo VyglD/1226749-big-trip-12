@@ -1,6 +1,7 @@
-import {TRIP_EVENT_TYPES, CITIES, OFFERS, DESTINATIONS} from "../data.js";
+import {TRIP_EVENT_TYPES, CITIES, DESTINATIONS} from "../data.js";
 import {getRandomInteger, getRandomElement, getRandomSubArray} from "../utils/common.js";
 import {generateTimeInterval} from "../utils/date.js";
+import {generateOffer} from "./offer.js";
 
 const DESTINATION_LIMIT = 5;
 const PHOTOS_LIMIT = 5;
@@ -26,7 +27,7 @@ export const generateTripEvent = () => {
   return {
     type,
     city: getRandomElement(CITIES),
-    offers: getRandomSubArray(OFFERS.get(type)),
+    offers: generateOffer(type),
     timeStart: timeInterval.start,
     timeEnd: timeInterval.end,
     price: getRandomInteger(0, PRICE_LIMIT),
