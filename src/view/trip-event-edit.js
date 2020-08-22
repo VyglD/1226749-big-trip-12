@@ -67,6 +67,7 @@ export default class TripEventEdit extends AbstractView {
                 id="event-offer-${offer.name}-1"
                 type="checkbox"
                 name="event-offer-${offer.name}"
+                ${offer.checked ? `checked` : ``}
               >
               <label class="event__offer-label" for="event-offer-${offer.name}-1">
                 <span class="event__offer-title">${offer.name}</span>
@@ -251,7 +252,7 @@ export default class TripEventEdit extends AbstractView {
         </div>
 
         <button class="event__save-btn btn btn--blue" type="submit">Save</button>
-        <button class="event__reset-btn" type="reset">Cancel</button>
+        <button class="event__reset-btn" type="reset">Delete</button>
 
         ${this._createTripFavoriteButtonTemplate()}
       </header>

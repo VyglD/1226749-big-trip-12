@@ -1,4 +1,4 @@
-import {generateTripEventLabel} from "../utils/common.js";
+import {generateTripEventLabel, getTimeInterval} from "../utils/common.js";
 import {getHumanizeTime, getHumanizeTimeInterval} from "../utils/date.js";
 import AbstractView from "./abstract.js";
 
@@ -21,19 +21,23 @@ export default class TripEvent extends AbstractView {
           ${getHumanizeTime(timeEnd)}
         </time>
       </p>
-      <p class="event__duration">${getHumanizeTimeInterval(timeEnd - timeStart)}</p>`
+      <p class="event__duration">
+        ${getHumanizeTimeInterval(getTimeInterval(this._tripEvent))}
+      </p>`
     );
   }
 
   _createTripEventOffersTemplate() {
     return this._tripEvent.offers.map((offer) => {
-      return (
-        `<li class="event__offer">
-          <span class="event__offer-title">${offer.name}</span>
-          &plus;&euro;&nbsp;
-          <span class="event__offer-price">${offer.cost}</span>
-        </li>`
-      );
+      return offer.checked
+        ? (
+          `<li class="event__offer">
+            <span class="event__offer-title">${offer.name}</span>
+            &plus;&euro;&nbsp;
+            <span class="event__offer-price">${offer.cost}</span>
+          </li>`
+        )
+        : ``;
     }).join(``);
   }
 

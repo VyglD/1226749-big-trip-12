@@ -2,8 +2,8 @@ import {TRIP_EVENT_TYPES} from "../data.js";
 
 const ESC_KEYCODE = 27;
 
-const shuffleArray = function (arr) {
-  return arr.slice().sort(function () {
+const shuffleArray = (arr) => {
+  return arr.slice().sort(() => {
     return 0.5 - Math.random();
   });
 };
@@ -23,7 +23,7 @@ export const getRandomInteger = (a = 0, b = 1) => {
   return Math.floor(lower + Math.random() * (upper - lower + 1));
 };
 
-export const getRandomSubArray = function (arr, length = arr.length) {
+export const getRandomSubArray = (arr, length = arr.length) => {
   // Проверка допустимости использования переданного числа вместо длины массива
   length = Math.min(length, arr.length);
 
@@ -40,6 +40,10 @@ export const getRandomElement = (list) => {
   return list[randomIndex];
 };
 
-export const isEscEvent = function (evt) {
+export const isEscEvent = (evt) => {
   return evt.keyCode === ESC_KEYCODE;
+};
+
+export const getTimeInterval = (tripEvent) => {
+  return tripEvent.timeEnd - tripEvent.timeStart;
 };
