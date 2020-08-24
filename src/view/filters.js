@@ -1,7 +1,20 @@
 import {FILTERS} from "../data.js";
 import AbstractView from "./abstract.js";
 
-export default class Filter extends AbstractView {
+export default class FilterView extends AbstractView {
+  getTemplate() {
+    const filterItemsTemplate = FILTERS
+      .map((filter, index) => this._createFilterItemTemplate(filter, index === 0))
+      .join(``);
+
+    return (
+      `<form class="trip-filters" action="#" method="get">
+        ${filterItemsTemplate}
+        <button class="visually-hidden" type="submit">Accept filter</button>
+      </form>`
+    );
+  }
+
   _createFilterItemTemplate(filter, isChecked) {
     return (
       `<div class="trip-filters__filter">
@@ -17,19 +30,6 @@ export default class Filter extends AbstractView {
           ${filter}
         </label>
       </div>`
-    );
-  }
-
-  getTemplate() {
-    const filterItemsTemplate = FILTERS
-      .map((filter, index) => this._createFilterItemTemplate(filter, index === 0))
-      .join(``);
-
-    return (
-      `<form class="trip-filters" action="#" method="get">
-        ${filterItemsTemplate}
-        <button class="visually-hidden" type="submit">Accept filter</button>
-      </form>`
     );
   }
 }

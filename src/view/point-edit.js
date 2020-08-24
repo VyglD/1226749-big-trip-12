@@ -1,9 +1,9 @@
-import {TRIP_EVENT_TYPES, CITIES} from "../data.js";
-import {generateTripEventLabel} from "../utils/common.js";
+import {POINTS_TYPE, CITIES} from "../data.js";
+import {generatePointLabel} from "../utils/common.js";
 import {getFormattedTimeString} from "../utils/date.js";
 import AbstractView from "./abstract.js";
 
-const BLANK_TRIP_EVENT = {
+const BLANK_POINT = {
   type: `Flight`,
   city: ``,
   offers: [],
@@ -12,181 +12,20 @@ const BLANK_TRIP_EVENT = {
   price: ``,
   isFavorite: `new`,
   destination: [],
-  photos: []
+  photos: [],
+  isNew: true
 };
 
-export default class TripEventEdit extends AbstractView {
-  constructor(tripEvent = BLANK_TRIP_EVENT) {
+export default class PointEditView extends AbstractView {
+  constructor(point = BLANK_POINT) {
     super();
-    this._tripEvent = tripEvent;
+    this._point = point;
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._formCloseHandler = this._formCloseHandler.bind(this);
   }
 
-  _createTripFavoriteButtonTemplate() {
-    const {isFavorite} = this._tripEvent;
-
-    return isFavorite !== `new`
-      ? (
-        `<input
-          id="event-favorite-1"
-          class="event__favorite-checkbox visually-hidden"
-          type="checkbox"
-          name="event-favorite"
-          ${isFavorite ? `checked` : ``}
-        >
-        <label class="event__favorite-btn" for="event-favorite-1">
-          <span class="visually-hidden">Add to favorite</span>
-          <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
-            <path
-              d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"
-            />
-          </svg>
-        </label>
-
-        <button class="event__rollup-btn" type="button">
-          <span class="visually-hidden">Open event</span>
-        </button>`
-      )
-      : ``;
-  }
-
-  _createTripOffersSectionTemplate() {
-    const {offers} = this._tripEvent;
-
-    return offers.length
-      ? (
-        `<section class="event__section event__section--offers">
-          <h3 class="event__section-title event__section-title--offers">Offers</h3>
-          <div class="event__available-offers">
-        ${offers.map((offer) => {
-          return (
-            `<div class="event__offer-selector">
-              <input
-                class="event__offer-checkbox visually-hidden"
-                id="event-offer-${offer.name}-1"
-                type="checkbox"
-                name="event-offer-${offer.name}"
-                ${offer.checked ? `checked` : ``}
-              >
-              <label class="event__offer-label" for="event-offer-${offer.name}-1">
-                <span class="event__offer-title">${offer.name}</span>
-                &plus;&euro;&nbsp;
-                <span class="event__offer-price">${offer.cost}</span>
-              </label>
-            </div>`
-          );
-        }).join(``)}
-          </div>
-        </section>`
-      )
-      : ``;
-  }
-
-  _createTripDestinationDescriptionTemplate() {
-    const {destination, photos} = this._tripEvent;
-
-    return (destination.length || photos.length)
-      ? (
-        `<section class="event__section event__section--destination">
-          <h3 class="event__section-title event__section-title--destination">Destination</h3>
-          <p class="event__destination-description">
-            ${destination.join(` `)}
-          </p>
-
-          ${this._createTripDestinationPhotosTemplate()}
-
-        </section>`
-      )
-      : ``;
-  }
-
-  _createTripDestinationPhotosTemplate() {
-    const {photos} = this._tripEvent;
-
-    return photos.length
-      ? (
-        `<div class="event__photos-container">
-          <div class="event__photos-tape">
-            ${photos.map((src) => `<img class="event__photo" src="${src}" alt="Event photo">`)
-              .join(``)}
-          </div>
-        </div>`
-      )
-      : ``;
-  }
-
-  _createTripDetailsTemplate() {
-    const {offers, destination, photos} = this._tripEvent;
-    return (destination.length || photos.length || offers.length)
-      ? (`<section class="event__details">
-          ${this._createTripOffersSectionTemplate()}
-          ${this._createTripDestinationDescriptionTemplate()}
-        </section>`
-      )
-      : ``;
-  }
-
-  _createTripCityTemplate() {
-    const {type, city} = this._tripEvent;
-
-    return (
-      `<div class="event__field-group event__field-group--destination">
-        <label class="event__label event__type-output" for="event-destination-1">
-          ${generateTripEventLabel(type)}
-        </label>
-        <input
-          class="event__input event__input--destination"
-          id="event-destination-1"
-          type="text"
-          name="event-destination"
-          value="${city}"
-          list="destination-list-1"
-        >
-        <datalist id="destination-list-1">
-          ${CITIES.map((it) => `<option value="${it}"></option>`).join(``)}
-        </datalist>
-      </div>`
-    );
-  }
-
-  _createTypeItemTripEventTemplate(type, isChecked) {
-    return (
-      `<div class="event__type-item">
-        <input
-          id="event-type-${type.toLowerCase()}-1"
-          class="event__type-input visually-hidden"
-          type="radio"
-          name="event-type"
-          value="${type.toLowerCase()}"
-          ${isChecked ? `checked` : ``}
-        >
-        <label
-          class="event__type-label event__type-label--${type.toLowerCase()}"
-          for="event-type-${type.toLowerCase()}-1"
-        >${type}</label>
-      </div>`
-    );
-  }
-
-  _createTypesListTripEventTemplate() {
-    const checkedType = this._tripEvent.type;
-
-    return Array.from(TRIP_EVENT_TYPES.entries())
-      .map(([kind, types]) => {
-        return (
-          `<fieldset class="event__type-group">
-          <legend class="visually-hidden">${kind}</legend>
-          ${types.map((type) => {
-            return this._createTypeItemTripEventTemplate(type, type === checkedType);
-          }).join(``)}
-          </fieldset>`
-        );
-      }).join(``);
-  }
-
   getTemplate() {
-    const {type, timeStart, timeEnd, price} = this._tripEvent;
+    const {type, timeStart, timeEnd, price} = this._point;
 
     return (
       `<form class="trip-events__item event event--edit" action="#" method="post">
@@ -208,7 +47,7 @@ export default class TripEventEdit extends AbstractView {
             type="checkbox"
           >
           <div class="event__type-list">
-            ${this._createTypesListTripEventTemplate()}
+            ${this._createTypesListTemplate()}
           </div>
         </div>
 
@@ -263,9 +102,10 @@ export default class TripEventEdit extends AbstractView {
     );
   }
 
-  _formSubmitHandler(evt) {
-    evt.preventDefault();
-    this._callback.formSubmit();
+  setFormCloseHandler(callback) {
+    this._callback.formClose = callback;
+    this.getElement().querySelector(`.event__rollup-btn`)
+      .addEventListener(`click`, this._formCloseHandler);
   }
 
   setFormSubmitHandler(callback) {
@@ -273,14 +113,176 @@ export default class TripEventEdit extends AbstractView {
     this.getElement().addEventListener(`submit`, this._formSubmitHandler);
   }
 
+  _createTripFavoriteButtonTemplate() {
+    const {isFavorite, isNew} = this._point;
+
+    return !isNew
+      ? (
+        `<input
+          id="event-favorite-1"
+          class="event__favorite-checkbox visually-hidden"
+          type="checkbox"
+          name="event-favorite"
+          ${isFavorite ? `checked` : ``}
+        >
+        <label class="event__favorite-btn" for="event-favorite-1">
+          <span class="visually-hidden">Add to favorite</span>
+          <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
+            <path
+              d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"
+            />
+          </svg>
+        </label>
+
+        <button class="event__rollup-btn" type="button">
+          <span class="visually-hidden">Open event</span>
+        </button>`
+      )
+      : ``;
+  }
+
+  _createTripOffersSectionTemplate() {
+    const {offers} = this._point;
+
+    return offers.length
+      ? (
+        `<section class="event__section event__section--offers">
+          <h3 class="event__section-title event__section-title--offers">Offers</h3>
+          <div class="event__available-offers">
+        ${offers.map((offer) => {
+          return (
+            `<div class="event__offer-selector">
+              <input
+                class="event__offer-checkbox visually-hidden"
+                id="event-offer-${offer.name}-1"
+                type="checkbox"
+                name="event-offer-${offer.name}"
+                ${offer.checked ? `checked` : ``}
+              >
+              <label class="event__offer-label" for="event-offer-${offer.name}-1">
+                <span class="event__offer-title">${offer.name}</span>
+                &plus;&euro;&nbsp;
+                <span class="event__offer-price">${offer.cost}</span>
+              </label>
+            </div>`
+          );
+        }).join(``)}
+          </div>
+        </section>`
+      )
+      : ``;
+  }
+
+  _createTripDestinationDescriptionTemplate() {
+    const {destination, photos} = this._point;
+
+    return (destination.length || photos.length)
+      ? (
+        `<section class="event__section event__section--destination">
+          <h3 class="event__section-title event__section-title--destination">
+            Destination
+          </h3>
+          <p class="event__destination-description">
+            ${destination.join(` `)}
+          </p>
+
+          ${this._createTripDestinationPhotosTemplate()}
+        </section>`
+      )
+      : ``;
+  }
+
+  _createTripDestinationPhotosTemplate() {
+    const {photos} = this._point;
+
+    return photos.length
+      ? (
+        `<div class="event__photos-container">
+          <div class="event__photos-tape">
+            ${photos.map((src) => `<img class="event__photo" src="${src}" alt="Event photo">`)
+              .join(``)}
+          </div>
+        </div>`
+      )
+      : ``;
+  }
+
+  _createTripDetailsTemplate() {
+    const {offers, destination, photos} = this._point;
+    return (destination.length || photos.length || offers.length)
+      ? (`<section class="event__details">
+          ${this._createTripOffersSectionTemplate()}
+          ${this._createTripDestinationDescriptionTemplate()}
+        </section>`
+      )
+      : ``;
+  }
+
+  _createTripCityTemplate() {
+    const {type, city} = this._point;
+
+    return (
+      `<div class="event__field-group event__field-group--destination">
+        <label class="event__label event__type-output" for="event-destination-1">
+          ${generatePointLabel(type)}
+        </label>
+        <input
+          class="event__input event__input--destination"
+          id="event-destination-1"
+          type="text"
+          name="event-destination"
+          value="${city}"
+          list="destination-list-1"
+        >
+        <datalist id="destination-list-1">
+          ${CITIES.map((it) => `<option value="${it}"></option>`).join(``)}
+        </datalist>
+      </div>`
+    );
+  }
+
+  _createTypesListItemTemplate(type, isChecked) {
+    return (
+      `<div class="event__type-item">
+        <input
+          id="event-type-${type.toLowerCase()}-1"
+          class="event__type-input visually-hidden"
+          type="radio"
+          name="event-type"
+          value="${type.toLowerCase()}"
+          ${isChecked ? `checked` : ``}
+        >
+        <label
+          class="event__type-label event__type-label--${type.toLowerCase()}"
+          for="event-type-${type.toLowerCase()}-1"
+        >${type}</label>
+      </div>`
+    );
+  }
+
+  _createTypesListTemplate() {
+    const checkedType = this._point.type;
+
+    return Array.from(POINTS_TYPE.entries())
+      .map(([kind, types]) => {
+        return (
+          `<fieldset class="event__type-group">
+            <legend class="visually-hidden">${kind}</legend>
+            ${types.map((type) => {
+            return this._createTypesListItemTemplate(type, type === checkedType);
+          }).join(``)}
+          </fieldset>`
+        );
+      }).join(``);
+  }
+
+  _formSubmitHandler(evt) {
+    evt.preventDefault();
+    this._callback.formSubmit();
+  }
+
   _formCloseHandler(evt) {
     evt.preventDefault();
     this._callback.formClose();
-  }
-
-  setFormCloseHandler(callback) {
-    this._callback.formClose = callback;
-    this.getElement().querySelector(`.event__rollup-btn`)
-      .addEventListener(`click`, this._formCloseHandler);
   }
 }

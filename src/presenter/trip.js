@@ -1,30 +1,37 @@
 import SortView from "../view/sort.js";
-import DaysListView from "../view/trip-days.js";
-import TripDayView from "../view/trip-day.js";
-import TripEventsListView from "../view/trip-events-list.js";
-import TripEventView from "../view/trip-event.js";
-import TripEventEditView from "../view/trip-event-edit.js";
-import NoTripEventsView from "../view/no-trip-events.js";
+import DaysListView from "../view/days-list.js";
+import DayView from "../view/day.js";
+import PointsListView from "../view/points-list.js";
+import PointView from "../view/point.js";
+import PointEditView from "../view/point-edit.js";
+import NoPointsView from "../view/no-points.js";
 import {render, RenderPosition, replace, append} from "../utils/render.js";
 import {isEscEvent, getTimeInterval} from "../utils/common.js";
 import {SortType} from "../data.js";
 
-export default class Trip {
+export default class TripPresenter {
   constructor(tripContainer) {
     this._tripContainer = tripContainer;
     this._currentSortType = SortType.DEFAULT;
 
-    this._noTripEventsComponent = new NoTripEventsView();
+    this._noPointsComponent = new NoPointsView();
     this._sortComponent = new SortView();
     this._daysListComponent = new DaysListView();
 
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
   }
 
-  _renderNoTripEvents() {
+  init(points) {
+    this._points = points.slice();
+    this._createTripSplit();
+
+    this._renderTrip();
+  }
+
+  _renderNoPoints() {
     render(
         this._tripContainer,
-        this._noTripEventsComponent,
+        this._noPointsComponent,
         RenderPosition.BEFOREEND
     );
   }
@@ -39,17 +46,17 @@ export default class Trip {
     this._sortComponent.setSortTypeChangeHandler(this._handleSortTypeChange);
   }
 
-  _getTripEventElement(tripEventData) {
-    const tripEventComponent = new TripEventView(tripEventData);
-    const tripEventEditComponent = new TripEventEditView(tripEventData);
+  _getPoint(pointData) {
+    const pointComponent = new PointView(pointData);
+    const pointEditComponent = new PointEditView(pointData);
 
     const replacePointToForm = () => {
-      replace(tripEventEditComponent, tripEventComponent);
+      replace(pointEditComponent, pointComponent);
       document.addEventListener(`keydown`, onEscKeyDown);
     };
 
     const replaceFormToPoint = () => {
-      replace(tripEventComponent, tripEventEditComponent);
+      replace(pointComponent, pointEditComponent);
       document.removeEventListener(`keydown`, onEscKeyDown);
     };
 
@@ -60,42 +67,39 @@ export default class Trip {
       }
     };
 
-    tripEventComponent.setEditClickHandler(replacePointToForm);
-    tripEventEditComponent.setFormSubmitHandler(replaceFormToPoint);
-    tripEventEditComponent.setFormCloseHandler(replaceFormToPoint);
+    pointComponent.setEditClickHandler(replacePointToForm);
+    pointEditComponent.setFormSubmitHandler(replaceFormToPoint);
+    pointEditComponent.setFormCloseHandler(replaceFormToPoint);
 
-    return tripEventComponent;
+    return pointComponent;
   }
 
-  _createDayTrip(date, index) {
-    if (date === `sort`) {
-      index = ``;
-    }
+  _createDay(date, index) {
+    const isSort = date === `sort` ? true : false;
+    const tripDayComponent = new DayView(date, index, !isSort);
+    const pointsListComponent = new PointsListView(index);
 
-    const tripDayComponent = new TripDayView(date, index);
-    const tripEventsListComponent = new TripEventsListView(index);
+    append(tripDayComponent, pointsListComponent);
 
-    append(tripDayComponent, tripEventsListComponent);
-
-    this._tripSplit.get(date).forEach((tripEventData) => {
-      append(tripEventsListComponent, this._getTripEventElement(tripEventData));
+    this._tripSplit.get(date).forEach((pointData) => {
+      append(pointsListComponent, this._getPoint(pointData));
     });
 
     append(this._daysListComponent, tripDayComponent);
   }
 
-  _createTripBoard() {
+  _createDaysList() {
     Array.from(this._tripSplit.keys()).forEach((key, index) => {
-      this._createDayTrip(key, index + 1);
+      this._createDay(key, index + 1);
     });
   }
 
-  _createSplitBySort(tripEvents) {
-    this._tripSplit = new Map([[`sort`, tripEvents]]);
+  _createSplitBySort(points) {
+    this._tripSplit = new Map([[`sort`, points]]);
   }
 
   _renderTripBoard() {
-    this._createTripBoard();
+    this._createDaysList();
 
     render(
         this._tripContainer,
@@ -105,8 +109,8 @@ export default class Trip {
   }
 
   _renderTrip() {
-    if (!this._tripEvents.length) {
-      this._renderNoTripEvents();
+    if (!this._points.length) {
+      this._renderNoPoints();
       return;
     }
 
@@ -117,13 +121,13 @@ export default class Trip {
   _createSplitByDays() {
     const tripDays = new Map();
 
-    for (const tripEvent of this._tripEvents.slice()) {
-      const date = new Date(tripEvent.timeStart).setHours(0, 0, 0, 0);
+    for (const point of this._points.slice()) {
+      const date = new Date(point.timeStart).setHours(0, 0, 0, 0);
 
       if (tripDays.has(date)) {
-        tripDays.get(date).push(tripEvent);
+        tripDays.get(date).push(point);
       } else {
-        tripDays.set(date, [tripEvent]);
+        tripDays.set(date, [point]);
       }
     }
 
@@ -133,31 +137,24 @@ export default class Trip {
   _createTripSplit() {
     switch (this._currentSortType) {
       case SortType.TIME:
-        this._createSplitBySort(this._getEventsByTime());
+        this._createSplitBySort(this._getPointsByTime());
         break;
       case SortType.PRICE:
-        this._createSplitBySort(this._getEventsByPrice());
+        this._createSplitBySort(this._getPointsByPrice());
         break;
       default:
         this._createSplitByDays();
     }
   }
 
-  init(tripEvents) {
-    this._tripEvents = tripEvents.slice();
-    this._createTripSplit();
-
-    this._renderTrip();
+  _getPointsByPrice() {
+    return this._points.slice()
+      .sort((point1, point2) => point2.price - point1.price);
   }
 
-  _getEventsByPrice() {
-    return this._tripEvents.slice()
-      .sort((eventA, eventB) => eventB.price - eventA.price);
-  }
-
-  _getEventsByTime() {
-    return this._tripEvents.slice()
-      .sort((eventA, eventB) => getTimeInterval(eventB) - getTimeInterval(eventA));
+  _getPointsByTime() {
+    return this._points.slice()
+      .sort((point1, point2) => getTimeInterval(point2) - getTimeInterval(point1));
   }
 
   _clearTrip() {

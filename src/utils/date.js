@@ -47,13 +47,13 @@ export const getDateAtShortFormat = (date) => {
   return date.toLocaleString(`en-US`, {month: `short`, day: `2-digit`});
 };
 
-export const getTripDateInterval = (tripEvents) => {
-  if (!tripEvents.length) {
+export const getTripDateInterval = (points) => {
+  if (!points.length) {
     return ``;
   }
 
-  const start = getDateAtShortFormat(tripEvents[0].timeStart).split(` `);
-  const end = getDateAtShortFormat(tripEvents[tripEvents.length - 1].timeStart).split(` `);
+  const start = getDateAtShortFormat(points[0].timeStart).split(` `);
+  const end = getDateAtShortFormat(points[points.length - 1].timeStart).split(` `);
 
   if (start[0] === end[0]) {
     end[0] = ``;

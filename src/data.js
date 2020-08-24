@@ -1,4 +1,4 @@
-export const TRIP_EVENT_TYPES = new Map([
+export const POINTS_TYPE = new Map([
   [`Transfer`, [
     `Taxi`,
     `Bus`,

@@ -1,4 +1,4 @@
-import {TRIP_EVENT_TYPES} from "../data.js";
+import {POINTS_TYPE} from "../data.js";
 
 const ESC_KEYCODE = 27;
 
@@ -8,8 +8,8 @@ const shuffleArray = (arr) => {
   });
 };
 
-export const generateTripEventLabel = (type) => {
-  if (TRIP_EVENT_TYPES.get(`Activity`).includes(type)) {
+export const generatePointLabel = (type) => {
+  if (POINTS_TYPE.get(`Activity`).includes(type)) {
     return `${type} in`;
   }
 
@@ -44,6 +44,6 @@ export const isEscEvent = (evt) => {
   return evt.keyCode === ESC_KEYCODE;
 };
 
-export const getTimeInterval = (tripEvent) => {
-  return tripEvent.timeEnd - tripEvent.timeStart;
+export const getTimeInterval = (point) => {
+  return point.timeEnd - point.timeStart;
 };

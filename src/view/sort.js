@@ -3,7 +3,7 @@ import {SortType} from "../data.js";
 
 const DAY = `Day`;
 
-export default class Sort extends AbstractView {
+export default class SortView extends AbstractView {
   constructor() {
     super();
 
@@ -87,6 +87,11 @@ export default class Sort extends AbstractView {
     );
   }
 
+  setSortTypeChangeHandler(callback) {
+    this._callback.sortTypeChange = callback;
+    this.getElement().addEventListener(`click`, this._sortTypeChangeHandler);
+  }
+
   _showDay(visible) {
     const dayItemNode = this.getElement().querySelector(`.trip-sort__item--day`);
 
@@ -102,13 +107,10 @@ export default class Sort extends AbstractView {
       return;
     }
 
-    this._showDay(evt.target.parentElement.dataset.sortType === SortType.DEFAULT);
+    const currentSortType = evt.target.parentElement.dataset.sortType;
 
-    this._callback.sortTypeChange(evt.target.parentElement.dataset.sortType);
-  }
+    this._showDay(currentSortType === SortType.DEFAULT);
 
-  setSortTypeChangeHandler(callback) {
-    this._callback.sortTypeChange = callback;
-    this.getElement().addEventListener(`click`, this._sortTypeChangeHandler);
+    this._callback.sortTypeChange(currentSortType);
   }
 }
