@@ -2,11 +2,10 @@ import SortView from "../view/sort.js";
 import DaysListView from "../view/days-list.js";
 import DayView from "../view/day.js";
 import PointsListView from "../view/points-list.js";
-import PointView from "../view/point.js";
-import PointEditView from "../view/point-edit.js";
 import NoPointsView from "../view/no-points.js";
-import {render, RenderPosition, replace, append} from "../utils/render.js";
-import {isEscEvent, getTimeInterval} from "../utils/common.js";
+import PointPresenter from "../presenter/point.js";
+import {render, RenderPosition, append} from "../utils/render.js";
+import {getTimeInterval} from "../utils/common.js";
 import {SortType} from "../data.js";
 
 export default class TripPresenter {
@@ -18,7 +17,7 @@ export default class TripPresenter {
     this._sortComponent = new SortView();
     this._daysListComponent = new DaysListView();
 
-    this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
+    this._sortTypeChangeHandler = this._sortTypeChangeHandler.bind(this);
   }
 
   init(points) {
@@ -43,35 +42,7 @@ export default class TripPresenter {
         RenderPosition.BEFOREEND
     );
 
-    this._sortComponent.setSortTypeChangeHandler(this._handleSortTypeChange);
-  }
-
-  _getPoint(pointData) {
-    const pointComponent = new PointView(pointData);
-    const pointEditComponent = new PointEditView(pointData);
-
-    const replacePointToForm = () => {
-      replace(pointEditComponent, pointComponent);
-      document.addEventListener(`keydown`, onEscKeyDown);
-    };
-
-    const replaceFormToPoint = () => {
-      replace(pointComponent, pointEditComponent);
-      document.removeEventListener(`keydown`, onEscKeyDown);
-    };
-
-    const onEscKeyDown = (evt) => {
-      if (isEscEvent(evt)) {
-        evt.preventDefault();
-        replaceFormToPoint();
-      }
-    };
-
-    pointComponent.setEditClickHandler(replacePointToForm);
-    pointEditComponent.setFormSubmitHandler(replaceFormToPoint);
-    pointEditComponent.setFormCloseHandler(replaceFormToPoint);
-
-    return pointComponent;
+    this._sortComponent.setSortTypeChangeHandler(this._sortTypeChangeHandler);
   }
 
   _createDay(date, index) {
@@ -82,7 +53,7 @@ export default class TripPresenter {
     append(tripDayComponent, pointsListComponent);
 
     this._tripSplit.get(date).forEach((pointData) => {
-      append(pointsListComponent, this._getPoint(pointData));
+      new PointPresenter(pointsListComponent).init(pointData);
     });
 
     append(this._daysListComponent, tripDayComponent);
@@ -161,7 +132,7 @@ export default class TripPresenter {
     this._daysListComponent.getElement().innerHTML = ``;
   }
 
-  _handleSortTypeChange(sortType) {
+  _sortTypeChangeHandler(sortType) {
     if (this._currentSortType === sortType) {
       return;
     }
