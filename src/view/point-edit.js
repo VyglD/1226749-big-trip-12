@@ -10,7 +10,7 @@ const BLANK_POINT = {
   timeStart: new Date(),
   timeEnd: new Date(),
   price: ``,
-  isFavorite: `new`,
+  isFavorite: false,
   destination: [],
   photos: [],
   isNew: true
@@ -19,13 +19,15 @@ const BLANK_POINT = {
 export default class PointEditView extends AbstractView {
   constructor(point = BLANK_POINT) {
     super();
-    this._point = point;
+    this._data = point;
+
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._formCloseHandler = this._formCloseHandler.bind(this);
+    this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
   }
 
   getTemplate() {
-    const {type, timeStart, timeEnd, price} = this._point;
+    const {type, timeStart, timeEnd, price} = this._data;
 
     return (
       `<form class="trip-events__item event event--edit" action="#" method="post">
@@ -113,8 +115,14 @@ export default class PointEditView extends AbstractView {
     this.getElement().addEventListener(`submit`, this._formSubmitHandler);
   }
 
+  setFavoriteClickHandler(callback) {
+    this._callback.favoriteClick = callback;
+    this.getElement().querySelector(`.event__favorite-btn`)
+      .addEventListener(`click`, this._favoriteClickHandler);
+  }
+
   _createTripFavoriteButtonTemplate() {
-    const {isFavorite, isNew} = this._point;
+    const {isFavorite, isNew} = this._data;
 
     return !isNew
       ? (
@@ -142,7 +150,7 @@ export default class PointEditView extends AbstractView {
   }
 
   _createTripOffersSectionTemplate() {
-    const {offers} = this._point;
+    const {offers} = this._data;
 
     return offers.length
       ? (
@@ -174,7 +182,7 @@ export default class PointEditView extends AbstractView {
   }
 
   _createTripDestinationDescriptionTemplate() {
-    const {destination, photos} = this._point;
+    const {destination, photos} = this._data;
 
     return (destination.length || photos.length)
       ? (
@@ -193,7 +201,7 @@ export default class PointEditView extends AbstractView {
   }
 
   _createTripDestinationPhotosTemplate() {
-    const {photos} = this._point;
+    const {photos} = this._data;
 
     return photos.length
       ? (
@@ -208,7 +216,7 @@ export default class PointEditView extends AbstractView {
   }
 
   _createTripDetailsTemplate() {
-    const {offers, destination, photos} = this._point;
+    const {offers, destination, photos} = this._data;
     return (destination.length || photos.length || offers.length)
       ? (`<section class="event__details">
           ${this._createTripOffersSectionTemplate()}
@@ -219,7 +227,7 @@ export default class PointEditView extends AbstractView {
   }
 
   _createTripCityTemplate() {
-    const {type, city} = this._point;
+    const {type, city} = this._data;
 
     return (
       `<div class="event__field-group event__field-group--destination">
@@ -261,7 +269,7 @@ export default class PointEditView extends AbstractView {
   }
 
   _createTypesListTemplate() {
-    const checkedType = this._point.type;
+    const checkedType = this._data.type;
 
     return Array.from(POINTS_TYPE.entries())
       .map(([kind, types]) => {
@@ -284,5 +292,10 @@ export default class PointEditView extends AbstractView {
   _formCloseHandler(evt) {
     evt.preventDefault();
     this._callback.formClose();
+  }
+
+  _favoriteClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.favoriteClick();
   }
 }

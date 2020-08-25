@@ -5,19 +5,22 @@ import PointsListView from "../view/points-list.js";
 import NoPointsView from "../view/no-points.js";
 import PointPresenter from "../presenter/point.js";
 import {render, RenderPosition, append} from "../utils/render.js";
-import {getTimeInterval} from "../utils/common.js";
+import {getTimeInterval, updateItemArray} from "../utils/common.js";
 import {SortType} from "../data.js";
 
 export default class TripPresenter {
   constructor(tripContainer) {
     this._tripContainer = tripContainer;
+
     this._currentSortType = SortType.DEFAULT;
+    this._existPointPresenters = {};
 
     this._noPointsComponent = new NoPointsView();
     this._sortComponent = new SortView();
     this._daysListComponent = new DaysListView();
 
     this._sortTypeChangeHandler = this._sortTypeChangeHandler.bind(this);
+    this._pointDataChangeHandler = this._pointDataChangeHandler.bind(this);
   }
 
   init(points) {
@@ -45,6 +48,12 @@ export default class TripPresenter {
     this._sortComponent.setSortTypeChangeHandler(this._sortTypeChangeHandler);
   }
 
+  _createPoint(container, pointData) {
+    const pointPresenter = new PointPresenter(container, this._pointDataChangeHandler);
+    pointPresenter.init(pointData);
+    this._existPointPresenters[pointData.id] = pointPresenter;
+  }
+
   _createDay(date, index) {
     const isSort = date === `sort` ? true : false;
     const tripDayComponent = new DayView(date, index, !isSort);
@@ -53,7 +62,7 @@ export default class TripPresenter {
     append(tripDayComponent, pointsListComponent);
 
     this._tripSplit.get(date).forEach((pointData) => {
-      new PointPresenter(pointsListComponent).init(pointData);
+      this._createPoint(pointsListComponent, pointData);
     });
 
     append(this._daysListComponent, tripDayComponent);
@@ -141,5 +150,10 @@ export default class TripPresenter {
     this._currentSortType = sortType;
     this._createTripSplit();
     this._renderTripBoard();
+  }
+
+  _pointDataChangeHandler(updatedPoint) {
+    this._points = updateItemArray(this._points, updatedPoint);
+    this._existPointPresenters[updatedPoint.id].init(updatedPoint);
   }
 }

@@ -7,6 +7,8 @@ const DESTINATION_LIMIT = 5;
 const PHOTOS_LIMIT = 5;
 const PRICE_LIMIT = 600;
 
+const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
+
 const generateType = () => {
   const types = Array.from(POINTS_TYPE.values())
     .reduce((one, two) => one.concat(two), []);
@@ -25,6 +27,7 @@ export const generatePoints = () => {
   const timeInterval = generateTimeInterval();
 
   return {
+    id: generateId(),
     type,
     city: getRandomElement(CITIES),
     offers: generateOffer(type),
