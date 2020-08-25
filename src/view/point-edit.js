@@ -1,7 +1,8 @@
 import {POINTS_TYPE, CITIES} from "../data.js";
 import {generatePointLabel} from "../utils/common.js";
 import {getFormattedTimeString} from "../utils/date.js";
-import AbstractView from "./abstract.js";
+import SmartView from "./smart.js";
+import {OFFERS} from "../data.js";
 
 const BLANK_POINT = {
   type: `Flight`,
@@ -16,7 +17,7 @@ const BLANK_POINT = {
   isNew: true
 };
 
-export default class PointEditView extends AbstractView {
+export default class PointEditView extends SmartView {
   constructor(point = BLANK_POINT) {
     super();
     this._data = point;
@@ -24,6 +25,9 @@ export default class PointEditView extends AbstractView {
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._formCloseHandler = this._formCloseHandler.bind(this);
     this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
+    this._pointTypeChangeHandler = this._pointTypeChangeHandler.bind(this);
+
+    this._setInnerHandlers();
   }
 
   getTemplate() {
@@ -119,6 +123,18 @@ export default class PointEditView extends AbstractView {
     this._callback.favoriteClick = callback;
     this.getElement().querySelector(`.event__favorite-btn`)
       .addEventListener(`click`, this._favoriteClickHandler);
+  }
+
+  restoreHandlers() {
+    this._setInnerHandlers();
+    this.setFormCloseHandler(this._callback.formClose);
+    this.setFormSubmitHandler(this._callback.formSubmit);
+    this.setFavoriteClickHandler(this._callback.favoriteClick);
+  }
+
+  _setInnerHandlers() {
+    this.getElement().querySelector(`.event__type-list`)
+      .addEventListener(`click`, this._pointTypeChangeHandler);
   }
 
   _createTripFavoriteButtonTemplate() {
@@ -297,5 +313,24 @@ export default class PointEditView extends AbstractView {
   _favoriteClickHandler(evt) {
     evt.preventDefault();
     this._callback.favoriteClick();
+  }
+
+  _pointTypeChangeHandler(evt) {
+    if (evt.target.tagName !== `INPUT`) {
+      return;
+    }
+
+    const type = evt.target.value[0].toUpperCase() + evt.target.value.slice(1);
+
+    this.getElement().querySelector(`.event__type-toggle`).checked = false;
+
+    const offers = OFFERS.get(type).map((offer) => {
+      return Object.assign(
+          {checked: false},
+          offer
+      );
+    });
+
+    this.updateDate({type, offers});
   }
 }

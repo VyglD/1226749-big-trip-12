@@ -19,6 +19,7 @@ export default class PointPresenter {
     this._mode = Mode.DEFAULT;
 
     this._editClickHandler = this._editClickHandler.bind(this);
+    this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._formCloseHandler = this._formCloseHandler.bind(this);
     this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
