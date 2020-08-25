@@ -28,6 +28,7 @@ export default class PointEditView extends SmartView {
     this._pointTypeChangeHandler = this._pointTypeChangeHandler.bind(this);
     this._pointCityChangeHandler = this._pointCityChangeHandler.bind(this);
     this._offersChangeHandler = this._offersChangeHandler.bind(this);
+    this._poinrPriceChangeHandler = this._poinrPriceChangeHandler.bind(this);
 
     this._setInnerHandlers();
   }
@@ -92,7 +93,7 @@ export default class PointEditView extends SmartView {
           <input
             class="event__input event__input--price"
             id="event-price-1"
-            type="text"
+            type="number"
             name="event-price"
             value="${price}"
           >
@@ -121,17 +122,10 @@ export default class PointEditView extends SmartView {
     this.getElement().addEventListener(`submit`, this._formSubmitHandler);
   }
 
-  setFavoriteClickHandler(callback) {
-    this._callback.favoriteClick = callback;
-    this.getElement().querySelector(`.event__favorite-btn`)
-      .addEventListener(`click`, this._favoriteClickHandler);
-  }
-
   restoreHandlers() {
     this._setInnerHandlers();
     this.setFormCloseHandler(this._callback.formClose);
     this.setFormSubmitHandler(this._callback.formSubmit);
-    this.setFavoriteClickHandler(this._callback.favoriteClick);
   }
 
   reset(point) {
@@ -139,10 +133,14 @@ export default class PointEditView extends SmartView {
   }
 
   _setInnerHandlers() {
+    this.getElement().querySelector(`.event__favorite-btn`)
+      .addEventListener(`click`, this._favoriteClickHandler);
     this.getElement().querySelector(`.event__type-list`)
       .addEventListener(`click`, this._pointTypeChangeHandler);
     this.getElement().querySelector(`.event__field-group--destination`)
       .addEventListener(`change`, this._pointCityChangeHandler);
+    this.getElement().querySelector(`.event__input--price`)
+      .addEventListener(`change`, this._poinrPriceChangeHandler);
 
     if (this._data.offers.length) {
       this.getElement().querySelector(`.event__available-offers`)
@@ -324,8 +322,6 @@ export default class PointEditView extends SmartView {
   }
 
   _favoriteClickHandler() {
-    // evt.preventDefault();
-    this._callback.favoriteClick();
     this.updateDate(
         {
           isFavorite: !this._data.isFavorite
@@ -380,7 +376,22 @@ export default class PointEditView extends SmartView {
       return;
     }
 
-    const offer = this._data.offers.find((it) => it.name === evt.target.name);
+    const newOffers = this._data.offers.map((offer) => Object.assign({}, offer));
+    const offer = newOffers.find((it) => it.name === evt.target.name);
     offer.checked = !offer.checked;
+    this._data.offers = newOffers;
+  }
+
+  _poinrPriceChangeHandler(evt) {
+    if (evt.target.value === this._data.price) {
+      return;
+    }
+
+    this.updateDate(
+        {
+          price: evt.target.value,
+        },
+        true
+    );
   }
 }
