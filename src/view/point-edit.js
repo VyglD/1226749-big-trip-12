@@ -20,13 +20,14 @@ const BLANK_POINT = {
 export default class PointEditView extends SmartView {
   constructor(point = BLANK_POINT) {
     super();
-    this._data = point;
+    this._data = Object.assign({}, point);
 
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._formCloseHandler = this._formCloseHandler.bind(this);
     this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
     this._pointTypeChangeHandler = this._pointTypeChangeHandler.bind(this);
     this._pointCityChangeHandler = this._pointCityChangeHandler.bind(this);
+    this._offersChangeHandler = this._offersChangeHandler.bind(this);
 
     this._setInnerHandlers();
   }
@@ -142,6 +143,11 @@ export default class PointEditView extends SmartView {
       .addEventListener(`click`, this._pointTypeChangeHandler);
     this.getElement().querySelector(`.event__field-group--destination`)
       .addEventListener(`change`, this._pointCityChangeHandler);
+
+    if (this._data.offers.length) {
+      this.getElement().querySelector(`.event__available-offers`)
+        .addEventListener(`click`, this._offersChangeHandler);
+    }
   }
 
   _createTripFavoriteButtonTemplate() {
@@ -187,7 +193,7 @@ export default class PointEditView extends SmartView {
                 class="event__offer-checkbox visually-hidden"
                 id="event-offer-${offer.name}-1"
                 type="checkbox"
-                name="event-offer-${offer.name}"
+                name="${offer.name}"
                 ${offer.checked ? `checked` : ``}
               >
               <label class="event__offer-label" for="event-offer-${offer.name}-1">
@@ -309,7 +315,7 @@ export default class PointEditView extends SmartView {
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callback.formSubmit();
+    this._callback.formSubmit(this._data);
   }
 
   _formCloseHandler(evt) {
@@ -317,9 +323,15 @@ export default class PointEditView extends SmartView {
     this._callback.formClose();
   }
 
-  _favoriteClickHandler(evt) {
-    evt.preventDefault();
+  _favoriteClickHandler() {
+    // evt.preventDefault();
     this._callback.favoriteClick();
+    this.updateDate(
+        {
+          isFavorite: !this._data.isFavorite
+        },
+        true
+    );
   }
 
   _pointTypeChangeHandler(evt) {
@@ -361,5 +373,14 @@ export default class PointEditView extends SmartView {
           destination: getRandomSubArray(DESTINATIONS, DESTINATION_LIMIT)
         }
     );
+  }
+
+  _offersChangeHandler(evt) {
+    if (evt.target.tagName !== `INPUT`) {
+      return;
+    }
+
+    const offer = this._data.offers.find((it) => it.name === evt.target.name);
+    offer.checked = !offer.checked;
   }
 }

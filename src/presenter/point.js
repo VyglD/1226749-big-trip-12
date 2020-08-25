@@ -88,7 +88,8 @@ export default class PointPresenter {
     this._replacePointToForm();
   }
 
-  _formSubmitHandler() {
+  _formSubmitHandler(newPointData) {
+    this._changePointData(newPointData);
     this._replaceFormToPoint();
   }
 
@@ -97,14 +98,14 @@ export default class PointPresenter {
   }
 
   _favoriteClickHandler() {
-    this._changePointData(
-        Object.assign(
-            {},
-            this._point,
-            {
-              isFavorite: !this._point.isFavorite
-            }
-        )
-    );
+    // this._changePointData(
+    //     Object.assign(
+    //         {},
+    //         this._point,
+    //         {
+    //           isFavorite: !this._point.isFavorite
+    //         }
+    //     )
+    // );
   }
 }
