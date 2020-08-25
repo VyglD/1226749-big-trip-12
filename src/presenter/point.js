@@ -10,9 +10,10 @@ const Mode = {
 };
 
 export default class PointPresenter {
-  constructor(container, pointDataChangeHandler) {
+  constructor(container, pointDataChangeHandler, resetPointDataChangesHandler) {
     this._contaier = container;
     this._changePointData = pointDataChangeHandler;
+    this._resetPointDataChanges = resetPointDataChangesHandler;
 
     this._pointComponent = null;
     this._pointEditComponent = null;
@@ -56,6 +57,13 @@ export default class PointPresenter {
     remove(prevPointEditComponent);
   }
 
+  resetView() {
+    if (this._mode !== Mode.DEFAULT) {
+      this._pointEditComponent.reset(this._point);
+      this._replaceFormToPoint();
+    }
+  }
+
   _replacePointToForm() {
     replace(this._pointEditComponent, this._pointComponent);
     this._mode = Mode.EDITING;
@@ -76,6 +84,7 @@ export default class PointPresenter {
   }
 
   _editClickHandler() {
+    this._resetPointDataChanges();
     this._replacePointToForm();
   }
 

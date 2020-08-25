@@ -133,6 +133,10 @@ export default class PointEditView extends SmartView {
     this.setFavoriteClickHandler(this._callback.favoriteClick);
   }
 
+  reset(point) {
+    this.updateDate(point);
+  }
+
   _setInnerHandlers() {
     this.getElement().querySelector(`.event__type-list`)
       .addEventListener(`click`, this._pointTypeChangeHandler);

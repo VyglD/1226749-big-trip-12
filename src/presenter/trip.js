@@ -21,6 +21,7 @@ export default class TripPresenter {
 
     this._sortTypeChangeHandler = this._sortTypeChangeHandler.bind(this);
     this._pointDataChangeHandler = this._pointDataChangeHandler.bind(this);
+    this._resetDataChangesHandler = this._resetDataChangesHandler.bind(this);
   }
 
   init(points) {
@@ -49,7 +50,11 @@ export default class TripPresenter {
   }
 
   _createPoint(container, pointData) {
-    const pointPresenter = new PointPresenter(container, this._pointDataChangeHandler);
+    const pointPresenter = new PointPresenter(
+        container,
+        this._pointDataChangeHandler,
+        this._resetDataChangesHandler
+    );
     pointPresenter.init(pointData);
     this._existPointPresenters[pointData.id] = pointPresenter;
   }
@@ -155,5 +160,11 @@ export default class TripPresenter {
   _pointDataChangeHandler(updatedPoint) {
     this._points = updateItemArray(this._points, updatedPoint);
     this._existPointPresenters[updatedPoint.id].init(updatedPoint);
+  }
+
+  _resetDataChangesHandler() {
+    Object
+      .values(this._existPointPresenters)
+      .forEach((presenter) => presenter.resetView());
   }
 }
