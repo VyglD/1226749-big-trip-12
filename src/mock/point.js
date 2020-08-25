@@ -1,9 +1,8 @@
-import {POINTS_TYPE, CITIES, DESTINATIONS} from "../data.js";
+import {POINTS_TYPE, CITIES, DESTINATIONS, DESTINATION_LIMIT} from "../data.js";
 import {getRandomInteger, getRandomElement, getRandomSubArray} from "../utils/common.js";
 import {generateTimeInterval} from "../utils/date.js";
 import {generateOffer} from "./offer.js";
 
-const DESTINATION_LIMIT = 5;
 const PHOTOS_LIMIT = 5;
 const PRICE_LIMIT = 600;
 

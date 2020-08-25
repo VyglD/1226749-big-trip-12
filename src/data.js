@@ -1,3 +1,5 @@
+export const DESTINATION_LIMIT = 5;
+
 export const POINTS_TYPE = new Map([
   [`Transfer`, [
     `Taxi`,

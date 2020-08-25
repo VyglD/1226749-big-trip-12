@@ -1,5 +1,5 @@
-import {POINTS_TYPE, CITIES} from "../data.js";
-import {generatePointLabel} from "../utils/common.js";
+import {POINTS_TYPE, CITIES, DESTINATIONS, DESTINATION_LIMIT} from "../data.js";
+import {generatePointLabel, getRandomSubArray} from "../utils/common.js";
 import {getFormattedTimeString} from "../utils/date.js";
 import SmartView from "./smart.js";
 import {OFFERS} from "../data.js";
@@ -26,6 +26,7 @@ export default class PointEditView extends SmartView {
     this._formCloseHandler = this._formCloseHandler.bind(this);
     this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
     this._pointTypeChangeHandler = this._pointTypeChangeHandler.bind(this);
+    this._pointCityChangeHandler = this._pointCityChangeHandler.bind(this);
 
     this._setInnerHandlers();
   }
@@ -135,6 +136,8 @@ export default class PointEditView extends SmartView {
   _setInnerHandlers() {
     this.getElement().querySelector(`.event__type-list`)
       .addEventListener(`click`, this._pointTypeChangeHandler);
+    this.getElement().querySelector(`.event__field-group--destination`)
+      .addEventListener(`change`, this._pointCityChangeHandler);
   }
 
   _createTripFavoriteButtonTemplate() {
@@ -332,5 +335,27 @@ export default class PointEditView extends SmartView {
     });
 
     this.updateDate({type, offers});
+  }
+
+  _pointCityChangeHandler(evt) {
+    if (evt.target.tagName !== `INPUT` && evt.target.value === this._data.city) {
+      return;
+    }
+
+    const newCity = evt.target.value;
+
+    if (CITIES.includes(newCity)) {
+      evt.target.setCustomValidity(``);
+    } else {
+      evt.target.setCustomValidity(`Выбранный город отсутсвует в списке`);
+      return;
+    }
+
+    this.updateDate(
+        {
+          city: newCity,
+          destination: getRandomSubArray(DESTINATIONS, DESTINATION_LIMIT)
+        }
+    );
   }
 }
