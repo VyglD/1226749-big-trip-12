@@ -3,6 +3,10 @@ import {generatePointLabel, getRandomSubArray} from "../utils/common.js";
 import {getFormattedTimeString} from "../utils/date.js";
 import SmartView from "./smart.js";
 import {OFFERS} from "../data.js";
+import flatpickr from "flatpickr";
+import moment from "moment";
+
+import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
 const BLANK_POINT = {
   type: `Flight`,
@@ -17,10 +21,22 @@ const BLANK_POINT = {
   isNew: true
 };
 
+const FLATPICKR_PROPERIES = {
+  dateFormat: `DD/MM/YY HH:mm`,
+  enableTime: true,
+  // eslint-disable-next-line camelcase
+  time_24hr: true,
+  formatDate: (date, format) => {
+    return moment(date).format(format);
+  },
+};
+
 export default class PointEditView extends SmartView {
   constructor(point = BLANK_POINT) {
     super();
     this._data = Object.assign({}, point);
+    this._startDatepicker = null;
+    this._endDatepicker = null;
 
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._formCloseHandler = this._formCloseHandler.bind(this);
@@ -28,9 +44,12 @@ export default class PointEditView extends SmartView {
     this._pointTypeChangeHandler = this._pointTypeChangeHandler.bind(this);
     this._pointCityChangeHandler = this._pointCityChangeHandler.bind(this);
     this._offersChangeHandler = this._offersChangeHandler.bind(this);
-    this._poinrPriceChangeHandler = this._poinrPriceChangeHandler.bind(this);
+    this._poinrPriceChangeHandler = this._pointPriceChangeHandler.bind(this);
+    this._startDateChangeHandler = this._startDateChangeHandler.bind(this);
+    this._endDateChangeHandler = this._endDateChangeHandler.bind(this);
 
     this._setInnerHandlers();
+    this._setDatepickers();
   }
 
   getTemplate() {
@@ -71,6 +90,7 @@ export default class PointEditView extends SmartView {
             id="event-start-time-1"
             type="text" name="event-start-time"
             value="${getFormattedTimeString(timeStart)}"
+            readonly
           >
           &mdash;
           <label class="visually-hidden" for="event-end-time-1">
@@ -82,6 +102,7 @@ export default class PointEditView extends SmartView {
             type="text"
             name="event-end-time"
             value="${getFormattedTimeString(timeEnd)}"
+            readonly
           >
         </div>
 
@@ -124,12 +145,52 @@ export default class PointEditView extends SmartView {
 
   restoreHandlers() {
     this._setInnerHandlers();
+    this._setDatepickers();
     this.setFormCloseHandler(this._callback.formClose);
     this.setFormSubmitHandler(this._callback.formSubmit);
   }
 
   reset(point) {
     this.updateDate(point);
+  }
+
+  _setEndDatepicker(minDate) {
+    if (this._endDatepicker) {
+      this._endDatepicker.destroy();
+      this._endDatepicker = null;
+    }
+
+    this._endDatepicker = flatpickr(
+        this.getElement().querySelector(`#event-end-time-1`),
+        Object.assign(
+            {
+              defaultDate: this._data.timeEnd,
+              minDate,
+              onChange: this._endDateChangeHandler
+            },
+            FLATPICKR_PROPERIES
+        )
+    );
+  }
+
+  _setDatepickers() {
+    if (this._startDatepicker) {
+      this._startDatepicker.destroy();
+      this._startDatepicker = null;
+    }
+
+    this._startDatepicker = flatpickr(
+        this.getElement().querySelector(`#event-start-time-1`),
+        Object.assign(
+            {
+              defaultDate: this._data.timeStart,
+              onChange: this._startDateChangeHandler
+            },
+            FLATPICKR_PROPERIES
+        )
+    );
+
+    this._setEndDatepicker(this._data.timeStart);
   }
 
   _setInnerHandlers() {
@@ -140,7 +201,7 @@ export default class PointEditView extends SmartView {
     this.getElement().querySelector(`.event__field-group--destination`)
       .addEventListener(`change`, this._pointCityChangeHandler);
     this.getElement().querySelector(`.event__input--price`)
-      .addEventListener(`change`, this._poinrPriceChangeHandler);
+      .addEventListener(`change`, this._pointPriceChangeHandler);
 
     if (this._data.offers.length) {
       this.getElement().querySelector(`.event__available-offers`)
@@ -382,7 +443,7 @@ export default class PointEditView extends SmartView {
     this._data.offers = newOffers;
   }
 
-  _poinrPriceChangeHandler(evt) {
+  _pointPriceChangeHandler(evt) {
     if (evt.target.value === this._data.price) {
       return;
     }
@@ -390,6 +451,21 @@ export default class PointEditView extends SmartView {
     this.updateDate(
         {
           price: evt.target.value,
+        },
+        true
+    );
+  }
+
+  _startDateChangeHandler([userDate]) {
+    const timeStart = new Date(userDate);
+    this.updateDate({timeStart}, true);
+    this._setEndDatepicker(timeStart);
+  }
+
+  _endDateChangeHandler([userDate]) {
+    this.updateDate(
+        {
+          timeEnd: new Date(userDate)
         },
         true
     );
