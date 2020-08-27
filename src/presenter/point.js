@@ -77,7 +77,7 @@ export default class PointPresenter {
   _escKeyDownHandler(evt) {
     if (isEscEvent(evt)) {
       evt.preventDefault();
-      this._replaceFormToPoint();
+      this.resetView();
     }
   }
 
