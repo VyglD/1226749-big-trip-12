@@ -22,11 +22,10 @@ const BLANK_POINT = {
 };
 
 const FLATPICKR_PROPERIES = {
-  dateFormat: `DD/MM/YY HH:mm`,
-  enableTime: true,
-  // eslint-disable-next-line camelcase
-  time_24hr: true,
-  formatDate: (date, format) => {
+  'dateFormat': `DD/MM/YY HH:mm`,
+  'enableTime': true,
+  'time_24hr': true,
+  'formatDate': (date, format) => {
     return moment(date).format(format);
   },
 };
@@ -44,7 +43,7 @@ export default class PointEditView extends SmartView {
     this._pointTypeChangeHandler = this._pointTypeChangeHandler.bind(this);
     this._pointCityChangeHandler = this._pointCityChangeHandler.bind(this);
     this._offersChangeHandler = this._offersChangeHandler.bind(this);
-    this._poinrPriceChangeHandler = this._pointPriceChangeHandler.bind(this);
+    this._pointPriceChangeHandler = this._pointPriceChangeHandler.bind(this);
     this._startDateChangeHandler = this._startDateChangeHandler.bind(this);
     this._endDateChangeHandler = this._endDateChangeHandler.bind(this);
 
@@ -154,29 +153,15 @@ export default class PointEditView extends SmartView {
     this.updateDate(point);
   }
 
-  _setEndDatepicker(minDate) {
-    if (this._endDatepicker) {
-      this._endDatepicker.destroy();
-      this._endDatepicker = null;
-    }
-
-    this._endDatepicker = flatpickr(
-        this.getElement().querySelector(`#event-end-time-1`),
-        Object.assign(
-            {
-              defaultDate: this._data.timeEnd,
-              minDate,
-              onChange: this._endDateChangeHandler
-            },
-            FLATPICKR_PROPERIES
-        )
-    );
-  }
-
   _setDatepickers() {
     if (this._startDatepicker) {
       this._startDatepicker.destroy();
       this._startDatepicker = null;
+    }
+
+    if (this._endDatepicker) {
+      this._endDatepicker.destroy();
+      this._endDatepicker = null;
     }
 
     this._startDatepicker = flatpickr(
@@ -190,7 +175,17 @@ export default class PointEditView extends SmartView {
         )
     );
 
-    this._setEndDatepicker(this._data.timeStart);
+    this._endDatepicker = flatpickr(
+        this.getElement().querySelector(`#event-end-time-1`),
+        Object.assign(
+            {
+              defaultDate: this._data.timeEnd,
+              minDate: this._data.timeStart,
+              onChange: this._endDateChangeHandler
+            },
+            FLATPICKR_PROPERIES
+        )
+    );
   }
 
   _setInnerHandlers() {
@@ -459,7 +454,11 @@ export default class PointEditView extends SmartView {
   _startDateChangeHandler([userDate]) {
     const timeStart = new Date(userDate);
     this.updateDate({timeStart}, true);
-    this._setEndDatepicker(timeStart);
+
+    this._endDatepicker.set(`minDate`, timeStart);
+    if (timeStart > this._data.timeEnd) {
+      this._endDatepicker.setDate(timeStart);
+    }
   }
 
   _endDateChangeHandler([userDate]) {

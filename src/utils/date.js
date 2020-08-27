@@ -1,18 +1,10 @@
 import {getRandomInteger} from "./common";
+import moment from "moment";
 
-const REGEX_SYSTEM_DATE = /(\d{2}).(\d{2}).(\d{4})/;
-const END_OF_SINGLE_DIGITS = 10;
 const DAY_SHIFT = 1;
 const MAX_MINUTES = 59;
 const MAX_HOURS = 23;
 const MIN_HOURS = 1;
-
-const humanizeTimeFormat = (value, letter, ...conditions) => {
-  conditions.push(value);
-  return conditions.some(Boolean)
-    ? `${(value < END_OF_SINGLE_DIGITS) ? `0` : ``}${value}${letter}`
-    : ``;
-};
 
 export const generateTimeInterval = () => {
   const start = new Date();
@@ -44,7 +36,7 @@ export const generateTimeInterval = () => {
 };
 
 export const getDateAtShortFormat = (date) => {
-  return date.toLocaleString(`en-US`, {month: `short`, day: `2-digit`});
+  return moment(date).format(`MMM DD`);
 };
 
 export const getTripDateInterval = (points) => {
@@ -52,53 +44,43 @@ export const getTripDateInterval = (points) => {
     return ``;
   }
 
-  const start = getDateAtShortFormat(points[0].timeStart).split(` `);
-  const end = getDateAtShortFormat(points[points.length - 1].timeStart).split(` `);
+  const start = points[0].timeStart;
+  const end = points[points.length - 1].timeStart;
 
-  if (start[0] === end[0]) {
-    end[0] = ``;
-  }
+  const endString = start.getMonth() === end.getMonth()
+    ? moment(end).format(`DD`)
+    : moment(end).format(`DD MMM`);
 
-  return `${start[0]} ${start[1]}&nbsp;&mdash;&nbsp;${end[1]} ${end[0]}`;
+  return `${getDateAtShortFormat(start)}&nbsp;&mdash;&nbsp;${endString}`;
 };
 
 export const getSystemFormattedDate = (date) => {
-  const dateArgs = REGEX_SYSTEM_DATE.exec(new Date(date).toLocaleString(
-      `en-US`,
-      {year: `numeric`, month: `2-digit`, day: `2-digit`}
-  ));
-
-  return `${dateArgs[3]}-${dateArgs[2]}-${dateArgs[1]}`;
+  return moment(date).format(`YYYY-DD-MM`);
 };
 
 export const getHumanizeTime = (time) => {
-  return time.toLocaleTimeString(
-      `en-US`,
-      {hour12: false, hour: `numeric`, minute: `numeric`}
-  );
+  return moment(time).format(`HH:mm`);
 };
 
 export const getHumanizeTimeInterval = (interval) => {
-  const excessDays = new Date(0).getDate();
-  const excessHours = new Date(0).getTimezoneOffset() / 60;
-  const diff = new Date(interval);
-  const days = humanizeTimeFormat((diff.getDate() - excessDays), `D`);
-  const hours = humanizeTimeFormat((diff.getHours() + excessHours), `H`, days);
-  const minutes = humanizeTimeFormat((diff.getMinutes()), `M`, days, hours);
+  const duration = moment.duration(interval);
 
-  return `${days} ${hours} ${minutes}`;
+  return [
+    [duration.days(), `D`],
+    [duration.hours(), `H`],
+    [duration.minutes(), `M`],
+  ]
+  .map(([number, letter]) => {
+    return number ? `${String(number).padStart(2, `0`)}${letter}` : ``;
+  })
+  .filter(Boolean)
+  .join(` `);
 };
 
 export const getFormattedTimeString = (time) => {
-  return time.toLocaleString(
-      `en-US`,
-      {
-        year: `2-digit`,
-        month: `2-digit`,
-        day: `2-digit`,
-        hour: `2-digit`,
-        minute: `2-digit`,
-        hour12: false
-      }
-  ).replace(`,`, ``);
+  if (!(time instanceof Date)) {
+    return ``;
+  }
+
+  return moment(time).format(`DD/MM/YY HH:mm`);
 };
