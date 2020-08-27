@@ -4,7 +4,7 @@ import DayView from "../view/day.js";
 import PointsListView from "../view/points-list.js";
 import NoPointsView from "../view/no-points.js";
 import PointPresenter from "../presenter/point.js";
-import {render, RenderPosition, append} from "../utils/render.js";
+import {render, RenderPosition, append, remove} from "../utils/render.js";
 import {getTimeInterval, updateItemArray} from "../utils/common.js";
 import {SortType} from "../data.js";
 
@@ -14,6 +14,7 @@ export default class TripPresenter {
 
     this._currentSortType = SortType.DEFAULT;
     this._existPointPresenters = {};
+    this._existTripDays = [];
 
     this._noPointsComponent = new NoPointsView();
     this._sortComponent = new SortView();
@@ -71,6 +72,7 @@ export default class TripPresenter {
     });
 
     append(this._daysListComponent, tripDayComponent);
+    this._existTripDays.push(tripDayComponent);
   }
 
   _createDaysList() {
@@ -143,7 +145,13 @@ export default class TripPresenter {
   }
 
   _clearTrip() {
-    this._daysListComponent.getElement().innerHTML = ``;
+    Object
+      .values(this._existPointPresenters)
+      .forEach((presenter) => presenter.destroy());
+    this._existPointPresenters = {};
+
+    this._existTripDays.forEach(remove);
+    this._existTripDays = [];
   }
 
   _sortTypeChangeHandler(sortType) {
