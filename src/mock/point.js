@@ -1,14 +1,15 @@
-import {TRIP_EVENT_TYPES, CITIES, DESTINATIONS} from "../data.js";
+import {POINTS_TYPE, CITIES, DESTINATIONS, DESTINATION_LIMIT} from "../data.js";
 import {getRandomInteger, getRandomElement, getRandomSubArray} from "../utils/common.js";
 import {generateTimeInterval} from "../utils/date.js";
 import {generateOffer} from "./offer.js";
 
-const DESTINATION_LIMIT = 5;
 const PHOTOS_LIMIT = 5;
 const PRICE_LIMIT = 600;
 
+const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
+
 const generateType = () => {
-  const types = Array.from(TRIP_EVENT_TYPES.values())
+  const types = Array.from(POINTS_TYPE.values())
     .reduce((one, two) => one.concat(two), []);
 
   return getRandomElement(types);
@@ -20,11 +21,12 @@ const generatePhotos = () => {
     .map(() => `http://picsum.photos/248/152?r=${Math.random()}`);
 };
 
-export const generateTripEvent = () => {
+export const generatePoints = () => {
   const type = generateType();
   const timeInterval = generateTimeInterval();
 
   return {
+    id: generateId(),
     type,
     city: getRandomElement(CITIES),
     offers: generateOffer(type),

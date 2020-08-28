@@ -1,6 +1,6 @@
 import AbstractView from "./abstract.js";
 
-export default class TripEventsList extends AbstractView {
+export default class PointsListView extends AbstractView {
   constructor(index) {
     super();
     this._index = index;
