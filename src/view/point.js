@@ -59,6 +59,7 @@ export default class PointView extends AbstractView {
 
   _createTimeTemplate() {
     const {timeStart, timeEnd} = this._point;
+
     return (
       `<p class="event__time">
         <time class="event__start-time" datetime="${timeStart.toISOString()}">
