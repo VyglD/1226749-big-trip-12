@@ -453,12 +453,11 @@ export default class PointEditView extends SmartView {
 
   _startDateChangeHandler([userDate]) {
     const timeStart = new Date(userDate);
-    this.updateDate({timeStart}, true);
+    const timeEnd = (timeStart > this._data.timeEnd) ? timeStart : this._data.timeEnd;
 
     this._endDatepicker.set(`minDate`, timeStart);
-    if (timeStart > this._data.timeEnd) {
-      this._endDatepicker.setDate(timeStart);
-    }
+    this._endDatepicker.setDate(timeEnd);
+    this.updateDate({timeStart, timeEnd}, true);
   }
 
   _endDateChangeHandler([userDate]) {

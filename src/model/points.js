@@ -1,5 +1,7 @@
 import Observer from "../utils/observer.js";
 
+const EVENT_TYPE = `rerender`;
+
 export default class PointsModel extends Observer {
   constructor() {
     super();
@@ -14,7 +16,7 @@ export default class PointsModel extends Observer {
     this._points = this._sortPoints(points);
   }
 
-  updatePoint(updateType, update) {
+  updatePoint(update) {
     const index = this._points.findIndex((point) => point.id === update.id);
 
     if (index === -1) {
@@ -24,17 +26,17 @@ export default class PointsModel extends Observer {
     this._points.splice(index, 1, update);
     this._points = this._sortPoints(this._points);
 
-    this._notify(updateType, update);
+    this._notify(EVENT_TYPE, update);
   }
 
-  addPoint(updateType, update) {
+  addPoint(update) {
     this._points.push(update);
     this._points = this._sortPoints(this._points);
 
-    this._notify(updateType, update);
+    this._notify(EVENT_TYPE, update);
   }
 
-  deletePoint(updateType, update) {
+  deletePoint(update) {
     const index = this._points.findIndex((point) => point.id === update.id);
 
     if (index === -1) {
@@ -43,7 +45,7 @@ export default class PointsModel extends Observer {
 
     this._points.splice(index, 1);
 
-    this._notify(updateType, update);
+    this._notify(EVENT_TYPE, update);
   }
 
   _sortPoints(points) {

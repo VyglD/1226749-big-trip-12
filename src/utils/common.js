@@ -47,17 +47,3 @@ export const isEscEvent = (evt) => {
 export const getTimeInterval = (point) => {
   return point.timeEnd - point.timeStart;
 };
-
-export const updateItemArray = (array, updatedItem) => {
-  const index = array.findIndex((item) => item.id === updatedItem.id);
-
-  if (index === -1) {
-    return array;
-  }
-
-  return [
-    ...array.slice(0, index),
-    updatedItem,
-    ...array.slice(index + 1)
-  ];
-};
