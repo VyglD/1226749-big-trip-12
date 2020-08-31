@@ -2,9 +2,10 @@ import {FilterType} from "../data.js";
 import AbstractView from "./abstract.js";
 
 export default class FilterView extends AbstractView {
-  constructor(currentFilterType) {
+  constructor(currentFilterType, filters) {
     super();
     this._currentFilter = currentFilterType;
+    this._filters = filters;
 
     this._filterTypeChangeHandler = this._filterTypeChangeHandler.bind(this);
   }
@@ -12,7 +13,11 @@ export default class FilterView extends AbstractView {
   getTemplate() {
     const filterItemsTemplate = Object.values(FilterType)
       .map((filter) => {
-        return this._createFilterItemTemplate(filter, filter === this._currentFilter);
+        return this._createFilterItemTemplate(
+            filter,
+            filter === this._currentFilter,
+            Boolean(this._filters[filter])
+        );
       })
       .join(``);
 
@@ -29,7 +34,7 @@ export default class FilterView extends AbstractView {
     this.getElement().addEventListener(`click`, this._filterTypeChangeHandler);
   }
 
-  _createFilterItemTemplate(filter, isChecked) {
+  _createFilterItemTemplate(filter, isChecked, isEnabled) {
     return (
       `<div class="trip-filters__filter">
         <input
@@ -39,6 +44,7 @@ export default class FilterView extends AbstractView {
           name="trip-filter"
           value="${filter}"
           ${isChecked ? `checked` : ``}
+          ${isEnabled ? `` : `disabled`}
         >
         <label class="trip-filters__filter-label" for="filter-${filter}">
           ${filter}

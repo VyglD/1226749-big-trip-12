@@ -5,9 +5,10 @@ import PointsListView from "../view/points-list.js";
 import NoPointsView from "../view/no-points.js";
 import PointPresenter from "../presenter/point.js";
 import PointsPresenter from "../presenter/points.js";
+import NewPointPresenter from "../presenter/new-point.js";
 import {render, RenderPosition, append, remove} from "../utils/render.js";
 import {getTimeInterval} from "../utils/common.js";
-import {SortType, UserAction} from "../data.js";
+import {SortType, UserAction, FilterType} from "../data.js";
 
 const SORT_KEY = `sort`;
 
@@ -34,10 +35,18 @@ export default class TripPresenter extends PointsPresenter {
     this._filtersModel.addObserver(this._applyNewFilter);
 
     this._createTripSplit();
+
+    this._newPointPresenter = new NewPointPresenter(this._changePointsData);
   }
 
   init() {
     this._renderTrip();
+  }
+
+  createPoint() {
+    this._currentSortType = SortType.DEFAULT;
+    this._filtersModel.setFilter(FilterType.EVERYTHING);
+    this._newPointPresenter.init(this._sortComponent);
   }
 
   _getPointsByPrice() {
@@ -159,6 +168,7 @@ export default class TripPresenter extends PointsPresenter {
   }
 
   _clearTrip() {
+    this._newPointPresenter.destroy();
     Object
       .values(this._existPointPresenters)
       .forEach((presenter) => presenter.destroy());
@@ -185,16 +195,20 @@ export default class TripPresenter extends PointsPresenter {
 
   _changePointsData(userAction, point) {
     switch (userAction) {
-      case UserAction.UPDATE_TASK:
+      case UserAction.UPDATE_POINT:
         this._pointsModel.updatePoint(point);
         break;
-      case UserAction.DELETE_TASK:
+      case UserAction.DELETE_POINT:
         this._pointsModel.deletePoint(point);
+        break;
+      case UserAction.ADD_POINT:
+        this._pointsModel.addPoint(point);
         break;
     }
   }
 
   _resetDataChanges() {
+    this._newPointPresenter.destroy();
     Object
       .values(this._existPointPresenters)
       .forEach((presenter) => presenter.resetView());

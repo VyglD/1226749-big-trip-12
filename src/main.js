@@ -25,12 +25,18 @@ render(
     RenderPosition.AFTEREND
 );
 
-const filtersPreseter = new FiltersPreseter(filtersHeaderNode, filtersModel);
+const filtersPreseter = new FiltersPreseter(filtersHeaderNode, pointsModel, filtersModel);
 const tripPresenter = new TripPresenter(boardContainerNode, pointsModel, filtersModel);
 const informationPresenter = new InformationPresenter(headerNode, pointsModel, filtersModel);
 
 informationPresenter.init();
 filtersPreseter.init();
 tripPresenter.init();
+
+document.querySelector(`.trip-main__event-add-btn`)
+  .addEventListener(`click`, (evt) => {
+    evt.preventDefault();
+    tripPresenter.createPoint();
+  });
 
 

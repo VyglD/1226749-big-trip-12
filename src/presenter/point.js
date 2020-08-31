@@ -3,6 +3,7 @@ import PointView from "../view/point.js";
 import PointEditView from "../view/point-edit.js";
 import {replace, append, remove} from "../utils/render.js";
 import {isEscEvent} from "../utils/common.js";
+import {UserAction} from "../data.js";
 
 const Mode = {
   DEFAULT: `DEFAULT`,
@@ -23,7 +24,7 @@ export default class PointPresenter {
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._formCloseHandler = this._formCloseHandler.bind(this);
-    this._deleteButtonClickHandler = this._deleteButtonClickHandler.bind(this);
+    this._deleteClickHandler = this._deleteClickHandler.bind(this);
   }
 
   init(point) {
@@ -38,7 +39,7 @@ export default class PointPresenter {
     this._pointComponent.setEditClickHandler(this._editClickHandler);
     this._pointEditComponent.setFormSubmitHandler(this._formSubmitHandler);
     this._pointEditComponent.setFormCloseHandler(this._formCloseHandler);
-    this._pointEditComponent.setDeleteButtonClickHandler(this._deleteButtonClickHandler);
+    this._pointEditComponent.setDeleteClickHandler(this._deleteClickHandler);
 
     if (!prevPointComponent || !prevPointEditComponent) {
       append(this._contaier, this._pointComponent);
@@ -93,8 +94,8 @@ export default class PointPresenter {
     this._replacePointToForm();
   }
 
-  _formSubmitHandler(userAction, newPointData) {
-    this._changePointData(userAction, newPointData);
+  _formSubmitHandler(newPointData) {
+    this._changePointData(UserAction.UPDATE_POINT, newPointData);
     this._replaceFormToPoint();
   }
 
@@ -102,7 +103,7 @@ export default class PointPresenter {
     this.resetView();
   }
 
-  _deleteButtonClickHandler(userAction, point) {
+  _deleteClickHandler(userAction, point) {
     this._changePointData(userAction, point);
   }
 }
