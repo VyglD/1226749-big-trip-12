@@ -6,29 +6,33 @@ import NoPointsView from "../view/no-points.js";
 import PointPresenter from "../presenter/point.js";
 import {render, RenderPosition, append, remove} from "../utils/render.js";
 import {getTimeInterval} from "../utils/common.js";
-import {SortType} from "../data.js";
+import {filter} from "../utils/filter.js";
+import {SortType, FilterType} from "../data.js";
 
 const SORT_KEY = `sort`;
 
 export default class TripPresenter {
-  constructor(tripContainer, pointsModel) {
+  constructor(tripContainer, pointsModel, filtersModel) {
     this._container = tripContainer;
     this._pointsModel = pointsModel;
+    this._filtersModel = filtersModel;
 
     this._currentSortType = SortType.DEFAULT;
     this._existPointPresenters = {};
     this._existTripDays = [];
 
     this._noPointsComponent = new NoPointsView();
-    this._sortComponent = new SortView();
     this._daysListComponent = new DaysListView();
+    this._sortComponent = null;
 
     this._changePointsSorting = this._changePointsSorting.bind(this);
     this._changePointData = this._changePointData.bind(this);
     this._updateViews = this._updateViews.bind(this);
+    this._applyNewFilter = this._applyNewFilter.bind(this);
     this._resetDataChanges = this._resetDataChanges.bind(this);
 
     this._pointsModel.addObserver(this._updateViews);
+    this._filtersModel.addObserver(this._applyNewFilter);
 
     this._createTripSplit();
   }
@@ -38,7 +42,14 @@ export default class TripPresenter {
   }
 
   _getPoints() {
-    return this._pointsModel.getPoints();
+    const filterType = this._filtersModel.getFilter();
+    const points = this._pointsModel.getPoints();
+
+    if (filterType !== FilterType.EVERYTHING) {
+      return filter[filterType](points);
+    }
+
+    return points;
   }
 
   _getPointsByPrice() {
@@ -93,13 +104,19 @@ export default class TripPresenter {
   }
 
   _renderSortComponent() {
+    if (this._sortComponent !== null) {
+      remove(this._sortComponent);
+      this._sortComponent = null;
+    }
+
+    this._sortComponent = new SortView(this._currentSortType);
+    this._sortComponent.setSortTypeChangeHandler(this._changePointsSorting);
+
     render(
         this._container,
         this._sortComponent,
         RenderPosition.BEFOREEND
     );
-
-    this._sortComponent.setSortTypeChangeHandler(this._changePointsSorting);
   }
 
   _createPoint(container, pointData) {
@@ -166,7 +183,7 @@ export default class TripPresenter {
   _updateViews() {
     this._clearTrip();
     this._createTripSplit();
-    this._renderTripBoard();
+    this._renderTrip();
   }
 
   _changePointsSorting(sortType) {
@@ -186,5 +203,10 @@ export default class TripPresenter {
     Object
       .values(this._existPointPresenters)
       .forEach((presenter) => presenter.resetView());
+  }
+
+  _applyNewFilter() {
+    this._currentSortType = SortType.DEFAULT;
+    this._updateViews();
   }
 }

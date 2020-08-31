@@ -1,9 +1,10 @@
 import InformationView from "./view/information.js";
 import CostView from "./view/cost.js";
 import MenuView from "./view/menu.js";
-import FilterView from "./view/filters.js";
 import TripPresenter from "./presenter/trip.js";
+import FiltersPreseter from "./presenter/filters.js";
 import PointsModel from "./model/points.js";
+import FiltersModel from "./model/filters.js";
 import {generatePoints} from "./mock/point.js";
 import {render, RenderPosition, append} from "./utils/render.js";
 
@@ -17,6 +18,7 @@ const boardContainerNode = document.querySelector(`.trip-events`);
 const points = new Array(POINTS_COUNT).fill().map(generatePoints);
 const pointsModel = new PointsModel();
 pointsModel.setPoints(points);
+const filtersModel = new FiltersModel();
 
 const tripInfoNode = new InformationView(points);
 const tripCostNode = new CostView(points);
@@ -33,11 +35,11 @@ render(
     new MenuView(),
     RenderPosition.AFTEREND
 );
-render(
-    filtersHeaderNode,
-    new FilterView(),
-    RenderPosition.AFTEREND
-);
 
-const tripPresenter = new TripPresenter(boardContainerNode, pointsModel);
+const filtersPreseter = new FiltersPreseter(filtersHeaderNode, filtersModel);
+const tripPresenter = new TripPresenter(boardContainerNode, pointsModel, filtersModel);
+
+filtersPreseter.init();
 tripPresenter.init();
+
+

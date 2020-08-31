@@ -1,6 +1,5 @@
 import Observer from "../utils/observer.js";
-
-const EVENT_TYPE = `rerender`;
+import {UPDATE_TYPE} from "../data.js";
 
 export default class PointsModel extends Observer {
   constructor() {
@@ -26,14 +25,14 @@ export default class PointsModel extends Observer {
     this._points.splice(index, 1, update);
     this._points = this._sortPoints(this._points);
 
-    this._notify(EVENT_TYPE, update);
+    this._notify(UPDATE_TYPE, update);
   }
 
   addPoint(update) {
     this._points.push(update);
     this._points = this._sortPoints(this._points);
 
-    this._notify(EVENT_TYPE, update);
+    this._notify(UPDATE_TYPE, update);
   }
 
   deletePoint(update) {
@@ -45,7 +44,7 @@ export default class PointsModel extends Observer {
 
     this._points.splice(index, 1);
 
-    this._notify(EVENT_TYPE, update);
+    this._notify(UPDATE_TYPE, update);
   }
 
   _sortPoints(points) {

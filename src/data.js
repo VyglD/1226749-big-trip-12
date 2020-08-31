@@ -1,3 +1,5 @@
+export const UPDATE_TYPE = `rerender`;
+
 export const DESTINATION_LIMIT = 5;
 
 export const POINTS_TYPE = new Map([
@@ -36,11 +38,11 @@ export const DESTINATIONS = [
   `In rutrum ac purus sit amet tempus.`
 ];
 
-export const FILTERS = [
-  `everything`,
-  `future`,
-  `past`
-];
+export const FilterType = {
+  EVERYTHING: `everything`,
+  FUTURE: `future`,
+  PAST: `past`
+};
 
 export const SortType = {
   DEFAULT: `Event`,
