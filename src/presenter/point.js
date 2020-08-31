@@ -23,6 +23,7 @@ export default class PointPresenter {
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._formCloseHandler = this._formCloseHandler.bind(this);
+    this._deleteButtonClickHandler = this._deleteButtonClickHandler.bind(this);
   }
 
   init(point) {
@@ -37,6 +38,7 @@ export default class PointPresenter {
     this._pointComponent.setEditClickHandler(this._editClickHandler);
     this._pointEditComponent.setFormSubmitHandler(this._formSubmitHandler);
     this._pointEditComponent.setFormCloseHandler(this._formCloseHandler);
+    this._pointEditComponent.setDeleteButtonClickHandler(this._deleteButtonClickHandler);
 
     if (!prevPointComponent || !prevPointEditComponent) {
       append(this._contaier, this._pointComponent);
@@ -91,12 +93,16 @@ export default class PointPresenter {
     this._replacePointToForm();
   }
 
-  _formSubmitHandler(newPointData) {
-    this._changePointData(newPointData);
+  _formSubmitHandler(userAction, newPointData) {
+    this._changePointData(userAction, newPointData);
     this._replaceFormToPoint();
   }
 
   _formCloseHandler() {
     this.resetView();
+  }
+
+  _deleteButtonClickHandler(userAction, point) {
+    this._changePointData(userAction, point);
   }
 }

@@ -1,4 +1,4 @@
-import {POINTS_TYPE, CITIES, DESTINATIONS, DESTINATION_LIMIT} from "../data.js";
+import {POINTS_TYPE, CITIES, DESTINATIONS, DESTINATION_LIMIT, UserAction} from "../data.js";
 import {generatePointLabel, getRandomSubArray} from "../utils/common.js";
 import {getFormattedTimeString} from "../utils/date.js";
 import {getOffersByType} from "../utils/offers.js";
@@ -46,6 +46,7 @@ export default class PointEditView extends SmartView {
     this._pointPriceChangeHandler = this._pointPriceChangeHandler.bind(this);
     this._startDateChangeHandler = this._startDateChangeHandler.bind(this);
     this._endDateChangeHandler = this._endDateChangeHandler.bind(this);
+    this._deleteButtonClickHandler = this._deleteButtonClickHandler.bind(this);
 
     this._setInnerHandlers();
     this._setDatepickers();
@@ -142,11 +143,18 @@ export default class PointEditView extends SmartView {
     this.getElement().addEventListener(`submit`, this._formSubmitHandler);
   }
 
+  setDeleteButtonClickHandler(callback) {
+    this._callback.pointDelete = callback;
+    this.getElement().querySelector(`.event__reset-btn`)
+      .addEventListener(`click`, this._deleteButtonClickHandler);
+  }
+
   restoreHandlers() {
     this._setInnerHandlers();
     this._setDatepickers();
     this.setFormCloseHandler(this._callback.formClose);
     this.setFormSubmitHandler(this._callback.formSubmit);
+    this.setDeleteButtonClickHandler(this._callback.pointDelete);
   }
 
   reset(point) {
@@ -369,7 +377,7 @@ export default class PointEditView extends SmartView {
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callback.formSubmit(this._data);
+    this._callback.formSubmit(UserAction.UPDATE_TASK, this._data);
   }
 
   _formCloseHandler(evt) {
@@ -463,5 +471,10 @@ export default class PointEditView extends SmartView {
         },
         true
     );
+  }
+
+  _deleteButtonClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.pointDelete(UserAction.DELETE_TASK, this._data);
   }
 }

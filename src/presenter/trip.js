@@ -7,7 +7,7 @@ import PointPresenter from "../presenter/point.js";
 import PointsPresenter from "../presenter/points.js";
 import {render, RenderPosition, append, remove} from "../utils/render.js";
 import {getTimeInterval} from "../utils/common.js";
-import {SortType} from "../data.js";
+import {SortType, UserAction} from "../data.js";
 
 const SORT_KEY = `sort`;
 
@@ -25,7 +25,7 @@ export default class TripPresenter extends PointsPresenter {
     this._sortComponent = null;
 
     this._changePointsSorting = this._changePointsSorting.bind(this);
-    this._changePointData = this._changePointData.bind(this);
+    this._changePointsData = this._changePointsData.bind(this);
     this._updateViews = this._updateViews.bind(this);
     this._applyNewFilter = this._applyNewFilter.bind(this);
     this._resetDataChanges = this._resetDataChanges.bind(this);
@@ -110,7 +110,7 @@ export default class TripPresenter extends PointsPresenter {
   _createPoint(container, pointData) {
     const pointPresenter = new PointPresenter(
         container,
-        this._changePointData,
+        this._changePointsData,
         this._resetDataChanges
     );
     pointPresenter.init(pointData);
@@ -183,8 +183,15 @@ export default class TripPresenter extends PointsPresenter {
     this._updateViews();
   }
 
-  _changePointData(modifiedPoint) {
-    this._pointsModel.updatePoint(modifiedPoint);
+  _changePointsData(userAction, point) {
+    switch (userAction) {
+      case UserAction.UPDATE_TASK:
+        this._pointsModel.updatePoint(point);
+        break;
+      case UserAction.DELETE_TASK:
+        this._pointsModel.deletePoint(point);
+        break;
+    }
   }
 
   _resetDataChanges() {
