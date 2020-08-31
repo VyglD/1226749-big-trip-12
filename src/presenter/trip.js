@@ -5,7 +5,7 @@ import PointsListView from "../view/points-list.js";
 import NoPointsView from "../view/no-points.js";
 import PointPresenter from "../presenter/point.js";
 import {render, RenderPosition, append, remove} from "../utils/render.js";
-import {getTimeInterval, updateItemArray} from "../utils/common.js";
+import {getTimeInterval} from "../utils/common.js";
 import {SortType} from "../data.js";
 
 const SORT_KEY = `sort`;

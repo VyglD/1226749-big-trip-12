@@ -1,7 +1,7 @@
 import {POINTS_TYPE, CITIES, DESTINATIONS, DESTINATION_LIMIT} from "../data.js";
 import {getRandomInteger, getRandomElement, getRandomSubArray} from "../utils/common.js";
 import {generateTimeInterval} from "../utils/date.js";
-import {generateOffer} from "./offer.js";
+import {generateOffers} from "./offers.js";
 
 const PHOTOS_LIMIT = 5;
 const PRICE_LIMIT = 600;
@@ -29,7 +29,7 @@ export const generatePoints = () => {
     id: generateId(),
     type,
     city: getRandomElement(CITIES),
-    offers: generateOffer(type),
+    offers: generateOffers(type),
     timeStart: timeInterval.start,
     timeEnd: timeInterval.end,
     price: getRandomInteger(0, PRICE_LIMIT),

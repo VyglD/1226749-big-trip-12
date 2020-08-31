@@ -1,8 +1,8 @@
 import {POINTS_TYPE, CITIES, DESTINATIONS, DESTINATION_LIMIT} from "../data.js";
 import {generatePointLabel, getRandomSubArray} from "../utils/common.js";
 import {getFormattedTimeString} from "../utils/date.js";
+import {getOffersByType} from "../utils/offers.js";
 import SmartView from "./smart.js";
-import {OFFERS} from "../data.js";
 import flatpickr from "flatpickr";
 import moment from "moment";
 
@@ -395,12 +395,7 @@ export default class PointEditView extends SmartView {
 
     this.getElement().querySelector(`.event__type-toggle`).checked = false;
 
-    const offers = OFFERS.get(type).map((offer) => {
-      return Object.assign(
-          {checked: false},
-          offer
-      );
-    });
+    const offers = getOffersByType(type);
 
     this.updateDate({type, offers});
   }
@@ -432,10 +427,11 @@ export default class PointEditView extends SmartView {
       return;
     }
 
-    const newOffers = this._data.offers.map((offer) => Object.assign({}, offer));
-    const offer = newOffers.find((it) => it.name === evt.target.name);
+    const offers = this._data.offers.map((offer) => Object.assign({}, offer));
+    const offer = offers.find((it) => it.name === evt.target.name);
     offer.checked = !offer.checked;
-    this._data.offers = newOffers;
+
+    this.updateDate({offers}, true);
   }
 
   _pointPriceChangeHandler(evt) {
