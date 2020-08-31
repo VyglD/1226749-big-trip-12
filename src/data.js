@@ -1,5 +1,3 @@
-export const UPDATE_TYPE = `rerender`;
-
 export const DESTINATION_LIMIT = 5;
 
 export const POINTS_TYPE = new Map([
@@ -48,4 +46,9 @@ export const SortType = {
   DEFAULT: `Event`,
   TIME: `Time`,
   PRICE: `Price`
+};
+
+export const EventType = {
+  FILTER: `filter`,
+  POINT: `point`
 };

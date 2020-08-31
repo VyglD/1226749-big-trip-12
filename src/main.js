@@ -1,12 +1,11 @@
-import InformationView from "./view/information.js";
-import CostView from "./view/cost.js";
 import MenuView from "./view/menu.js";
 import TripPresenter from "./presenter/trip.js";
 import FiltersPreseter from "./presenter/filters.js";
+import InformationPresenter from "./presenter/information.js";
 import PointsModel from "./model/points.js";
 import FiltersModel from "./model/filters.js";
 import {generatePoints} from "./mock/point.js";
-import {render, RenderPosition, append} from "./utils/render.js";
+import {render, RenderPosition} from "./utils/render.js";
 
 const POINTS_COUNT = 15;
 
@@ -20,16 +19,6 @@ const pointsModel = new PointsModel();
 pointsModel.setPoints(points);
 const filtersModel = new FiltersModel();
 
-const tripInfoNode = new InformationView(points);
-const tripCostNode = new CostView(points);
-
-append(tripInfoNode, tripCostNode);
-
-render(
-    headerNode,
-    tripInfoNode,
-    RenderPosition.AFTERBEGIN
-);
 render(
     menuHeaderNode,
     new MenuView(),
@@ -38,7 +27,9 @@ render(
 
 const filtersPreseter = new FiltersPreseter(filtersHeaderNode, filtersModel);
 const tripPresenter = new TripPresenter(boardContainerNode, pointsModel, filtersModel);
+const informationPresenter = new InformationPresenter(headerNode, pointsModel, filtersModel);
 
+informationPresenter.init();
 filtersPreseter.init();
 tripPresenter.init();
 

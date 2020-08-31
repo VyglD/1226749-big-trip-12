@@ -7,5 +7,6 @@ export const filter = {
   }),
   [FilterType.PAST]: (points) => points.filter((point) => {
     return moment(point.timeStart).isBefore(new Date(), `day`);
-  })
+  }),
+  [FilterType.EVERYTHING]: (points) => points.slice()
 };

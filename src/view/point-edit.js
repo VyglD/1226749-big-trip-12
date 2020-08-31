@@ -441,7 +441,7 @@ export default class PointEditView extends SmartView {
 
     this.updateDate(
         {
-          price: evt.target.value,
+          price: parseInt(evt.target.value, 10),
         },
         true
     );

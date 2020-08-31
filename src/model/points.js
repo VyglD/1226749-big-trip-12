@@ -1,5 +1,5 @@
 import Observer from "../utils/observer.js";
-import {UPDATE_TYPE} from "../data.js";
+import {EventType} from "../data.js";
 
 export default class PointsModel extends Observer {
   constructor() {
@@ -25,14 +25,14 @@ export default class PointsModel extends Observer {
     this._points.splice(index, 1, update);
     this._points = this._sortPoints(this._points);
 
-    this._notify(UPDATE_TYPE, update);
+    this._notify(EventType.POINT, update);
   }
 
   addPoint(update) {
     this._points.push(update);
     this._points = this._sortPoints(this._points);
 
-    this._notify(UPDATE_TYPE, update);
+    this._notify(EventType.POINT, update);
   }
 
   deletePoint(update) {
@@ -44,7 +44,7 @@ export default class PointsModel extends Observer {
 
     this._points.splice(index, 1);
 
-    this._notify(UPDATE_TYPE, update);
+    this._notify(EventType.POINT, update);
   }
 
   _sortPoints(points) {

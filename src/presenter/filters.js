@@ -3,7 +3,7 @@ import {render, RenderPosition} from "../utils/render.js";
 
 export default class FiltersPreseter {
   constructor(filterHeader, filtersModel) {
-    this._filterHeader = filterHeader;
+    this._header = filterHeader;
     this._filtersModel = filtersModel;
 
     this._changeTypeFilter = this._changeTypeFilter.bind(this);
@@ -15,7 +15,7 @@ export default class FiltersPreseter {
     this._filterComponent.setFilterTypeChangeHandler(this._changeTypeFilter);
 
     render(
-        this._filterHeader,
+        this._header,
         this._filterComponent,
         RenderPosition.AFTEREND
     );

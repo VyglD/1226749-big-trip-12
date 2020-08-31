@@ -4,18 +4,17 @@ import DayView from "../view/day.js";
 import PointsListView from "../view/points-list.js";
 import NoPointsView from "../view/no-points.js";
 import PointPresenter from "../presenter/point.js";
+import PointsPresenter from "../presenter/points.js";
 import {render, RenderPosition, append, remove} from "../utils/render.js";
 import {getTimeInterval} from "../utils/common.js";
-import {filter} from "../utils/filter.js";
-import {SortType, FilterType} from "../data.js";
+import {SortType} from "../data.js";
 
 const SORT_KEY = `sort`;
 
-export default class TripPresenter {
+export default class TripPresenter extends PointsPresenter {
   constructor(tripContainer, pointsModel, filtersModel) {
+    super(pointsModel, filtersModel);
     this._container = tripContainer;
-    this._pointsModel = pointsModel;
-    this._filtersModel = filtersModel;
 
     this._currentSortType = SortType.DEFAULT;
     this._existPointPresenters = {};
@@ -39,17 +38,6 @@ export default class TripPresenter {
 
   init() {
     this._renderTrip();
-  }
-
-  _getPoints() {
-    const filterType = this._filtersModel.getFilter();
-    const points = this._pointsModel.getPoints();
-
-    if (filterType !== FilterType.EVERYTHING) {
-      return filter[filterType](points);
-    }
-
-    return points;
   }
 
   _getPointsByPrice() {
