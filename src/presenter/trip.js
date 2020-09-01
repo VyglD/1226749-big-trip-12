@@ -8,7 +8,7 @@ import PointsPresenter from "../presenter/points.js";
 import NewPointPresenter from "../presenter/new-point.js";
 import {render, RenderPosition, append, remove} from "../utils/render.js";
 import {getTimeInterval} from "../utils/common.js";
-import {SortType, UserAction, FilterType} from "../data.js";
+import {SortType, UserAction} from "../data.js";
 
 const SORT_KEY = `sort`;
 
@@ -31,22 +31,30 @@ export default class TripPresenter extends PointsPresenter {
     this._applyNewFilter = this._applyNewFilter.bind(this);
     this._resetDataChanges = this._resetDataChanges.bind(this);
 
-    this._pointsModel.addObserver(this._updateViews);
-    this._filtersModel.addObserver(this._applyNewFilter);
-
     this._createTripSplit();
 
     this._newPointPresenter = new NewPointPresenter(this._changePointsData);
   }
 
   init() {
+    this._pointsModel.addObserver(this._updateViews);
+    this._filtersModel.addObserver(this._applyNewFilter);
+
     this._renderTrip();
   }
 
-  createPoint() {
-    this._currentSortType = SortType.DEFAULT;
-    this._filtersModel.setFilter(FilterType.EVERYTHING);
-    this._newPointPresenter.init(this._sortComponent);
+  destroy() {
+    this._clearTrip(true);
+
+    remove(this._daysListComponent);
+    remove(this._sortComponent);
+
+    this._pointsModel.removeObserver(this._updateViews);
+    this._filtersModel.removeObserver(this._applyNewFilter);
+  }
+
+  createPoint(callback) {
+    this._newPointPresenter.init(this._sortComponent, callback);
   }
 
   _getPointsByPrice() {
@@ -116,7 +124,7 @@ export default class TripPresenter extends PointsPresenter {
     );
   }
 
-  _createPoint(container, pointData) {
+  _createPointPresenter(container, pointData) {
     const pointPresenter = new PointPresenter(
         container,
         this._changePointsData,
@@ -134,7 +142,7 @@ export default class TripPresenter extends PointsPresenter {
     append(tripDayComponent, pointsListComponent);
 
     this._tripSplit.get(date).forEach((pointData) => {
-      this._createPoint(pointsListComponent, pointData);
+      this._createPointPresenter(pointsListComponent, pointData);
     });
 
     append(this._daysListComponent, tripDayComponent);
@@ -167,8 +175,13 @@ export default class TripPresenter extends PointsPresenter {
     this._renderTripBoard();
   }
 
-  _clearTrip() {
+  _clearTrip(resetSortType = false) {
+    if (resetSortType) {
+      this._currentSortType = SortType.DEFAULT;
+    }
+
     this._newPointPresenter.destroy();
+
     Object
       .values(this._existPointPresenters)
       .forEach((presenter) => presenter.destroy());

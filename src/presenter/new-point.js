@@ -8,16 +8,19 @@ export default class NewPointPresenter {
     this._changePointData = changeData;
 
     this._pointEditComponent = null;
+    this._destroyCallback = null;
 
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._deleteClickHandler = this._deleteClickHandler.bind(this);
   }
 
-  init(header) {
+  init(header, callback) {
     if (this._pointEditComponent !== null) {
       return;
     }
+
+    this._destroyCallback = callback;
 
     this._pointEditComponent = new PointEditView();
 
@@ -32,6 +35,10 @@ export default class NewPointPresenter {
   destroy() {
     if (this._pointEditComponent === null) {
       return;
+    }
+
+    if (this._destroyCallback !== null) {
+      this._destroyCallback();
     }
 
     remove(this._pointEditComponent);
