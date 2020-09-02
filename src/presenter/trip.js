@@ -31,8 +31,6 @@ export default class TripPresenter extends PointsPresenter {
     this._applyNewFilter = this._applyNewFilter.bind(this);
     this._resetDataChanges = this._resetDataChanges.bind(this);
 
-    this._createTripSplit();
-
     this._newPointPresenter = new NewPointPresenter(this._changePointsData);
   }
 
@@ -40,6 +38,7 @@ export default class TripPresenter extends PointsPresenter {
     this._pointsModel.addObserver(this._updateViews);
     this._filtersModel.addObserver(this._applyNewFilter);
 
+    this._createTripSplit();
     this._renderTrip();
   }
 
@@ -54,7 +53,10 @@ export default class TripPresenter extends PointsPresenter {
   }
 
   createPoint(callback) {
-    this._newPointPresenter.init(this._sortComponent, callback);
+    this._newPointPresenter.init(
+        this._sortComponent.isExist() ? this._sortComponent : this._container.querySelector(`h2`),
+        callback
+    );
   }
 
   _getPointsByPrice() {
@@ -110,7 +112,6 @@ export default class TripPresenter extends PointsPresenter {
 
   _renderSortComponent() {
     if (this._sortComponent !== null) {
-      remove(this._sortComponent);
       this._sortComponent = null;
     }
 
@@ -155,7 +156,7 @@ export default class TripPresenter extends PointsPresenter {
     });
   }
 
-  _renderTripBoard() {
+  _renderTripTable() {
     this._createDaysList();
 
     render(
@@ -172,7 +173,7 @@ export default class TripPresenter extends PointsPresenter {
     }
 
     this._renderSortComponent();
-    this._renderTripBoard();
+    this._renderTripTable();
   }
 
   _clearTrip(resetSortType = false) {
@@ -181,6 +182,9 @@ export default class TripPresenter extends PointsPresenter {
     }
 
     this._newPointPresenter.destroy();
+
+    remove(this._noPointsComponent);
+    remove(this._sortComponent);
 
     Object
       .values(this._existPointPresenters)

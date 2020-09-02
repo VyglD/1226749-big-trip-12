@@ -255,11 +255,11 @@ main {
       -ms-user-select: none;
           user-select: none;
   opacity: 0.6;
-  cursor: pointer;
   -webkit-transition: opacity 0.2s;
   transition: opacity 0.2s; }
-  .trip-filters__filter-label:hover {
-    opacity: 1; }
+  .trip-filters__filter-input:not([disabled]) + .trip-filters__filter-label:hover {
+    opacity: 1;
+    cursor: pointer; }
   .trip-filters__filter-label:active {
     opacity: 0.6; }
 
