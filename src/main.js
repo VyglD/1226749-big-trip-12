@@ -1,15 +1,15 @@
 import MenuView from "./view/menu.js";
-import StatisticsView from "./view/statistics.js";
 import TripPresenter from "./presenter/trip.js";
 import FiltersPreseter from "./presenter/filters.js";
 import InformationPresenter from "./presenter/information.js";
+import StatisticsPresenter from "./presenter/statistics.js";
 import PointsModel from "./model/points.js";
 import FiltersModel from "./model/filters.js";
 import {generatePoints} from "./mock/point.js";
-import {render, RenderPosition, remove} from "./utils/render.js";
+import {render, RenderPosition} from "./utils/render.js";
 import {FilterType, MenuItem} from "./data.js";
 
-const POINTS_COUNT = 15;
+const POINTS_COUNT = 3;
 
 const headerNode = document.querySelector(`.trip-main`);
 const menuHeaderNode = headerNode.querySelectorAll(`.trip-controls h2`)[0];
@@ -30,7 +30,7 @@ const newPointFormCloseHandler = () => {
 const handleMenuClick = (menuItem) => {
   switch (menuItem) {
     case MenuItem.NEW_POINT:
-      remove(statisticsComponent);
+      statisticsPresenter.destroy();
       tripPresenter.destroy();
       filtersModel.setFilter(FilterType.EVERYTHING);
       tripPresenter.init();
@@ -38,23 +38,21 @@ const handleMenuClick = (menuItem) => {
       newPointButton.disabled = true;
       break;
     case MenuItem.TABLE:
+      statisticsPresenter.destroy();
       tripPresenter.init();
-      remove(statisticsComponent);
       break;
     case MenuItem.STATS:
       tripPresenter.destroy();
-      statisticsComponent = new StatisticsView();
-      render(boardContainerNode, statisticsComponent, RenderPosition.AFTEREND);
+      statisticsPresenter.init();
   }
 };
 
 const points = new Array(POINTS_COUNT).fill().map(generatePoints);
 const pointsModel = new PointsModel();
-pointsModel.setPoints(points);
 const filtersModel = new FiltersModel();
-
 const siteMenuComponent = new MenuView();
-let statisticsComponent = null;
+
+pointsModel.setPoints(points);
 
 render(
     menuHeaderNode,
@@ -65,6 +63,7 @@ render(
 const filtersPreseter = new FiltersPreseter(filtersHeaderNode, pointsModel, filtersModel);
 const tripPresenter = new TripPresenter(boardContainerNode, pointsModel, filtersModel);
 const informationPresenter = new InformationPresenter(headerNode, pointsModel, filtersModel);
+const statisticsPresenter = new StatisticsPresenter(boardContainerNode, pointsModel);
 
 newPointButton.addEventListener(`click`, newPointButtonClickHandler);
 siteMenuComponent.setMenuItemClickHandler(handleMenuClick);
@@ -72,4 +71,3 @@ siteMenuComponent.setMenuItemClickHandler(handleMenuClick);
 informationPresenter.init();
 tripPresenter.init();
 filtersPreseter.init();
-

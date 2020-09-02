@@ -47,12 +47,12 @@ export default class MenuView extends AbstractView {
   _menuItemClickHandler(evt) {
     evt.preventDefault();
 
-    if (evt.target.tagName !== `A`) {
+    if (evt.target.tagName !== `A`
+      || evt.target.classList.contains(`trip-tabs__btn--active`)) {
       return;
     }
 
     this.setMenuItem(evt.target.getAttribute(`value`));
-
     this._callback.menuClick(evt.target.getAttribute(`value`));
   }
 }

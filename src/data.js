@@ -64,3 +64,22 @@ export const MenuItem = {
   STATS: `Stats`,
   NEW_POINT: `New Point`
 };
+
+export const TypeEmoji = new Map([
+  [`Taxi`, `🚕`],
+  [`Bus`, `🚌`],
+  [`Train`, `🚂`],
+  [`Ship`, `🚢`],
+  [`Transport`, `🚆`],
+  [`Drive`, `🚗`],
+  [`Flight`, `✈️`],
+  [`Check-in`, `🏨`],
+  [`Sightseeing`, `🏛`],
+  [`Restaurant`, `🍴`]
+]);
+
+export const ChartType = {
+  MONEY: `MONEY`,
+  TRANSPORT: `TRANSPORT`,
+  TIME_SPENT: `TIME SPENT`,
+};
