@@ -1,11 +1,11 @@
 import AbstractView from "./abstract.js";
 import {SortType} from "../data.js";
 
-const DAY = `Day`;
-
 export default class SortView extends AbstractView {
-  constructor() {
+  constructor(currentSortType) {
     super();
+
+    this._currentSortType = currentSortType;
 
     this._sortTypeChangeHandler = this._sortTypeChangeHandler.bind(this);
   }
@@ -13,7 +13,9 @@ export default class SortView extends AbstractView {
   getTemplate() {
     return (
       `<form class="trip-events__trip-sort trip-sort" action="#" method="get">
-        <span class="trip-sort__item trip-sort__item--day">${DAY}</span>
+        <span class="trip-sort__item trip-sort__item--day">
+          ${this._currentSortType === SortType.DEFAULT ? `Day` : ``}
+        </span>
 
         <div
           class="trip-sort__item trip-sort__item--event"
@@ -25,7 +27,7 @@ export default class SortView extends AbstractView {
             type="radio"
             name="trip-sort"
             value="sort-event"
-            checked
+            ${this._currentSortType === SortType.DEFAULT ? `checked` : ``}
           >
           <label class="trip-sort__btn" for="sort-event">Event</label>
         </div>
@@ -40,6 +42,7 @@ export default class SortView extends AbstractView {
             type="radio"
             name="trip-sort"
             value="sort-time"
+            ${this._currentSortType === SortType.TIME ? `checked` : ``}
           >
           <label class="trip-sort__btn" for="sort-time">
             Time
@@ -66,6 +69,7 @@ export default class SortView extends AbstractView {
             type="radio"
             name="trip-sort"
             value="sort-price"
+            ${this._currentSortType === SortType.PRICE ? `checked` : ``}
           >
           <label class="trip-sort__btn" for="sort-price">
             Price
@@ -92,25 +96,11 @@ export default class SortView extends AbstractView {
     this.getElement().addEventListener(`click`, this._sortTypeChangeHandler);
   }
 
-  _showDay(visible) {
-    const dayItemNode = this.getElement().querySelector(`.trip-sort__item--day`);
-
-    if (visible) {
-      dayItemNode.textContent = DAY;
-    } else {
-      dayItemNode.textContent = ``;
-    }
-  }
-
   _sortTypeChangeHandler(evt) {
     if (!(evt.target.tagName === `LABEL` || evt.target.tagName === `INPUT`)) {
       return;
     }
 
-    const currentSortType = evt.target.parentElement.dataset.sortType;
-
-    this._showDay(currentSortType === SortType.DEFAULT);
-
-    this._callback.sortTypeChange(currentSortType);
+    this._callback.sortTypeChange(evt.target.parentElement.dataset.sortType);
   }
 }

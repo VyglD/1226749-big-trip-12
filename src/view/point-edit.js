@@ -1,24 +1,22 @@
-import {POINTS_TYPE, CITIES, DESTINATIONS, DESTINATION_LIMIT} from "../data.js";
-import {generatePointLabel, getRandomSubArray} from "../utils/common.js";
+import {POINTS_TYPE, CITIES, DESTINATIONS, DESTINATION_LIMIT, UserAction} from "../data.js";
+import {generatePointLabel, getRandomSubArray, generatePhotos} from "../utils/common.js";
 import {getFormattedTimeString} from "../utils/date.js";
+import {getOffersByType} from "../utils/offers.js";
 import SmartView from "./smart.js";
-import {OFFERS} from "../data.js";
 import flatpickr from "flatpickr";
 import moment from "moment";
 
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
 const BLANK_POINT = {
-  type: `Flight`,
-  city: ``,
-  offers: [],
+  type: POINTS_TYPE.values().next().value[0],
+  city: CITIES[0],
+  offers: getOffersByType(POINTS_TYPE.values().next().value[0]),
   timeStart: new Date(),
   timeEnd: new Date(),
-  price: ``,
-  isFavorite: false,
-  destination: [],
-  photos: [],
-  isNew: true
+  price: 0,
+  destination: getRandomSubArray(DESTINATIONS),
+  photos: generatePhotos()
 };
 
 const FLATPICKR_PROPERIES = {
@@ -31,8 +29,13 @@ const FLATPICKR_PROPERIES = {
 };
 
 export default class PointEditView extends SmartView {
-  constructor(point = BLANK_POINT) {
+  constructor(point) {
     super();
+    if (!point) {
+      point = BLANK_POINT;
+      this._isNew = true;
+    }
+
     this._data = Object.assign({}, point);
     this._startDatepicker = null;
     this._endDatepicker = null;
@@ -46,6 +49,7 @@ export default class PointEditView extends SmartView {
     this._pointPriceChangeHandler = this._pointPriceChangeHandler.bind(this);
     this._startDateChangeHandler = this._startDateChangeHandler.bind(this);
     this._endDateChangeHandler = this._endDateChangeHandler.bind(this);
+    this._deleteButtonClickHandler = this._deleteButtonClickHandler.bind(this);
 
     this._setInnerHandlers();
     this._setDatepickers();
@@ -120,7 +124,9 @@ export default class PointEditView extends SmartView {
         </div>
 
         <button class="event__save-btn btn btn--blue" type="submit">Save</button>
-        <button class="event__reset-btn" type="reset">Delete</button>
+        <button class="event__reset-btn" type="reset">
+          ${this._isNew ? `Cansel` : `Delete`}
+        </button>
 
         ${this._createTripFavoriteButtonTemplate()}
       </header>
@@ -142,11 +148,21 @@ export default class PointEditView extends SmartView {
     this.getElement().addEventListener(`submit`, this._formSubmitHandler);
   }
 
+  setDeleteClickHandler(callback) {
+    this._callback.pointDelete = callback;
+    this.getElement().querySelector(`.event__reset-btn`)
+      .addEventListener(`click`, this._deleteButtonClickHandler);
+  }
+
   restoreHandlers() {
     this._setInnerHandlers();
     this._setDatepickers();
-    this.setFormCloseHandler(this._callback.formClose);
     this.setFormSubmitHandler(this._callback.formSubmit);
+
+    if (!this._isNew) {
+      this.setFormCloseHandler(this._callback.formClose);
+      this.setDeleteClickHandler(this._callback.pointDelete);
+    }
   }
 
   reset(point) {
@@ -189,8 +205,6 @@ export default class PointEditView extends SmartView {
   }
 
   _setInnerHandlers() {
-    this.getElement().querySelector(`.event__favorite-btn`)
-      .addEventListener(`click`, this._favoriteClickHandler);
     this.getElement().querySelector(`.event__type-list`)
       .addEventListener(`click`, this._pointTypeChangeHandler);
     this.getElement().querySelector(`.event__field-group--destination`)
@@ -202,12 +216,17 @@ export default class PointEditView extends SmartView {
       this.getElement().querySelector(`.event__available-offers`)
         .addEventListener(`click`, this._offersChangeHandler);
     }
+
+    if (!this._isNew) {
+      this.getElement().querySelector(`.event__favorite-btn`)
+        .addEventListener(`click`, this._favoriteClickHandler);
+    }
   }
 
   _createTripFavoriteButtonTemplate() {
-    const {isFavorite, isNew} = this._data;
+    const {isFavorite} = this._data;
 
-    return !isNew
+    return !this._isNew
       ? (
         `<input
           id="event-favorite-1"
@@ -395,12 +414,7 @@ export default class PointEditView extends SmartView {
 
     this.getElement().querySelector(`.event__type-toggle`).checked = false;
 
-    const offers = OFFERS.get(type).map((offer) => {
-      return Object.assign(
-          {checked: false},
-          offer
-      );
-    });
+    const offers = getOffersByType(type);
 
     this.updateDate({type, offers});
   }
@@ -432,10 +446,11 @@ export default class PointEditView extends SmartView {
       return;
     }
 
-    const newOffers = this._data.offers.map((offer) => Object.assign({}, offer));
-    const offer = newOffers.find((it) => it.name === evt.target.name);
+    const offers = this._data.offers.map((offer) => Object.assign({}, offer));
+    const offer = offers.find((it) => it.name === evt.target.name);
     offer.checked = !offer.checked;
-    this._data.offers = newOffers;
+
+    this.updateDate({offers}, true);
   }
 
   _pointPriceChangeHandler(evt) {
@@ -445,7 +460,7 @@ export default class PointEditView extends SmartView {
 
     this.updateDate(
         {
-          price: evt.target.value,
+          price: parseInt(evt.target.value, 10),
         },
         true
     );
@@ -453,12 +468,11 @@ export default class PointEditView extends SmartView {
 
   _startDateChangeHandler([userDate]) {
     const timeStart = new Date(userDate);
-    this.updateDate({timeStart}, true);
+    const timeEnd = (timeStart > this._data.timeEnd) ? timeStart : this._data.timeEnd;
 
     this._endDatepicker.set(`minDate`, timeStart);
-    if (timeStart > this._data.timeEnd) {
-      this._endDatepicker.setDate(timeStart);
-    }
+    this._endDatepicker.setDate(timeEnd);
+    this.updateDate({timeStart, timeEnd}, true);
   }
 
   _endDateChangeHandler([userDate]) {
@@ -468,5 +482,10 @@ export default class PointEditView extends SmartView {
         },
         true
     );
+  }
+
+  _deleteButtonClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.pointDelete(UserAction.DELETE_POINT, this._data);
   }
 }

@@ -16,7 +16,7 @@ export const POINTS_TYPE = new Map([
     `Restaurant`
   ]]
 ]);
-
+window.test = POINTS_TYPE;
 export const CITIES = [
   `Amsterdam`,
   `Geneva`,
@@ -36,11 +36,11 @@ export const DESTINATIONS = [
   `In rutrum ac purus sit amet tempus.`
 ];
 
-export const FILTERS = [
-  `everything`,
-  `future`,
-  `past`
-];
+export const FilterType = {
+  EVERYTHING: `everything`,
+  FUTURE: `future`,
+  PAST: `past`
+};
 
 export const SortType = {
   DEFAULT: `Event`,
@@ -48,75 +48,13 @@ export const SortType = {
   PRICE: `Price`
 };
 
-export const OFFERS = new Map([
-  [`Taxi`, [
-    {
-      name: `Order Uber`,
-      cost: 20,
-    }
-  ]],
-  [`Bus`, [
-    {
-      name: `Switch to comfort class`,
-      cost: 100,
-    }
-  ]],
-  [`Train`, [
-    {
-      name: `Switch to comfort class`,
-      cost: 100,
-    }
-  ]],
-  [`Ship`, []],
-  [`Transport`, []],
-  [`Drive`, [
-    {
-      name: `Rent a car`,
-      cost: 200,
-    }
-  ]],
-  [`Flight`, [
-    {
-      name: `Add luggage`,
-      cost: 30,
-    },
-    {
-      name: `Switch to comfort class`,
-      cost: 100,
-    },
-    {
-      name: `Add meal`,
-      cost: 15,
-    },
-    {
-      name: `Choose seats`,
-      cost: 5,
-    },
-    {
-      name: `Travel by train`,
-      cost: 40,
-    }
-  ]],
-  [`Check-in`, [
-    {
-      name: `Add breakfast`,
-      cost: 50,
-    }
-  ]],
-  [`Sightseeing`, [
-    {
-      name: `Book tickets`,
-      cost: 40,
-    },
-    {
-      name: `Lunch in city`,
-      cost: 30,
-    }
-  ]],
-  [`Restaurant`, [
-    {
-      name: `Musical accompaniment`,
-      cost: 10,
-    }
-  ]],
-]);
+export const EventType = {
+  FILTER: `filter`,
+  POINT: `point`
+};
+
+export const UserAction = {
+  UPDATE_POINT: `UPDATE_POINT`,
+  ADD_POINT: `ADD_POINT`,
+  DELETE_POINT: `DELETE_POINT`
+};

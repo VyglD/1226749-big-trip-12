@@ -1,6 +1,7 @@
 import {POINTS_TYPE} from "../data.js";
 
 const ESC_KEYCODE = 27;
+const PHOTOS_LIMIT = 5;
 
 const shuffleArray = (arr) => {
   return arr.slice().sort(() => {
@@ -48,16 +49,10 @@ export const getTimeInterval = (point) => {
   return point.timeEnd - point.timeStart;
 };
 
-export const updateItemArray = (array, updatedItem) => {
-  const index = array.findIndex((item) => item.id === updatedItem.id);
+export const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
 
-  if (index === -1) {
-    return array;
-  }
-
-  return [
-    ...array.slice(0, index),
-    updatedItem,
-    ...array.slice(index + 1)
-  ];
+export const generatePhotos = () => {
+  return new Array(getRandomInteger(0, PHOTOS_LIMIT))
+    .fill()
+    .map(() => `http://picsum.photos/248/152?r=${Math.random()}`);
 };

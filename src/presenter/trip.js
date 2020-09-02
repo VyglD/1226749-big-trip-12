@@ -4,111 +4,69 @@ import DayView from "../view/day.js";
 import PointsListView from "../view/points-list.js";
 import NoPointsView from "../view/no-points.js";
 import PointPresenter from "../presenter/point.js";
+import PointsPresenter from "../presenter/points.js";
+import NewPointPresenter from "../presenter/new-point.js";
 import {render, RenderPosition, append, remove} from "../utils/render.js";
-import {getTimeInterval, updateItemArray} from "../utils/common.js";
-import {SortType} from "../data.js";
+import {getTimeInterval} from "../utils/common.js";
+import {SortType, UserAction, FilterType} from "../data.js";
 
-export default class TripPresenter {
-  constructor(tripContainer) {
-    this._tripContainer = tripContainer;
+const SORT_KEY = `sort`;
+
+export default class TripPresenter extends PointsPresenter {
+  constructor(tripContainer, pointsModel, filtersModel) {
+    super(pointsModel, filtersModel);
+    this._container = tripContainer;
 
     this._currentSortType = SortType.DEFAULT;
     this._existPointPresenters = {};
     this._existTripDays = [];
 
     this._noPointsComponent = new NoPointsView();
-    this._sortComponent = new SortView();
     this._daysListComponent = new DaysListView();
+    this._sortComponent = null;
 
-    this._sortTypeChangeHandler = this._sortTypeChangeHandler.bind(this);
-    this._pointDataChangeHandler = this._pointDataChangeHandler.bind(this);
-    this._resetDataChangesHandler = this._resetDataChangesHandler.bind(this);
-  }
+    this._changePointsSorting = this._changePointsSorting.bind(this);
+    this._changePointsData = this._changePointsData.bind(this);
+    this._updateViews = this._updateViews.bind(this);
+    this._applyNewFilter = this._applyNewFilter.bind(this);
+    this._resetDataChanges = this._resetDataChanges.bind(this);
 
-  init(points) {
-    this._points = points.slice();
+    this._pointsModel.addObserver(this._updateViews);
+    this._filtersModel.addObserver(this._applyNewFilter);
+
     this._createTripSplit();
 
+    this._newPointPresenter = new NewPointPresenter(this._changePointsData);
+  }
+
+  init() {
     this._renderTrip();
   }
 
-  _renderNoPoints() {
-    render(
-        this._tripContainer,
-        this._noPointsComponent,
-        RenderPosition.BEFOREEND
-    );
+  createPoint() {
+    this._currentSortType = SortType.DEFAULT;
+    this._filtersModel.setFilter(FilterType.EVERYTHING);
+    this._newPointPresenter.init(this._sortComponent);
   }
 
-  _renderSortComponent() {
-    render(
-        this._tripContainer,
-        this._sortComponent,
-        RenderPosition.BEFOREEND
-    );
-
-    this._sortComponent.setSortTypeChangeHandler(this._sortTypeChangeHandler);
+  _getPointsByPrice() {
+    return this._getPoints().slice()
+      .sort((point1, point2) => point2.price - point1.price);
   }
 
-  _createPoint(container, pointData) {
-    const pointPresenter = new PointPresenter(
-        container,
-        this._pointDataChangeHandler,
-        this._resetDataChangesHandler
-    );
-    pointPresenter.init(pointData);
-    this._existPointPresenters[pointData.id] = pointPresenter;
-  }
-
-  _createDay(date, index) {
-    const isSort = date === `sort` ? true : false;
-    const tripDayComponent = new DayView(date, index, !isSort);
-    const pointsListComponent = new PointsListView(index);
-
-    append(tripDayComponent, pointsListComponent);
-
-    this._tripSplit.get(date).forEach((pointData) => {
-      this._createPoint(pointsListComponent, pointData);
-    });
-
-    append(this._daysListComponent, tripDayComponent);
-    this._existTripDays.push(tripDayComponent);
-  }
-
-  _createDaysList() {
-    Array.from(this._tripSplit.keys()).forEach((key, index) => {
-      this._createDay(key, index + 1);
-    });
+  _getPointsByTime() {
+    return this._getPoints().slice()
+      .sort((point1, point2) => getTimeInterval(point2) - getTimeInterval(point1));
   }
 
   _createSplitBySort(points) {
-    this._tripSplit = new Map([[`sort`, points]]);
-  }
-
-  _renderTripBoard() {
-    this._createDaysList();
-
-    render(
-        this._tripContainer,
-        this._daysListComponent,
-        RenderPosition.BEFOREEND
-    );
-  }
-
-  _renderTrip() {
-    if (!this._points.length) {
-      this._renderNoPoints();
-      return;
-    }
-
-    this._renderSortComponent();
-    this._renderTripBoard();
+    this._tripSplit = new Map([[SORT_KEY, points]]);
   }
 
   _createSplitByDays() {
     const tripDays = new Map();
 
-    for (const point of this._points.slice()) {
+    for (const point of this._getPoints()) {
       const date = new Date(point.timeStart).setHours(0, 0, 0, 0);
 
       if (tripDays.has(date)) {
@@ -134,17 +92,83 @@ export default class TripPresenter {
     }
   }
 
-  _getPointsByPrice() {
-    return this._points.slice()
-      .sort((point1, point2) => point2.price - point1.price);
+  _renderNoPoints() {
+    render(
+        this._container,
+        this._noPointsComponent,
+        RenderPosition.BEFOREEND
+    );
   }
 
-  _getPointsByTime() {
-    return this._points.slice()
-      .sort((point1, point2) => getTimeInterval(point2) - getTimeInterval(point1));
+  _renderSortComponent() {
+    if (this._sortComponent !== null) {
+      remove(this._sortComponent);
+      this._sortComponent = null;
+    }
+
+    this._sortComponent = new SortView(this._currentSortType);
+    this._sortComponent.setSortTypeChangeHandler(this._changePointsSorting);
+
+    render(
+        this._container,
+        this._sortComponent,
+        RenderPosition.BEFOREEND
+    );
+  }
+
+  _createPoint(container, pointData) {
+    const pointPresenter = new PointPresenter(
+        container,
+        this._changePointsData,
+        this._resetDataChanges
+    );
+    pointPresenter.init(pointData);
+    this._existPointPresenters[pointData.id] = pointPresenter;
+  }
+
+  _createDay(date, index) {
+    const isSort = date === SORT_KEY ? true : false;
+    const tripDayComponent = new DayView(date, index, !isSort);
+    const pointsListComponent = new PointsListView(index);
+
+    append(tripDayComponent, pointsListComponent);
+
+    this._tripSplit.get(date).forEach((pointData) => {
+      this._createPoint(pointsListComponent, pointData);
+    });
+
+    append(this._daysListComponent, tripDayComponent);
+    this._existTripDays.push(tripDayComponent);
+  }
+
+  _createDaysList() {
+    Array.from(this._tripSplit.keys()).forEach((key, index) => {
+      this._createDay(key, index + 1);
+    });
+  }
+
+  _renderTripBoard() {
+    this._createDaysList();
+
+    render(
+        this._container,
+        this._daysListComponent,
+        RenderPosition.BEFOREEND
+    );
+  }
+
+  _renderTrip() {
+    if (!this._getPoints().length) {
+      this._renderNoPoints();
+      return;
+    }
+
+    this._renderSortComponent();
+    this._renderTripBoard();
   }
 
   _clearTrip() {
+    this._newPointPresenter.destroy();
     Object
       .values(this._existPointPresenters)
       .forEach((presenter) => presenter.destroy());
@@ -154,25 +178,44 @@ export default class TripPresenter {
     this._existTripDays = [];
   }
 
-  _sortTypeChangeHandler(sortType) {
+  _updateViews() {
+    this._clearTrip();
+    this._createTripSplit();
+    this._renderTrip();
+  }
+
+  _changePointsSorting(sortType) {
     if (this._currentSortType === sortType) {
       return;
     }
 
-    this._clearTrip();
     this._currentSortType = sortType;
-    this._createTripSplit();
-    this._renderTripBoard();
+    this._updateViews();
   }
 
-  _pointDataChangeHandler(updatedPoint) {
-    this._points = updateItemArray(this._points, updatedPoint);
-    this._existPointPresenters[updatedPoint.id].init(updatedPoint);
+  _changePointsData(userAction, point) {
+    switch (userAction) {
+      case UserAction.UPDATE_POINT:
+        this._pointsModel.updatePoint(point);
+        break;
+      case UserAction.DELETE_POINT:
+        this._pointsModel.deletePoint(point);
+        break;
+      case UserAction.ADD_POINT:
+        this._pointsModel.addPoint(point);
+        break;
+    }
   }
 
-  _resetDataChangesHandler() {
+  _resetDataChanges() {
+    this._newPointPresenter.destroy();
     Object
       .values(this._existPointPresenters)
       .forEach((presenter) => presenter.resetView());
+  }
+
+  _applyNewFilter() {
+    this._currentSortType = SortType.DEFAULT;
+    this._updateViews();
   }
 }
