@@ -54,7 +54,9 @@ export default class TripPresenter extends PointsPresenter {
 
   createPoint(callback) {
     this._newPointPresenter.init(
-        this._sortComponent.isExist() ? this._sortComponent : this._container.querySelector(`h2`),
+        this._sortComponent.isRendered()
+          ? this._sortComponent
+          : this._container.querySelector(`h2`),
         callback
     );
   }

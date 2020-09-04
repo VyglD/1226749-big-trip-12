@@ -1,16 +1,25 @@
 import AbstractView from "./abstract.js";
 import {getHumanizeTimeInterval} from "../utils/date.js";
 import {getTimeInterval} from "../utils/common.js";
-import {TypeEmoji, POINTS_TYPE, ChartType} from "../data.js";
+import {TypeEmoji, POINTS_TYPE, ChartType, PointCategory} from "../data.js";
 import Chart from "chart.js";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-
-const TRANSPORT_TYPE = `Transfer`;
 
 export default class StatisticsView extends AbstractView {
   constructor(points) {
     super();
-    this._data = this._createData(points);
+    this._data = this._createData(
+        points,
+        new Map([
+          [ChartType.MONEY, ((point) => point.price)],
+          [ChartType.TRANSPORT, (() => 1)],
+          [ChartType.TIME_SPENT, ((point) => {
+            return POINTS_TYPE.get(PointCategory.TRANSFER).includes(point.type)
+              ? getTimeInterval(point)
+              : 0;
+          })]
+        ])
+    );
 
     this._moneyChart = null;
     this._timeSpendChart = null;
@@ -156,45 +165,35 @@ export default class StatisticsView extends AbstractView {
     });
   }
 
-  _createData(points) {
-    const transportTypes = POINTS_TYPE.get(TRANSPORT_TYPE);
-    const chartSlipt = {
-      [ChartType.MONEY]: {},
-      [ChartType.TRANSPORT]: {},
-      [ChartType.TIME_SPENT]: {}
-    };
+  _createData(points, configurations) {
+    const chartSplit = new Map(
+        Array.from(configurations).map(([key, _]) => [key, new Map()])
+    );
 
     points.forEach((point) => {
-      if (chartSlipt[ChartType.MONEY][point.type]) {
-        chartSlipt[ChartType.MONEY][point.type] += point.price;
-      } else {
-        chartSlipt[ChartType.MONEY][point.type] = point.price;
-      }
+      for (const [key, storage] of chartSplit) {
+        if (storage.has(point.type)) {
+          const currentValue = storage.get(point.type);
+          const newValue = configurations.get(key)(point);
 
-      if (chartSlipt[ChartType.TRANSPORT][point.type]) {
-        chartSlipt[ChartType.TRANSPORT][point.type]++;
-      } else {
-        if (transportTypes.includes(point.type)) {
-          chartSlipt[ChartType.TRANSPORT][point.type] = 1;
+          storage.set(point.type, newValue + currentValue);
+        } else {
+          storage.set(point.type, configurations.get(key)(point));
         }
-      }
-
-      if (chartSlipt[ChartType.TIME_SPENT][point.type]) {
-        chartSlipt[ChartType.TIME_SPENT][point.type] += getTimeInterval(point);
-      } else {
-        chartSlipt[ChartType.TIME_SPENT][point.type] = getTimeInterval(point);
       }
     });
 
-    return Object.entries(chartSlipt).map(([key, items]) => {
-      items = [...Object.entries(items)]
+    return Array.from(chartSplit)
+    .map(([key, items]) => {
+      const formattedStructure = [...items.entries()]
         .sort((a, b) => b[1] - a[1])
         .reduce((result, [name, value]) => {
           result.labels.push(`${TypeEmoji.get(name)} ${name.toUpperCase()}`);
           result.data.push(value);
+
           return result;
         }, {labels: [], data: []});
-      return ([key, items]);
+      return ([key, formattedStructure]);
     })
     .reduce((result, [key, items]) => {
       result[key] = items;

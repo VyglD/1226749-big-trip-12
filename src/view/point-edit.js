@@ -1,5 +1,16 @@
-import {POINTS_TYPE, CITIES, DESTINATIONS, DESTINATION_LIMIT, UserAction} from "../data.js";
-import {generatePointLabel, getRandomSubArray, generatePhotos} from "../utils/common.js";
+import {
+  POINTS_TYPE,
+  CITIES,
+  DESTINATIONS,
+  DESTINATION_LIMIT,
+  UserAction
+} from "../data.js";
+import {
+  generatePointLabel,
+  getRandomSubArray,
+  generatePhotos,
+  isInputTag
+} from "../utils/common.js";
 import {getFormattedTimeString} from "../utils/date.js";
 import {getOffersByType} from "../utils/offers.js";
 import SmartView from "./smart.js";
@@ -406,7 +417,7 @@ export default class PointEditView extends SmartView {
   }
 
   _pointTypeChangeHandler(evt) {
-    if (evt.target.tagName !== `INPUT`) {
+    if (!isInputTag(evt)) {
       return;
     }
 
@@ -420,7 +431,7 @@ export default class PointEditView extends SmartView {
   }
 
   _pointCityChangeHandler(evt) {
-    if (evt.target.tagName !== `INPUT` && evt.target.value === this._data.city) {
+    if (!isInputTag(evt) && evt.target.value === this._data.city) {
       return;
     }
 
@@ -442,7 +453,7 @@ export default class PointEditView extends SmartView {
   }
 
   _offersChangeHandler(evt) {
-    if (evt.target.tagName !== `INPUT`) {
+    if (!isInputTag(evt)) {
       return;
     }
 

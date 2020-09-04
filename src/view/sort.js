@@ -1,4 +1,5 @@
 import AbstractView from "./abstract.js";
+import {isInputTag} from "../utils/common.js";
 import {SortType} from "../data.js";
 
 export default class SortView extends AbstractView {
@@ -91,7 +92,7 @@ export default class SortView extends AbstractView {
     );
   }
 
-  isExist() {
+  isRendered() {
     return this._element !== null;
   }
 
@@ -101,7 +102,7 @@ export default class SortView extends AbstractView {
   }
 
   _sortTypeChangeHandler(evt) {
-    if (!(evt.target.tagName === `LABEL` || evt.target.tagName === `INPUT`)) {
+    if (!isInputTag(evt)) {
       return;
     }
 
