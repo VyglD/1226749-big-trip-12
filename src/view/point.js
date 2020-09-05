@@ -77,17 +77,19 @@ export default class PointView extends AbstractView {
   }
 
   _createPointOffersTemplate() {
-    return this._point.offers.map((offer) => {
-      return offer.checked
-        ? (
-          `<li class="event__offer">
-            <span class="event__offer-title">${offer.name}</span>
-            &plus;&euro;&nbsp;
-            <span class="event__offer-price">${offer.cost}</span>
-          </li>`
-        )
-        : ``;
-    }).join(``);
+    return this._point.offers
+      ? this._point.offers.map((offer) => {
+        return offer.checked
+          ? (
+            `<li class="event__offer">
+              <span class="event__offer-title">${offer.title}</span>
+              &plus;&euro;&nbsp;
+              <span class="event__offer-price">${offer.price}</span>
+            </li>`
+          )
+          : ``;
+      }).join(``)
+      : ``;
   }
 
   _editClickHandler(evt) {

@@ -4,7 +4,9 @@ import {isEscEvent, generateId} from "../utils/common.js";
 import {UserAction} from "../data.js";
 
 export default class NewPointPresenter {
-  constructor(changeData) {
+  constructor(pointsModel, offersModel, changeData) {
+    this._pointsModel = pointsModel;
+    this._offersModel = offersModel;
     this._changePointData = changeData;
 
     this._pointEditComponent = null;
@@ -22,7 +24,10 @@ export default class NewPointPresenter {
 
     this._destroyCallback = callback;
 
-    this._pointEditComponent = new PointEditView();
+    this._pointEditComponent = new PointEditView(
+        this._pointsModel.getDestinations(),
+        this._offersModel.getOffers()
+    );
 
     this._pointEditComponent.setFormSubmitHandler(this._formSubmitHandler);
     this._pointEditComponent.setDeleteClickHandler(this._deleteClickHandler);

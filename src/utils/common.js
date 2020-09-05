@@ -63,7 +63,12 @@ export const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10)
 export const generatePhotos = () => {
   return new Array(getRandomInteger(0, PHOTOS_LIMIT))
     .fill()
-    .map(() => `http://picsum.photos/248/152?r=${Math.random()}`);
+    .map(() => {
+      return {
+        src: `http://picsum.photos/248/152?r=${Math.random()}`,
+        description: `Event photo`
+      };
+    });
 };
 
 export const isInputTag = (evt) => {
@@ -72,4 +77,8 @@ export const isInputTag = (evt) => {
 
 export const isATag = (evt) => {
   return isTagName(evt, TagName.A);
+};
+
+export const transformToCapitalize = (word) => {
+  return word[0].toUpperCase() + word.slice(1).toLowerCase();
 };

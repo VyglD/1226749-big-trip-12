@@ -11,8 +11,16 @@ const Mode = {
 };
 
 export default class PointPresenter {
-  constructor(container, pointDataChangeHandler, resetPointDataChangesHandler) {
+  constructor(
+      container,
+      pointsModel,
+      offersModel,
+      pointDataChangeHandler,
+      resetPointDataChangesHandler
+  ) {
     this._contaier = container;
+    this._pointsModel = pointsModel;
+    this._offersModel = offersModel;
     this._changePointData = pointDataChangeHandler;
     this._resetPointDataChanges = resetPointDataChangesHandler;
 
@@ -34,7 +42,11 @@ export default class PointPresenter {
     const prevPointEditComponent = this._pointEditComponent;
 
     this._pointComponent = new PointView(point);
-    this._pointEditComponent = new PointEditView(point);
+    this._pointEditComponent = new PointEditView(
+        this._pointsModel.getDestinations(),
+        this._offersModel.getOffers(),
+        point
+    );
 
     this._pointComponent.setEditClickHandler(this._editClickHandler);
     this._pointEditComponent.setFormSubmitHandler(this._formSubmitHandler);
