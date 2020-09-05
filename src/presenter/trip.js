@@ -241,7 +241,10 @@ export default class TripPresenter extends PointsPresenter {
   _changePointsData(userAction, point) {
     switch (userAction) {
       case UserAction.UPDATE_POINT:
-        this._pointsModel.updatePoint(point);
+        this._api.updatePoint(this._pointsModel.adaptToServer(point))
+          .then(() => {
+            this._pointsModel.updatePoint(point);
+          });
         break;
       case UserAction.DELETE_POINT:
         this._pointsModel.deletePoint(point);
