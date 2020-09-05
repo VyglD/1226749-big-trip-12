@@ -5,21 +5,29 @@ import {TypeEmoji, POINTS_TYPE, ChartType, PointCategory} from "../data.js";
 import Chart from "chart.js";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
+const ChartProperty = {
+  TYPE: `horizontalBar`,
+  BAR_HEIGHT: 400,
+  BAR_THICKNESS: 44,
+  MIN_BAR_LENGTH: 100,
+  OPTIONS_FONT_SIZE: 13,
+  OPTIONS_TITLE_FONT_SIZE: 23,
+  OPTIONS_SCALES_Y_AXES_PADDING: 5,
+  OPTIONS_SCALES_Y_AXES_FONT_SIZE: 13,
+};
+
+const ChartValue = {
+  WHITE: `#ffffff`,
+  BLACK: `#000000`,
+  START: `start`,
+  END: `end`,
+  LEFT: `left`
+};
+
 export default class StatisticsView extends AbstractView {
   constructor(points) {
     super();
-    this._data = this._createData(
-        points,
-        new Map([
-          [ChartType.MONEY, ((point) => point.price)],
-          [ChartType.TRANSPORT, (() => 1)],
-          [ChartType.TIME_SPENT, ((point) => {
-            return POINTS_TYPE.get(PointCategory.TRANSFER).includes(point.type)
-              ? getTimeInterval(point)
-              : 0;
-          })]
-        ])
-    );
+    this._data = this._createData(points);
 
     this._moneyChart = null;
     this._timeSpendChart = null;
@@ -74,10 +82,9 @@ export default class StatisticsView extends AbstractView {
     const transportCtx = this.getElement().querySelector(`.statistics__chart--transport`);
     const timeSpendCtx = this.getElement().querySelector(`.statistics__chart--time`);
 
-    const BAR_HEIGHT = 55;
-    moneyCtx.height = BAR_HEIGHT * 6;
-    transportCtx.height = BAR_HEIGHT * 4;
-    timeSpendCtx.height = BAR_HEIGHT * 4;
+    moneyCtx.height = ChartProperty.BAR_HEIGHT;
+    transportCtx.height = ChartProperty.BAR_HEIGHT;
+    timeSpendCtx.height = ChartProperty.BAR_HEIGHT;
 
     this._moneyChart = this._renderChart(
         moneyCtx,
@@ -101,43 +108,43 @@ export default class StatisticsView extends AbstractView {
   _renderChart(ctx, text, formatter) {
     return new Chart(ctx, {
       plugins: [ChartDataLabels],
-      type: `horizontalBar`,
+      type: ChartProperty.TYPE,
       data: {
         labels: this._data[text].labels,
         datasets: [{
           data: this._data[text].data,
-          backgroundColor: `#ffffff`,
-          hoverBackgroundColor: `#ffffff`,
-          anchor: `start`,
-          barThickness: 44,
-          minBarLength: 100
+          backgroundColor: ChartValue.WHITE,
+          hoverBackgroundColor: ChartValue.WHITE,
+          anchor: ChartValue.START,
+          barThickness: ChartProperty.BAR_THICKNESS,
+          minBarLength: ChartProperty.MIN_BAR_LENGTH
         }]
       },
       options: {
         plugins: {
           datalabels: {
             font: {
-              size: 13
+              size: ChartProperty.OPTIONS_FONT_SIZE
             },
-            color: `#000000`,
-            anchor: `end`,
-            align: `start`,
+            color: ChartValue.BLACK,
+            anchor: ChartValue.END,
+            align: ChartValue.START,
             formatter
           }
         },
         title: {
           display: true,
           text,
-          fontColor: `#000000`,
-          fontSize: 23,
-          position: `left`
+          fontColor: ChartValue.BLACK,
+          fontSize: ChartProperty.OPTIONS_TITLE_FONT_SIZE,
+          position: ChartValue.LEFT
         },
         scales: {
           yAxes: [{
             ticks: {
-              fontColor: `#000000`,
-              padding: 5,
-              fontSize: 13,
+              fontColor: ChartValue.BLACK,
+              padding: ChartProperty.OPTIONS_SCALES_Y_AXES_PADDING,
+              fontSize: ChartProperty.OPTIONS_SCALES_Y_AXES_FONT_SIZE,
             },
             gridLines: {
               display: false,
@@ -165,39 +172,67 @@ export default class StatisticsView extends AbstractView {
     });
   }
 
-  _createData(points, configurations) {
-    const chartSplit = new Map(
-        Array.from(configurations).map(([key, _]) => [key, new Map()])
+  _createData(points) {
+    return Object.assign({},
+        this._getMoneyChartData(points),
+        this._getTransportChartData(points),
+        this._getTimeSpentChartData(points)
     );
+  }
+
+  _getMoneyChartData(points) {
+    const pointTypes = {};
 
     points.forEach((point) => {
-      for (const [key, storage] of chartSplit) {
-        if (storage.has(point.type)) {
-          const currentValue = storage.get(point.type);
-          const newValue = configurations.get(key)(point);
+      if (pointTypes[point.type]) {
+        pointTypes[point.type] += point.price;
+      } else {
+        pointTypes[point.type] = point.price;
+      }
+    });
 
-          storage.set(point.type, newValue + currentValue);
-        } else {
-          storage.set(point.type, configurations.get(key)(point));
+    return this._getFormattedStructure(pointTypes, ChartType.MONEY);
+  }
+
+  _getTransportChartData(points) {
+    const transportTypes = POINTS_TYPE.get(PointCategory.TRANSFER);
+    const pointsTransport = {};
+
+    points.forEach((point) => {
+      if (pointsTransport[point.type]) {
+        pointsTransport[point.type]++;
+      } else {
+        if (transportTypes.includes(point.type)) {
+          pointsTransport[point.type] = 1;
         }
       }
     });
 
-    return Array.from(chartSplit)
-    .map(([key, items]) => {
-      const formattedStructure = [...items.entries()]
-        .sort((a, b) => b[1] - a[1])
-        .reduce((result, [name, value]) => {
-          result.labels.push(`${TypeEmoji.get(name)} ${name.toUpperCase()}`);
-          result.data.push(value);
+    return this._getFormattedStructure(pointsTransport, ChartType.TRANSPORT);
+  }
 
-          return result;
-        }, {labels: [], data: []});
-      return ([key, formattedStructure]);
-    })
-    .reduce((result, [key, items]) => {
-      result[key] = items;
+  _getTimeSpentChartData(points) {
+    const pointTypes = {};
+
+    points.forEach((point) => {
+      if (pointTypes[point.type]) {
+        pointTypes[point.type] += getTimeInterval(point);
+      } else {
+        pointTypes[point.type] = getTimeInterval(point);
+      }
+    });
+
+    return this._getFormattedStructure(pointTypes, ChartType.TIME_SPENT);
+  }
+
+  _getFormattedStructure(items, name) {
+    return [...Object.entries(items)]
+    .sort((a, b) => b[1] - a[1])
+    .reduce((result, [key, value]) => {
+      result[name].labels.push(`${TypeEmoji.get(key)} ${key.toUpperCase()}`);
+      result[name].data.push(value);
+
       return result;
-    }, {});
+    }, {[name]: {labels: [], data: []}});
   }
 }
