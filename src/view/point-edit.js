@@ -37,13 +37,16 @@ const CLASS_PRICE = `event__input--price`;
 export default class PointEditView extends SmartView {
   constructor(destinations, offers, point) {
     super();
-    if (!point) {
-      point = BLANK_POINT;
-      this._isNew = true;
-    }
-
     this._destinations = destinations;
     this._offers = offers;
+
+    if (!point) {
+      point = BLANK_POINT;
+      if (this._offers.size > 0) {
+        point.offers = this._offers.get(point.type);
+      }
+      this._isNew = true;
+    }
 
     this._data = Object.assign({}, point);
     this._startDatepicker = null;

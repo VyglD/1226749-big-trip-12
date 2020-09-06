@@ -97,9 +97,9 @@ tripPresenter.init();
 filtersPreseter.init();
 
 Promise.all([
-  api.getOffers(api),
-  api.getDestinations(api),
-  api.getPoints(api),
+  api.getOffers(),
+  api.getDestinations(),
+  api.getPoints(),
 ])
   .then(([offers, destinations, points]) => {
     offersModel.setOffersFromServer(offers);
