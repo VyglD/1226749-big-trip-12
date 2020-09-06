@@ -9,7 +9,7 @@ import PointsPresenter from "../presenter/points.js";
 import NewPointPresenter from "../presenter/new-point.js";
 import {render, RenderPosition, append, remove} from "../utils/render.js";
 import {getTimeInterval} from "../utils/common.js";
-import {SortType, UserAction, EventType} from "../data.js";
+import {SortType, UserAction, EventType, State} from "../data.js";
 
 const SORT_KEY = `sort`;
 
@@ -241,21 +241,33 @@ export default class TripPresenter extends PointsPresenter {
   _changePointsData(userAction, point) {
     switch (userAction) {
       case UserAction.UPDATE_POINT:
+        this._existPointPresenters[point.id].setViewState(State.SAVING);
         this._api.updatePoint(this._pointsModel.adaptToServer(point))
-          .then(() => {
-            this._pointsModel.updatePoint(point);
+          .then((response) => {
+            this._pointsModel.updatePoint(this._pointsModel._adaptToClient(response));
+          })
+          .catch(() => {
+            this._existPointPresenters[point.id].setViewState(State.ABORTING);
           });
         break;
       case UserAction.DELETE_POINT:
+        this._existPointPresenters[point.id].setViewState(State.DELETING);
         this._api.deletePoint(this._pointsModel.adaptToServer(point))
           .then(() => {
             this._pointsModel.deletePoint(point);
+          })
+          .catch(() => {
+            this._existPointPresenters[point.id].setViewState(State.ABORTING);
           });
         break;
       case UserAction.ADD_POINT:
+        this._newPointPresenter.setViewState(State.SAVING);
         this._api.addPoint(this._pointsModel.adaptToServer(point))
           .then((response) => {
             this._pointsModel.addPoint(this._pointsModel._adaptToClient(response));
+          })
+          .catch(() => {
+            this._newPointPresenter.setViewState(State.ABORTING);
           });
         break;
     }

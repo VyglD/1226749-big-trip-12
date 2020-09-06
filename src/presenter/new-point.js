@@ -1,7 +1,7 @@
 import PointEditView from "../view/point-edit.js";
 import {render, RenderPosition, remove} from "../utils/render.js";
 import {isEscEvent} from "../utils/common.js";
-import {UserAction} from "../data.js";
+import {UserAction, State} from "../data.js";
 
 export default class NewPointPresenter {
   constructor(pointsModel, offersModel, changeData) {
@@ -52,6 +52,28 @@ export default class NewPointPresenter {
     document.removeEventListener(`keydown`, this._escKeyDownHandler);
   }
 
+  setViewState(state) {
+    const resetFormState = () => {
+      this._pointEditComponent.updateData({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false
+      });
+    };
+
+    switch (state) {
+      case State.SAVING:
+        this._pointEditComponent.updateData({
+          isDisabled: true,
+          isSaving: true
+        });
+        break;
+      case State.ABORTING:
+        this._pointEditComponent.shake(resetFormState);
+        break;
+    }
+  }
+
   _escKeyDownHandler(evt) {
     if (isEscEvent(evt)) {
       evt.preventDefault();
@@ -64,7 +86,6 @@ export default class NewPointPresenter {
         UserAction.ADD_POINT,
         newPoint
     );
-    this.destroy();
   }
 
   _deleteClickHandler() {

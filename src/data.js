@@ -68,3 +68,9 @@ export const ChartType = {
   TRANSPORT: `TRANSPORT`,
   TIME_SPENT: `TIME SPENT`,
 };
+
+export const State = {
+  SAVING: `SAVING`,
+  DELETING: `DELETING`,
+  ABORTING: `ABORTING`
+};
