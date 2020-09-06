@@ -1,6 +1,6 @@
 import PointEditView from "../view/point-edit.js";
 import {render, RenderPosition, remove} from "../utils/render.js";
-import {isEscEvent, generateId} from "../utils/common.js";
+import {isEscEvent} from "../utils/common.js";
 import {UserAction} from "../data.js";
 
 export default class NewPointPresenter {
@@ -59,10 +59,10 @@ export default class NewPointPresenter {
     }
   }
 
-  _formSubmitHandler(newPointData) {
+  _formSubmitHandler(newPoint) {
     this._changePointData(
         UserAction.ADD_POINT,
-        Object.assign({id: generateId()}, newPointData)
+        newPoint
     );
     this.destroy();
   }

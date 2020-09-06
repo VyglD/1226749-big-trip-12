@@ -247,10 +247,16 @@ export default class TripPresenter extends PointsPresenter {
           });
         break;
       case UserAction.DELETE_POINT:
-        this._pointsModel.deletePoint(point);
+        this._api.deletePoint(this._pointsModel.adaptToServer(point))
+          .then(() => {
+            this._pointsModel.deletePoint(point);
+          });
         break;
       case UserAction.ADD_POINT:
-        this._pointsModel.addPoint(point);
+        this._api.addPoint(this._pointsModel.adaptToServer(point))
+          .then((response) => {
+            this._pointsModel.addPoint(this._pointsModel._adaptToClient(response));
+          });
         break;
     }
   }

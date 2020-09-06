@@ -1,6 +1,8 @@
 const Method = {
   GET: `GET`,
-  PUT: `PUT`
+  PUT: `PUT`,
+  POST: `POST`,
+  DELETE: `DELETE`
 };
 
 export default class Api {
@@ -23,7 +25,28 @@ export default class Api {
           headers: new Headers({"Content-Type": `application/json`})
         }
     )
+      .then(Api.toJSON);
+  }
+
+  addPoint(point) {
+    return this._load(
+        {
+          url: `points`,
+          method: Method.POST,
+          body: JSON.stringify(point),
+          headers: new Headers({"Content-Type": `application/json`})
+        }
+    )
     .then(Api.toJSON);
+  }
+
+  deletePoint(point) {
+    return this._load(
+        {
+          url: `points/${point.id}`,
+          method: Method.DELETE,
+        }
+    );
   }
 
   getDestinations() {

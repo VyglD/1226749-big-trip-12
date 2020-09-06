@@ -1,39 +1,4 @@
-import {getRandomInteger} from "./common";
 import moment from "moment";
-
-const DAY_SHIFT = 1;
-const MAX_MINUTES = 59;
-const MAX_HOURS = 23;
-const MIN_HOURS = 1;
-
-export const generateTimeInterval = () => {
-  const start = new Date();
-  const end = new Date();
-  const negativeShift = getRandomInteger(-DAY_SHIFT, DAY_SHIFT);
-  const positiveShift = getRandomInteger(negativeShift, DAY_SHIFT);
-
-  start.setDate(start.getDate() + negativeShift);
-  end.setDate(end.getDate() + positiveShift);
-
-  start.setHours(
-      getRandomInteger(MIN_HOURS, MAX_HOURS),
-      getRandomInteger(0, MAX_MINUTES),
-      0,
-      0
-  );
-
-  end.setHours(
-      getRandomInteger(start.getHours(), MAX_HOURS),
-      getRandomInteger(start.getMinutes(), MAX_MINUTES),
-      0,
-      0
-  );
-
-  return {
-    start,
-    end,
-  };
-};
 
 export const getDateAtShortFormat = (date) => {
   return moment(date).format(`MMM DD`);
