@@ -1,7 +1,10 @@
-import {POINTS_TYPE, CITIES, DESTINATIONS, DESTINATION_LIMIT, UserAction} from "../data.js";
-import {generatePointLabel, getRandomSubArray, generatePhotos} from "../utils/common.js";
+import {POINTS_TYPE, UserAction, PointCategory} from "../data.js";
+import {
+  generatePointLabel,
+  isInputTag,
+  transformToCapitalize
+} from "../utils/common.js";
 import {getFormattedTimeString} from "../utils/date.js";
-import {getOffersByType} from "../utils/offers.js";
 import SmartView from "./smart.js";
 import flatpickr from "flatpickr";
 import moment from "moment";
@@ -9,14 +12,14 @@ import moment from "moment";
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
 const BLANK_POINT = {
-  type: POINTS_TYPE.values().next().value[0],
-  city: CITIES[0],
-  offers: getOffersByType(POINTS_TYPE.values().next().value[0]),
+  type: POINTS_TYPE.get(PointCategory.TRANSFER)[0],
+  city: ``,
+  offers: [],
   timeStart: new Date(),
   timeEnd: new Date(),
   price: 0,
-  destination: getRandomSubArray(DESTINATIONS),
-  photos: generatePhotos()
+  destination: [],
+  photos: []
 };
 
 const FLATPICKR_PROPERIES = {
@@ -28,11 +31,20 @@ const FLATPICKR_PROPERIES = {
   },
 };
 
+const CLASS_CITY = `event__field-group--destination`;
+const CLASS_PRICE = `event__input--price`;
+
 export default class PointEditView extends SmartView {
-  constructor(point) {
+  constructor(destinations, offers, point) {
     super();
+    this._destinations = destinations;
+    this._offers = offers;
+
     if (!point) {
       point = BLANK_POINT;
+      if (this._offers.size > 0) {
+        point.offers = this._offers.get(point.type);
+      }
       this._isNew = true;
     }
 
@@ -53,6 +65,7 @@ export default class PointEditView extends SmartView {
 
     this._setInnerHandlers();
     this._setDatepickers();
+    this._checkFormValidity();
   }
 
   getTemplate() {
@@ -115,7 +128,7 @@ export default class PointEditView extends SmartView {
             &euro;
           </label>
           <input
-            class="event__input event__input--price"
+            class="event__input ${CLASS_PRICE}"
             id="event-price-1"
             type="number"
             name="event-price"
@@ -158,10 +171,10 @@ export default class PointEditView extends SmartView {
     this._setInnerHandlers();
     this._setDatepickers();
     this.setFormSubmitHandler(this._callback.formSubmit);
+    this.setDeleteClickHandler(this._callback.pointDelete);
 
     if (!this._isNew) {
       this.setFormCloseHandler(this._callback.formClose);
-      this.setDeleteClickHandler(this._callback.pointDelete);
     }
   }
 
@@ -207,12 +220,12 @@ export default class PointEditView extends SmartView {
   _setInnerHandlers() {
     this.getElement().querySelector(`.event__type-list`)
       .addEventListener(`click`, this._pointTypeChangeHandler);
-    this.getElement().querySelector(`.event__field-group--destination`)
+    this.getElement().querySelector(`.${CLASS_CITY}`)
       .addEventListener(`change`, this._pointCityChangeHandler);
-    this.getElement().querySelector(`.event__input--price`)
+    this.getElement().querySelector(`.${CLASS_PRICE}`)
       .addEventListener(`change`, this._pointPriceChangeHandler);
 
-    if (this._data.offers.length) {
+    if (this._data.offers && this._data.offers.length) {
       this.getElement().querySelector(`.event__available-offers`)
         .addEventListener(`click`, this._offersChangeHandler);
     }
@@ -264,15 +277,15 @@ export default class PointEditView extends SmartView {
             `<div class="event__offer-selector">
               <input
                 class="event__offer-checkbox visually-hidden"
-                id="event-offer-${offer.name}-1"
+                id="event-offer-${offer.title}-1"
                 type="checkbox"
-                name="${offer.name}"
+                name="${offer.title}"
                 ${offer.checked ? `checked` : ``}
               >
-              <label class="event__offer-label" for="event-offer-${offer.name}-1">
-                <span class="event__offer-title">${offer.name}</span>
+              <label class="event__offer-label" for="event-offer-${offer.title}-1">
+                <span class="event__offer-title">${offer.title}</span>
                 &plus;&euro;&nbsp;
-                <span class="event__offer-price">${offer.cost}</span>
+                <span class="event__offer-price">${offer.price}</span>
               </label>
             </div>`
           );
@@ -293,7 +306,7 @@ export default class PointEditView extends SmartView {
             Destination
           </h3>
           <p class="event__destination-description">
-            ${destination.join(` `)}
+            ${destination}
           </p>
 
           ${this._createTripDestinationPhotosTemplate()}
@@ -309,8 +322,10 @@ export default class PointEditView extends SmartView {
       ? (
         `<div class="event__photos-container">
           <div class="event__photos-tape">
-            ${photos.map((src) => `<img class="event__photo" src="${src}" alt="Event photo">`)
-              .join(``)}
+            ${photos.map((photo) => `<img
+                class="event__photo"
+                src="${photo.src}"
+                alt="${photo.description}">`).join(``)}
           </div>
         </div>`
       )
@@ -319,7 +334,9 @@ export default class PointEditView extends SmartView {
 
   _createTripDetailsTemplate() {
     const {offers, destination, photos} = this._data;
-    return (destination.length || photos.length || offers.length)
+    return ((destination && destination.length)
+     || (photos && photos.length)
+     || (offers && offers.length))
       ? (`<section class="event__details">
           ${this._createTripOffersSectionTemplate()}
           ${this._createTripDestinationDescriptionTemplate()}
@@ -332,7 +349,7 @@ export default class PointEditView extends SmartView {
     const {type, city} = this._data;
 
     return (
-      `<div class="event__field-group event__field-group--destination">
+      `<div class="event__field-group ${CLASS_CITY}">
         <label class="event__label event__type-output" for="event-destination-1">
           ${generatePointLabel(type)}
         </label>
@@ -345,7 +362,11 @@ export default class PointEditView extends SmartView {
           list="destination-list-1"
         >
         <datalist id="destination-list-1">
-          ${CITIES.map((it) => `<option value="${it}"></option>`).join(``)}
+          ${Array.from(this._destinations.keys())
+            .map((it) => {
+              return `<option value="${it}"></option>`;
+            })
+            .join(``)}
         </datalist>
       </div>`
     );
@@ -386,9 +407,49 @@ export default class PointEditView extends SmartView {
       }).join(``);
   }
 
+  _checkCityValidity() {
+    const cityNode = this.getElement().querySelector(`.${CLASS_CITY} input`);
+    let cityMessage = ``;
+    let validity = true;
+
+    if (cityNode.value.length === 0) {
+      cityMessage = `Не указан пункт назначения`;
+      validity = false;
+    } else if (this._destinations.size
+      && ![...this._destinations.keys()].includes(cityNode.value)) {
+      cityMessage = `Выбранный пункт назначения отсутсвует в предложенном списке`;
+      validity = false;
+    }
+
+    cityNode.setCustomValidity(cityMessage);
+
+    return validity;
+  }
+
+  _checkPriceValidity() {
+    const priceNode = this.getElement().querySelector(`.${CLASS_PRICE}`);
+    let priceMessage = ``;
+    let validity = true;
+
+    if (!(parseInt(priceNode.value, 10) > 0)) {
+      priceMessage = `Стоимость должны быть больше ноля`;
+      validity = false;
+    }
+
+    priceNode.setCustomValidity(priceMessage);
+
+    return validity;
+  }
+
+  _checkFormValidity() {
+    return this._checkCityValidity() && this._checkPriceValidity();
+  }
+
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callback.formSubmit(this._data);
+    if (this._checkFormValidity()) {
+      this._callback.formSubmit(this._data);
+    }
   }
 
   _formCloseHandler(evt) {
@@ -406,48 +467,54 @@ export default class PointEditView extends SmartView {
   }
 
   _pointTypeChangeHandler(evt) {
-    if (evt.target.tagName !== `INPUT`) {
+    if (!isInputTag(evt)) {
       return;
     }
 
-    const type = evt.target.value[0].toUpperCase() + evt.target.value.slice(1);
+    const type = transformToCapitalize(evt.target.value);
 
     this.getElement().querySelector(`.event__type-toggle`).checked = false;
 
-    const offers = getOffersByType(type);
+    const offers = this._offers.get(type);
 
     this.updateDate({type, offers});
   }
 
   _pointCityChangeHandler(evt) {
-    if (evt.target.tagName !== `INPUT` && evt.target.value === this._data.city) {
+    if (!isInputTag(evt) && evt.target.value === this._data.city) {
       return;
     }
 
     const newCity = evt.target.value;
+    const destination = this._destinations.get(newCity);
 
-    if (CITIES.includes(newCity)) {
-      evt.target.setCustomValidity(``);
+    if (destination) {
+      const {description, photos} = destination;
+      this.updateDate(
+          {
+            city: newCity,
+            destination: description,
+            photos
+          }
+      );
     } else {
-      evt.target.setCustomValidity(`Выбранный город отсутсвует в списке`);
-      return;
+      this.updateDate(
+          {
+            city: newCity,
+          }
+      );
     }
 
-    this.updateDate(
-        {
-          city: newCity,
-          destination: getRandomSubArray(DESTINATIONS, DESTINATION_LIMIT)
-        }
-    );
+    this._checkFormValidity();
   }
 
   _offersChangeHandler(evt) {
-    if (evt.target.tagName !== `INPUT`) {
+    if (!isInputTag(evt)) {
       return;
     }
 
     const offers = this._data.offers.map((offer) => Object.assign({}, offer));
-    const offer = offers.find((it) => it.name === evt.target.name);
+    const offer = offers.find((it) => it.title === evt.target.name);
     offer.checked = !offer.checked;
 
     this.updateDate({offers}, true);
@@ -464,6 +531,8 @@ export default class PointEditView extends SmartView {
         },
         true
     );
+
+    this._checkFormValidity();
   }
 
   _startDateChangeHandler([userDate]) {

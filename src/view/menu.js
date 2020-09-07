@@ -1,5 +1,8 @@
 import AbstractView from "./abstract.js";
+import {isATag} from "../utils/common.js";
 import {MenuItem} from "../data.js";
+
+const ACTIVE_CLASS = `trip-tabs__btn--active`;
 
 export default class MenuView extends AbstractView {
   constructor() {
@@ -12,7 +15,7 @@ export default class MenuView extends AbstractView {
     return (
       `<nav class="trip-controls__trip-tabs  trip-tabs">
         <a
-          class="trip-tabs__btn trip-tabs__btn--active"
+          class="trip-tabs__btn ${ACTIVE_CLASS}"
           href="#"
           value=${MenuItem.TABLE}
         >
@@ -31,11 +34,11 @@ export default class MenuView extends AbstractView {
 
   setMenuItem(menuItem) {
     const itemNode = this.getElement().querySelector(`[value=${menuItem}]`);
-    const prevActiveNode = this.getElement().querySelector(`.trip-tabs__btn--active`);
+    const prevActiveNode = this.getElement().querySelector(`.${ACTIVE_CLASS}`);
 
     if (itemNode && prevActiveNode && prevActiveNode !== itemNode) {
-      prevActiveNode.classList.remove(`trip-tabs__btn--active`);
-      itemNode.classList.add(`trip-tabs__btn--active`);
+      prevActiveNode.classList.remove(ACTIVE_CLASS);
+      itemNode.classList.add(ACTIVE_CLASS);
     }
   }
 
@@ -47,8 +50,8 @@ export default class MenuView extends AbstractView {
   _menuItemClickHandler(evt) {
     evt.preventDefault();
 
-    if (evt.target.tagName !== `A`
-      || evt.target.classList.contains(`trip-tabs__btn--active`)) {
+    if (!isATag(evt)
+      || evt.target.classList.contains(ACTIVE_CLASS)) {
       return;
     }
 

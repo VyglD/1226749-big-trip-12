@@ -3,6 +3,15 @@ import {POINTS_TYPE} from "../data.js";
 const ESC_KEYCODE = 27;
 const PHOTOS_LIMIT = 5;
 
+const TagName = {
+  INPUT: `INPUT`,
+  A: `A`
+};
+
+const isTagName = (evt, tag) => {
+  return evt.target.tagName === tag;
+};
+
 const shuffleArray = (arr) => {
   return arr.slice().sort(() => {
     return 0.5 - Math.random();
@@ -54,5 +63,22 @@ export const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10)
 export const generatePhotos = () => {
   return new Array(getRandomInteger(0, PHOTOS_LIMIT))
     .fill()
-    .map(() => `http://picsum.photos/248/152?r=${Math.random()}`);
+    .map(() => {
+      return {
+        src: `http://picsum.photos/248/152?r=${Math.random()}`,
+        description: `Event photo`
+      };
+    });
+};
+
+export const isInputTag = (evt) => {
+  return isTagName(evt, TagName.INPUT);
+};
+
+export const isATag = (evt) => {
+  return isTagName(evt, TagName.A);
+};
+
+export const transformToCapitalize = (word) => {
+  return word[0].toUpperCase() + word.slice(1).toLowerCase();
 };

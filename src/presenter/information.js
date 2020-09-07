@@ -37,6 +37,7 @@ export default class InformationPresenter extends PointsPresenter {
     }
 
     this._updateCost();
+    this._updateRoute();
   }
 
   _updateCost() {

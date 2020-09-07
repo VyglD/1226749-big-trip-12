@@ -3,26 +3,32 @@ import DaysListView from "../view/days-list.js";
 import DayView from "../view/day.js";
 import PointsListView from "../view/points-list.js";
 import NoPointsView from "../view/no-points.js";
+import LoadingView from "../view/loading.js";
 import PointPresenter from "../presenter/point.js";
 import PointsPresenter from "../presenter/points.js";
 import NewPointPresenter from "../presenter/new-point.js";
 import {render, RenderPosition, append, remove} from "../utils/render.js";
 import {getTimeInterval} from "../utils/common.js";
-import {SortType, UserAction} from "../data.js";
+import {SortType, UserAction, EventType} from "../data.js";
 
 const SORT_KEY = `sort`;
 
 export default class TripPresenter extends PointsPresenter {
-  constructor(tripContainer, pointsModel, filtersModel) {
+  constructor(tripContainer, tripHeader, pointsModel, offersModel, filtersModel, api) {
     super(pointsModel, filtersModel);
     this._container = tripContainer;
+    this._header = tripHeader;
+    this._offersModel = offersModel;
+    this._api = api;
 
     this._currentSortType = SortType.DEFAULT;
     this._existPointPresenters = {};
     this._existTripDays = [];
+    this._isLoading = true;
 
     this._noPointsComponent = new NoPointsView();
     this._daysListComponent = new DaysListView();
+    this._loadingComponent = new LoadingView();
     this._sortComponent = null;
 
     this._changePointsSorting = this._changePointsSorting.bind(this);
@@ -31,7 +37,11 @@ export default class TripPresenter extends PointsPresenter {
     this._applyNewFilter = this._applyNewFilter.bind(this);
     this._resetDataChanges = this._resetDataChanges.bind(this);
 
-    this._newPointPresenter = new NewPointPresenter(this._changePointsData);
+    this._newPointPresenter = new NewPointPresenter(
+        pointsModel,
+        offersModel,
+        this._changePointsData
+    );
   }
 
   init() {
@@ -54,7 +64,9 @@ export default class TripPresenter extends PointsPresenter {
 
   createPoint(callback) {
     this._newPointPresenter.init(
-        this._sortComponent.isExist() ? this._sortComponent : this._container.querySelector(`h2`),
+        (this._sortComponent !== null && this._sortComponent.isRendered())
+          ? this._sortComponent
+          : this._header,
         callback
     );
   }
@@ -125,9 +137,15 @@ export default class TripPresenter extends PointsPresenter {
     );
   }
 
+  _renderLoading() {
+    render(this._header, this._loadingComponent, RenderPosition.AFTEREND);
+  }
+
   _createPointPresenter(container, pointData) {
     const pointPresenter = new PointPresenter(
         container,
+        this._pointsModel,
+        this._offersModel,
         this._changePointsData,
         this._resetDataChanges
     );
@@ -167,6 +185,11 @@ export default class TripPresenter extends PointsPresenter {
   }
 
   _renderTrip() {
+    if (this._isLoading) {
+      this._renderLoading();
+      return;
+    }
+
     if (!this._getPoints().length) {
       this._renderNoPoints();
       return;
@@ -184,6 +207,7 @@ export default class TripPresenter extends PointsPresenter {
     this._newPointPresenter.destroy();
 
     remove(this._noPointsComponent);
+    remove(this._loadingComponent);
     remove(this._sortComponent);
 
     Object
@@ -195,7 +219,11 @@ export default class TripPresenter extends PointsPresenter {
     this._existTripDays = [];
   }
 
-  _updateViews() {
+  _updateViews(eventType) {
+    if (eventType === EventType.INIT) {
+      this._isLoading = false;
+      remove(this._loadingComponent);
+    }
     this._clearTrip();
     this._createTripSplit();
     this._renderTrip();
@@ -213,7 +241,10 @@ export default class TripPresenter extends PointsPresenter {
   _changePointsData(userAction, point) {
     switch (userAction) {
       case UserAction.UPDATE_POINT:
-        this._pointsModel.updatePoint(point);
+        this._api.updatePoint(this._pointsModel.adaptToServer(point))
+          .then(() => {
+            this._pointsModel.updatePoint(point);
+          });
         break;
       case UserAction.DELETE_POINT:
         this._pointsModel.deletePoint(point);
@@ -231,8 +262,8 @@ export default class TripPresenter extends PointsPresenter {
       .forEach((presenter) => presenter.resetView());
   }
 
-  _applyNewFilter() {
+  _applyNewFilter(eventType) {
     this._currentSortType = SortType.DEFAULT;
-    this._updateViews();
+    this._updateViews(eventType);
   }
 }

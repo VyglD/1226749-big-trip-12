@@ -1,5 +1,6 @@
 import {FilterType} from "../data.js";
 import AbstractView from "./abstract.js";
+import {isInputTag} from "../utils/common.js";
 
 export default class FilterView extends AbstractView {
   constructor(currentFilterType, filters) {
@@ -54,7 +55,7 @@ export default class FilterView extends AbstractView {
   }
 
   _filterTypeChangeHandler(evt) {
-    if (evt.target.tagName !== `INPUT`) {
+    if (!isInputTag(evt)) {
       return;
     }
 

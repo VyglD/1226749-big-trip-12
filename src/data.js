@@ -1,7 +1,10 @@
-export const DESTINATION_LIMIT = 5;
+export const PointCategory = {
+  TRANSFER: `Transfer`,
+  ACTIVITY: `Activity`
+};
 
 export const POINTS_TYPE = new Map([
-  [`Transfer`, [
+  [PointCategory.TRANSFER, [
     `Taxi`,
     `Bus`,
     `Train`,
@@ -10,31 +13,12 @@ export const POINTS_TYPE = new Map([
     `Drive`,
     `Flight`
   ]],
-  [`Activity`, [
+  [PointCategory.ACTIVITY, [
     `Check-in`,
     `Sightseeing`,
     `Restaurant`
   ]]
 ]);
-window.test = POINTS_TYPE;
-export const CITIES = [
-  `Amsterdam`,
-  `Geneva`,
-  `Chamonix`,
-  `Saint Petersburg`,
-];
-
-export const DESTINATIONS = [
-  `Lorem ipsum dolor sit amet, consectetur adipiscing elit.`,
-  `Cras aliquet varius magna, non porta ligula feugiat eget.`,
-  `Fusce tristique felis at fermentum pharetra.`,
-  `Aliquam id orci ut lectus varius viverra.`,
-  `Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante.`,
-  `Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum.`,
-  `Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat.`,
-  `Nunc fermentum tortor ac porta dapibus.`,
-  `In rutrum ac purus sit amet tempus.`
-];
 
 export const FilterType = {
   EVERYTHING: `everything`,
@@ -50,7 +34,8 @@ export const SortType = {
 
 export const EventType = {
   FILTER: `filter`,
-  POINT: `point`
+  POINT: `point`,
+  INIT: `init`
 };
 
 export const UserAction = {
