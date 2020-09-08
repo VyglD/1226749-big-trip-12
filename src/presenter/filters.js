@@ -2,7 +2,7 @@ import FilterView from "../view/filters.js";
 import {render, RenderPosition, remove} from "../utils/render.js";
 import {filter} from "../utils/filter.js";
 
-export default class FiltersPreseter {
+export default class FiltersPresenter {
   constructor(filterHeader, pointsModel, filtersModel) {
     this._header = filterHeader;
     this._pointsModel = pointsModel;

@@ -24,7 +24,7 @@ export default class OffersModel extends Observer {
 
   getOffersByType(type) {
     const offers = this._offers.get(type);
-    if (offers.length === 0) {
+    if (offers === undefined || offers.length === 0) {
       return [];
     }
 
@@ -57,11 +57,11 @@ export default class OffersModel extends Observer {
     return offers
     .filter((offer) => offer.checked)
     .map((offer) => {
-      const offetCopy = Object.assign({}, offer);
+      const offerCopy = Object.assign({}, offer);
 
-      delete offetCopy.checked;
+      delete offerCopy.checked;
 
-      return offetCopy;
+      return offerCopy;
     });
   }
 }

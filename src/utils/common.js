@@ -1,4 +1,4 @@
-import {POINTS_TYPE} from "../data.js";
+import {POINT_TYPES} from "../data.js";
 
 const ESC_KEYCODE = 27;
 const PHOTOS_LIMIT = 5;
@@ -19,7 +19,7 @@ const shuffleArray = (arr) => {
 };
 
 export const generatePointLabel = (type) => {
-  if (POINTS_TYPE.get(`Activity`).includes(type)) {
+  if (POINT_TYPES.get(`Activity`).includes(type)) {
     return `${type} in`;
   }
 

@@ -3,7 +3,7 @@ export const PointCategory = {
   ACTIVITY: `Activity`
 };
 
-export const POINTS_TYPE = new Map([
+export const POINT_TYPES = new Map([
   [PointCategory.TRANSFER, [
     `Taxi`,
     `Bus`,

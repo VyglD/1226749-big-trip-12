@@ -33,7 +33,7 @@ export default class Api {
 
   getOffers() {
     return this._load({url: `offers`})
-    .then(Api.toJSON);
+      .then(Api.toJSON);
   }
 
   _load({url, method = Method.GET, body = null, headers = new Headers()}) {

@@ -1,4 +1,4 @@
-import {POINTS_TYPE, UserAction, PointCategory} from "../data.js";
+import {POINT_TYPES, UserAction, PointCategory} from "../data.js";
 import {
   generatePointLabel,
   isInputTag,
@@ -12,7 +12,7 @@ import moment from "moment";
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
 const BLANK_POINT = {
-  type: POINTS_TYPE.get(PointCategory.TRANSFER)[0],
+  type: POINT_TYPES.get(PointCategory.TRANSFER)[0],
   city: ``,
   offers: [],
   timeStart: new Date(),
@@ -394,7 +394,7 @@ export default class PointEditView extends SmartView {
   _createTypesListTemplate() {
     const checkedType = this._data.type;
 
-    return Array.from(POINTS_TYPE.entries())
+    return Array.from(POINT_TYPES.entries())
       .map(([kind, types]) => {
         return (
           `<fieldset class="event__type-group">
