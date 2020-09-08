@@ -35,16 +35,13 @@ const CLASS_CITY = `event__field-group--destination`;
 const CLASS_PRICE = `event__input--price`;
 
 export default class PointEditView extends SmartView {
-  constructor(destinations, offers, point) {
+  constructor(destinations, offersByType, point) {
     super();
     this._destinations = destinations;
-    this._offers = offers;
+    this._offersByType = offersByType;
 
     if (!point) {
       point = BLANK_POINT;
-      if (this._offers.size > 0) {
-        point.offers = this._offers.get(point.type);
-      }
       this._isNew = true;
     }
 
@@ -251,7 +248,9 @@ export default class PointEditView extends SmartView {
     this.getElement().querySelector(`.${CLASS_PRICE}`)
       .addEventListener(`change`, this._pointPriceChangeHandler);
 
-    if (this._data.offers && this._data.offers.length) {
+    if (this._offersByType
+      && this._offersByType.get(this._data.type)
+      && this._offersByType.get(this._data.type).length) {
       this.getElement().querySelector(`.event__available-offers`)
         .addEventListener(`click`, this._offersChangeHandler);
     }
@@ -295,37 +294,46 @@ export default class PointEditView extends SmartView {
       : ``;
   }
 
-  _createTripOffersSectionTemplate() {
-    const {offers, isDisabled} = this._data;
+  _createInnardsOfOffersSection() {
+    const {type, offers, isDisabled} = this._data;
 
-    return offers.length
-      ? (
-        `<section class="event__section event__section--offers">
-          <h3 class="event__section-title event__section-title--offers">Offers</h3>
-          <div class="event__available-offers">
-        ${offers.map((offer) => {
-          return (
-            `<div class="event__offer-selector">
-              <input
-                class="event__offer-checkbox visually-hidden"
-                id="event-offer-${offer.title}-1"
-                type="checkbox"
-                name="${offer.title}"
-                ${offer.checked ? `checked` : ``}
-                ${isDisabled ? `disabled` : ``}
-              >
-              <label class="event__offer-label" for="event-offer-${offer.title}-1">
-                <span class="event__offer-title">${offer.title}</span>
-                &plus;&euro;&nbsp;
-                <span class="event__offer-price">${offer.price}</span>
-              </label>
-            </div>`
-          );
-        }).join(``)}
-          </div>
-        </section>`
-      )
-      : ``;
+    const offersList = this._offersByType.get(type);
+    const checkedOffers = offers.reduce((result, offer) => {
+      return result.set(offer.title, offer);
+    }, new Map());
+
+    return offersList
+      .map((offer) => {
+        return (
+          `<div class="event__offer-selector">
+            <input
+              class="event__offer-checkbox visually-hidden"
+              id="event-offer-${offer.title}-1"
+              type="checkbox"
+              name="${offer.title}"
+              ${checkedOffers.has(offer.title) ? `checked` : ``}
+              ${isDisabled ? `disabled` : ``}
+            >
+            <label class="event__offer-label" for="event-offer-${offer.title}-1">
+              <span class="event__offer-title">${offer.title}</span>
+              &plus;&euro;&nbsp;
+              <span class="event__offer-price">${offer.price}</span>
+            </label>
+          </div>`
+        );
+      })
+      .join(``);
+  }
+
+  _createTripOffersSectionTemplate() {
+    return (
+      `<section class="event__section event__section--offers">
+        <h3 class="event__section-title event__section-title--offers">Offers</h3>
+        <div class="event__available-offers">
+          ${this._createInnardsOfOffersSection()}
+        </div>
+      </section>`
+    );
   }
 
   _createTripDestinationDescriptionTemplate() {
@@ -365,10 +373,15 @@ export default class PointEditView extends SmartView {
   }
 
   _createTripDetailsTemplate() {
-    const {offers, destination, photos} = this._data;
+    const {destination, photos} = this._data;
+
+    const offersExisting = (this._offersByType
+      && this._offersByType.get(this._data.type)
+      && this._offersByType.get(this._data.type).length);
+
     return ((destination && destination.length)
      || (photos && photos.length)
-     || (offers && offers.length))
+     || offersExisting)
       ? (`<section class="event__details">
           ${this._createTripOffersSectionTemplate()}
           ${this._createTripDestinationDescriptionTemplate()}
@@ -508,9 +521,7 @@ export default class PointEditView extends SmartView {
 
     this.getElement().querySelector(`.event__type-toggle`).checked = false;
 
-    const offers = this._offers.get(type);
-
-    this.updateData({type, offers});
+    this.updateData({type});
   }
 
   _pointCityChangeHandler(evt) {
@@ -547,8 +558,17 @@ export default class PointEditView extends SmartView {
     }
 
     const offers = this._data.offers.map((offer) => Object.assign({}, offer));
-    const offer = offers.find((it) => it.title === evt.target.name);
-    offer.checked = !offer.checked;
+    const offerIndex = offers.findIndex((it) => it.title === evt.target.name);
+
+    if (offerIndex < 0) {
+      const offersList = this._offersByType.get(this._data.type);
+      const newOffer = offersList.find((it) => it.title === evt.target.name);
+      if (newOffer) {
+        offers.push(newOffer);
+      }
+    } else {
+      offers.splice(offerIndex, 1);
+    }
 
     this.updateData({offers}, true);
   }

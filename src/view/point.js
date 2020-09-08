@@ -3,8 +3,9 @@ import {getHumanizeTime, getHumanizeTimeInterval} from "../utils/date.js";
 import AbstractView from "./abstract.js";
 
 export default class PointView extends AbstractView {
-  constructor(point) {
+  constructor(offersByType, point) {
     super();
+    this._offersByType = offersByType;
     this._point = point;
     this._editClickHandler = this._editClickHandler.bind(this);
   }
@@ -79,7 +80,7 @@ export default class PointView extends AbstractView {
   _createPointOffersTemplate() {
     return this._point.offers
       ? this._point.offers.map((offer) => {
-        return offer.checked
+        return offer
           ? (
             `<li class="event__offer">
               <span class="event__offer-title">${offer.title}</span>

@@ -242,9 +242,9 @@ export default class TripPresenter extends PointsPresenter {
     switch (userAction) {
       case UserAction.UPDATE_POINT:
         this._existPointPresenters[point.id].setViewState(State.SAVING);
-        this._api.updatePoint(this._pointsModel.adaptToServer(point))
+        this._api.updatePoint(point)
           .then((response) => {
-            this._pointsModel.updatePoint(this._pointsModel._adaptToClient(response));
+            this._pointsModel.updatePoint(response);
           })
           .catch(() => {
             this._existPointPresenters[point.id].setViewState(State.ABORTING);
@@ -252,7 +252,7 @@ export default class TripPresenter extends PointsPresenter {
         break;
       case UserAction.DELETE_POINT:
         this._existPointPresenters[point.id].setViewState(State.DELETING);
-        this._api.deletePoint(this._pointsModel.adaptToServer(point))
+        this._api.deletePoint(point)
           .then(() => {
             this._pointsModel.deletePoint(point);
           })
@@ -262,9 +262,9 @@ export default class TripPresenter extends PointsPresenter {
         break;
       case UserAction.ADD_POINT:
         this._newPointPresenter.setViewState(State.SAVING);
-        this._api.addPoint(this._pointsModel.adaptToServer(point))
+        this._api.addPoint(point)
           .then((response) => {
-            this._pointsModel.addPoint(this._pointsModel._adaptToClient(response));
+            this._pointsModel.addPoint(response);
           })
           .catch(() => {
             this._newPointPresenter.setViewState(State.ABORTING);

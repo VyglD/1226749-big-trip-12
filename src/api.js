@@ -1,3 +1,5 @@
+import PointsModel from "./model/points.js";
+
 const Method = {
   GET: `GET`,
   PUT: `PUT`,
@@ -13,7 +15,8 @@ export default class Api {
 
   getPoints() {
     return this._load({url: `points`})
-      .then(Api.toJSON);
+      .then(Api.toJSON)
+      .then((serverPoints) => serverPoints.map(PointsModel.adaptToClient));
   }
 
   updatePoint(point) {
@@ -21,11 +24,12 @@ export default class Api {
         {
           url: `points/${point.id}`,
           method: Method.PUT,
-          body: JSON.stringify(point),
+          body: JSON.stringify(PointsModel.adaptToServer(point)),
           headers: new Headers({"Content-Type": `application/json`})
         }
     )
-      .then(Api.toJSON);
+      .then(Api.toJSON)
+      .then(PointsModel.adaptToClient);
   }
 
   addPoint(point) {
@@ -33,11 +37,12 @@ export default class Api {
         {
           url: `points`,
           method: Method.POST,
-          body: JSON.stringify(point),
+          body: JSON.stringify(PointsModel.adaptToServer(point)),
           headers: new Headers({"Content-Type": `application/json`})
         }
     )
-    .then(Api.toJSON);
+    .then(Api.toJSON)
+    .then(PointsModel.adaptToClient);
   }
 
   deletePoint(point) {

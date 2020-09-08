@@ -65,7 +65,7 @@ const newPointButton = headerNode.querySelector(`.trip-main__event-add-btn`);
 const api = new Api(END_POINT, AUTHORIZATION);
 
 const offersModel = new OffersModel();
-const pointsModel = new PointsModel(offersModel);
+const pointsModel = new PointsModel();
 const filtersModel = new FiltersModel();
 
 const siteMenuComponent = new MenuView();
@@ -110,7 +110,7 @@ Promise.all([
     pointsModel.setPoints(points);
     enableMenu();
   })
-  .catch(() => {
-    pointsModel.setPoints([]);
-    enableMenu();
-  });
+.catch(() => {
+  pointsModel.setPoints([]);
+  enableMenu();
+});
