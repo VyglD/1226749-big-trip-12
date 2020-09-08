@@ -12,6 +12,7 @@ import Api from "./api.js";
 
 const AUTHORIZATION = `Basic io380cs93mlfrq1ii8sdfhurdy67k`;
 const END_POINT = `https://12.ecmascript.pages.academy/big-trip/`;
+const SW_ERROR_MESSAGE = `ServiceWorker isn't available`;
 
 const newPointButtonClickHandler = (evt) => {
   evt.preventDefault();
@@ -117,4 +118,11 @@ Promise.all([
 .catch(() => {
   pointsModel.setPoints([]);
   enableMenu();
+});
+
+window.addEventListener(`load`, () => {
+  navigator.serviceWorker.register(`/sw.js`)
+    .catch(() => {
+      throw new Error(SW_ERROR_MESSAGE);
+    });
 });
