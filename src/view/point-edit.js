@@ -2,7 +2,8 @@ import {POINT_TYPES, PointCategory} from "../data.js";
 import {
   generatePointLabel,
   isInputTag,
-  transformToCapitalize
+  transformToCapitalize,
+  isOnline
 } from "../utils/common.js";
 import {getFormattedTimeString} from "../utils/date.js";
 import SmartView from "./smart.js";
@@ -357,14 +358,13 @@ export default class PointEditView extends SmartView {
 
   _createTripDestinationPhotosTemplate() {
     const {photos} = this._data;
-
     return photos.length
       ? (
         `<div class="event__photos-container">
           <div class="event__photos-tape">
-            ${photos.map((photo) => `<img
+            ${photos.map((photo, index) => `<img
                 class="event__photo"
-                src="${photo.src}"
+                src="${isOnline() ? photo.src : `./img/photos/${Math.min(index + 1, 5)}.jpg`}"
                 alt="${photo.description}">`).join(``)}
           </div>
         </div>`
