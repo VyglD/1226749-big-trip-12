@@ -30,15 +30,19 @@ const handleMenuClick = (menuItem) => {
       tripPresenter.destroy();
       filtersModel.setFilter(FilterType.EVERYTHING);
       tripPresenter.init();
+      filtersPresenter.init();
       tripPresenter.createPoint(newPointFormCloseHandler);
       newPointButton.disabled = true;
       break;
     case MenuItem.TABLE:
       statisticsPresenter.destroy();
       tripPresenter.init();
+      filtersPresenter.init();
       break;
     case MenuItem.STATS:
       tripPresenter.destroy();
+      filtersModel.setFilter(FilterType.EVERYTHING);
+      filtersPresenter.init(false);
       statisticsPresenter.init();
   }
 };

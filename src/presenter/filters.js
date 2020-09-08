@@ -8,6 +8,8 @@ export default class FiltersPresenter {
     this._pointsModel = pointsModel;
     this._filtersModel = filtersModel;
 
+    this._filterComponent = null;
+
     this._changeTypeFilter = this._changeTypeFilter.bind(this);
     this._updateView = this._updateView.bind(this);
 
@@ -15,10 +17,16 @@ export default class FiltersPresenter {
     this._pointsModel.addObserver(this._updateView);
   }
 
-  init() {
+  init(filtersEnabled = true) {
+    if (this._filterComponent) {
+      remove(this._filterComponent);
+      this._filterComponent = null;
+    }
+
     this._filterComponent = new FilterView(
         this._filtersModel.getFilter(),
-        this._getFiltersCount()
+        this._getFiltersCount(),
+        filtersEnabled
     );
 
     this._filterComponent.setFilterTypeChangeHandler(this._changeTypeFilter);
@@ -43,7 +51,6 @@ export default class FiltersPresenter {
   }
 
   _updateView() {
-    remove(this._filterComponent);
     this.init();
   }
 }

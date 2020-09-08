@@ -3,10 +3,11 @@ import AbstractView from "./abstract.js";
 import {isInputTag} from "../utils/common.js";
 
 export default class FilterView extends AbstractView {
-  constructor(currentFilterType, filters) {
+  constructor(currentFilterType, filters, filtersEnabled) {
     super();
     this._currentFilter = currentFilterType;
     this._filters = filters;
+    this._filtersEnabled = filtersEnabled;
 
     this._filterTypeChangeHandler = this._filterTypeChangeHandler.bind(this);
   }
@@ -17,7 +18,7 @@ export default class FilterView extends AbstractView {
         return this._createFilterItemTemplate(
             filter,
             filter === this._currentFilter,
-            Boolean(this._filters[filter])
+            this._filtersEnabled && Boolean(this._filters[filter])
         );
       })
       .join(``);
