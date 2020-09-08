@@ -26,7 +26,7 @@ export default class PointsModel extends Observer {
   }
 
   setPoints(points) {
-    this._points = this._sortPoints(points.map(this._adaptToClient.bind(this)));
+    this._points = this._sortPoints(points);
 
     this._notify(EventType.INIT, points);
   }
@@ -63,15 +63,16 @@ export default class PointsModel extends Observer {
     this._notify(EventType.POINT, update);
   }
 
-  _adaptToClient(point) {
+  _sortPoints(points) {
+    return points.slice().sort((a, b) => a.timeStart - b.timeStart);
+  }
+
+  static adaptToClient(point) {
     return {
       id: point.id,
       type: transformToCapitalize(point.type),
       city: point.destination.name,
-      offers: this._offersModel.adaptOffersToClient(
-          transformToCapitalize(point.type),
-          point.offers
-      ),
+      offers: point.offers,
       timeStart: new Date(point.date_from),
       timeEnd: new Date(point.date_to),
       price: point.base_price,
@@ -81,24 +82,20 @@ export default class PointsModel extends Observer {
     };
   }
 
-  adaptToServer(point) {
+  static adaptToServer(point) {
     return {
       'id': point.id,
       'type': point.type.toLowerCase(),
       'base_price': point.price,
       'date_from': point.timeStart.toISOString(),
       'date_to': point.timeEnd.toISOString(),
-      'is_favorite': point.isFavorite,
+      'is_favorite': Boolean(point.isFavorite),
       'destination': {
         'description': point.destination,
         'name': point.city,
         'pictures': point.photos
       },
-      'offers': this._offersModel.adaptOffersToServer(point.offers)
+      'offers': point.offers
     };
-  }
-
-  _sortPoints(points) {
-    return points.slice().sort((a, b) => a.timeStart - b.timeStart);
   }
 }

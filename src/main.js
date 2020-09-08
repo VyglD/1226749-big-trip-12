@@ -1,6 +1,6 @@
 import MenuView from "./view/menu.js";
 import TripPresenter from "./presenter/trip.js";
-import FiltersPreseter from "./presenter/filters.js";
+import FiltersPresenter from "./presenter/filters.js";
 import InformationPresenter from "./presenter/information.js";
 import StatisticsPresenter from "./presenter/statistics.js";
 import OffersModel from "./model/offers.js";
@@ -12,13 +12,6 @@ import Api from "./api.js";
 
 const AUTHORIZATION = `Basic io380cs93mlfrq1ii8sdfhurdy67k`;
 const END_POINT = `https://12.ecmascript.pages.academy/big-trip/`;
-
-const headerNode = document.querySelector(`.trip-main`);
-const menuHeaderNode = headerNode.querySelectorAll(`.trip-controls h2`)[0];
-const filtersHeaderNode = headerNode.querySelectorAll(`.trip-controls h2`)[1];
-const boardContainerNode = document.querySelector(`.trip-events`);
-const tripHeader = boardContainerNode.querySelector(`h2`);
-const newPointButton = headerNode.querySelector(`.trip-main__event-add-btn`);
 
 const newPointButtonClickHandler = (evt) => {
   evt.preventDefault();
@@ -37,15 +30,19 @@ const handleMenuClick = (menuItem) => {
       tripPresenter.destroy();
       filtersModel.setFilter(FilterType.EVERYTHING);
       tripPresenter.init();
+      filtersPresenter.init();
       tripPresenter.createPoint(newPointFormCloseHandler);
       newPointButton.disabled = true;
       break;
     case MenuItem.TABLE:
       statisticsPresenter.destroy();
       tripPresenter.init();
+      filtersPresenter.init();
       break;
     case MenuItem.STATS:
       tripPresenter.destroy();
+      filtersModel.setFilter(FilterType.EVERYTHING);
+      filtersPresenter.init(false);
       statisticsPresenter.init();
   }
 };
@@ -62,12 +59,22 @@ const enableMenu = () => {
   newPointButton.disabled = false;
 };
 
+const headerNode = document.querySelector(`.trip-main`);
+const menuHeaderNode = headerNode.querySelectorAll(`.trip-controls h2`)[0];
+const filtersHeaderNode = headerNode.querySelectorAll(`.trip-controls h2`)[1];
+const boardContainerNode = document.querySelector(`.trip-events`);
+const tripHeader = boardContainerNode.querySelector(`h2`);
+const newPointButton = headerNode.querySelector(`.trip-main__event-add-btn`);
+
 const api = new Api(END_POINT, AUTHORIZATION);
+
 const offersModel = new OffersModel();
-const pointsModel = new PointsModel(offersModel);
+const pointsModel = new PointsModel();
 const filtersModel = new FiltersModel();
+
 const siteMenuComponent = new MenuView();
-const filtersPreseter = new FiltersPreseter(
+
+const filtersPresenter = new FiltersPresenter(
     filtersHeaderNode,
     pointsModel,
     filtersModel
@@ -94,7 +101,7 @@ newPointButton.disabled = true;
 
 informationPresenter.init();
 tripPresenter.init();
-filtersPreseter.init();
+filtersPresenter.init();
 
 Promise.all([
   api.getOffers(),
@@ -107,7 +114,7 @@ Promise.all([
     pointsModel.setPoints(points);
     enableMenu();
   })
-  .catch(() => {
-    pointsModel.setPoints([]);
-    enableMenu();
-  });
+.catch(() => {
+  pointsModel.setPoints([]);
+  enableMenu();
+});

@@ -3,7 +3,7 @@ export const PointCategory = {
   ACTIVITY: `Activity`
 };
 
-export const POINTS_TYPE = new Map([
+export const POINT_TYPES = new Map([
   [PointCategory.TRANSFER, [
     `Taxi`,
     `Bus`,
@@ -67,4 +67,10 @@ export const ChartType = {
   MONEY: `MONEY`,
   TRANSPORT: `TRANSPORT`,
   TIME_SPENT: `TIME SPENT`,
+};
+
+export const State = {
+  SAVING: `SAVING`,
+  DELETING: `DELETING`,
+  ABORTING: `ABORTING`
 };

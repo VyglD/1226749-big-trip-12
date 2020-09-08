@@ -1,4 +1,4 @@
-import {POINTS_TYPE, UserAction, PointCategory} from "../data.js";
+import {POINT_TYPES, PointCategory} from "../data.js";
 import {
   generatePointLabel,
   isInputTag,
@@ -12,7 +12,7 @@ import moment from "moment";
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
 const BLANK_POINT = {
-  type: POINTS_TYPE.get(PointCategory.TRANSFER)[0],
+  type: POINT_TYPES.get(PointCategory.TRANSFER)[0],
   city: ``,
   offers: [],
   timeStart: new Date(),
@@ -35,20 +35,17 @@ const CLASS_CITY = `event__field-group--destination`;
 const CLASS_PRICE = `event__input--price`;
 
 export default class PointEditView extends SmartView {
-  constructor(destinations, offers, point) {
+  constructor(destinations, offersByType, point) {
     super();
     this._destinations = destinations;
-    this._offers = offers;
+    this._offersByType = offersByType;
 
     if (!point) {
       point = BLANK_POINT;
-      if (this._offers.size > 0) {
-        point.offers = this._offers.get(point.type);
-      }
       this._isNew = true;
     }
 
-    this._data = Object.assign({}, point);
+    this._data = PointEditView.convertPointToData(point);
     this._startDatepicker = null;
     this._endDatepicker = null;
 
@@ -69,7 +66,17 @@ export default class PointEditView extends SmartView {
   }
 
   getTemplate() {
-    const {type, timeStart, timeEnd, price} = this._data;
+    const {
+      type,
+      timeStart,
+      timeEnd,
+      price,
+      isDisabled,
+      isSaving,
+      isDeleting
+    } = this._data;
+
+    const nameDeleteButton = isDeleting ? `Deleting...` : `Delete`;
 
     return (
       `<form class="trip-events__item event event--edit" action="#" method="post">
@@ -89,6 +96,7 @@ export default class PointEditView extends SmartView {
             class="event__type-toggle visually-hidden"
             id="event-type-toggle-1"
             type="checkbox"
+            ${isDisabled ? `disabled` : ``}
           >
           <div class="event__type-list">
             ${this._createTypesListTemplate()}
@@ -106,6 +114,7 @@ export default class PointEditView extends SmartView {
             id="event-start-time-1"
             type="text" name="event-start-time"
             value="${getFormattedTimeString(timeStart)}"
+            ${isDisabled ? `disabled` : ``}
             readonly
           >
           &mdash;
@@ -118,6 +127,7 @@ export default class PointEditView extends SmartView {
             type="text"
             name="event-end-time"
             value="${getFormattedTimeString(timeEnd)}"
+            ${isDisabled ? `disabled` : ``}
             readonly
           >
         </div>
@@ -133,12 +143,23 @@ export default class PointEditView extends SmartView {
             type="number"
             name="event-price"
             value="${price}"
+            ${isDisabled ? `disabled` : ``}
           >
         </div>
 
-        <button class="event__save-btn btn btn--blue" type="submit">Save</button>
-        <button class="event__reset-btn" type="reset">
-          ${this._isNew ? `Cansel` : `Delete`}
+        <button
+          class="event__save-btn btn btn--blue"
+          type="submit"
+          ${isDisabled ? `disabled` : ``}
+        >
+          ${isSaving ? `Saving...` : `Save`}
+        </button>
+        <button
+          class="event__reset-btn"
+          type="reset"
+          ${isDisabled ? `disabled` : ``}
+        >
+          ${this._isNew ? `Cansel` : nameDeleteButton}
         </button>
 
         ${this._createTripFavoriteButtonTemplate()}
@@ -179,7 +200,9 @@ export default class PointEditView extends SmartView {
   }
 
   reset(point) {
-    this.updateDate(point);
+    this.updateData(
+        PointEditView.convertPointToData(point)
+    );
   }
 
   _setDatepickers() {
@@ -225,7 +248,9 @@ export default class PointEditView extends SmartView {
     this.getElement().querySelector(`.${CLASS_PRICE}`)
       .addEventListener(`change`, this._pointPriceChangeHandler);
 
-    if (this._data.offers && this._data.offers.length) {
+    if (this._offersByType
+      && this._offersByType.get(this._data.type)
+      && this._offersByType.get(this._data.type).length) {
       this.getElement().querySelector(`.event__available-offers`)
         .addEventListener(`click`, this._offersChangeHandler);
     }
@@ -237,7 +262,7 @@ export default class PointEditView extends SmartView {
   }
 
   _createTripFavoriteButtonTemplate() {
-    const {isFavorite} = this._data;
+    const {isFavorite, isDisabled} = this._data;
 
     return !this._isNew
       ? (
@@ -247,6 +272,7 @@ export default class PointEditView extends SmartView {
           type="checkbox"
           name="event-favorite"
           ${isFavorite ? `checked` : ``}
+          ${isDisabled ? `disabled` : ``}
         >
         <label class="event__favorite-btn" for="event-favorite-1">
           <span class="visually-hidden">Add to favorite</span>
@@ -257,43 +283,57 @@ export default class PointEditView extends SmartView {
           </svg>
         </label>
 
-        <button class="event__rollup-btn" type="button">
+        <button
+          class="event__rollup-btn"
+          type="button"
+          ${isDisabled ? `disabled` : ``}
+        >
           <span class="visually-hidden">Open event</span>
         </button>`
       )
       : ``;
   }
 
-  _createTripOffersSectionTemplate() {
-    const {offers} = this._data;
+  _createInnardsOfOffersSection() {
+    const {type, offers, isDisabled} = this._data;
 
-    return offers.length
-      ? (
-        `<section class="event__section event__section--offers">
-          <h3 class="event__section-title event__section-title--offers">Offers</h3>
-          <div class="event__available-offers">
-        ${offers.map((offer) => {
-          return (
-            `<div class="event__offer-selector">
-              <input
-                class="event__offer-checkbox visually-hidden"
-                id="event-offer-${offer.title}-1"
-                type="checkbox"
-                name="${offer.title}"
-                ${offer.checked ? `checked` : ``}
-              >
-              <label class="event__offer-label" for="event-offer-${offer.title}-1">
-                <span class="event__offer-title">${offer.title}</span>
-                &plus;&euro;&nbsp;
-                <span class="event__offer-price">${offer.price}</span>
-              </label>
-            </div>`
-          );
-        }).join(``)}
-          </div>
-        </section>`
-      )
-      : ``;
+    const offersList = this._offersByType.get(type);
+    const checkedOffers = offers.reduce((result, offer) => {
+      return result.set(offer.title, offer);
+    }, new Map());
+
+    return offersList
+      .map((offer) => {
+        return (
+          `<div class="event__offer-selector">
+            <input
+              class="event__offer-checkbox visually-hidden"
+              id="event-offer-${offer.title}-1"
+              type="checkbox"
+              name="${offer.title}"
+              ${checkedOffers.has(offer.title) ? `checked` : ``}
+              ${isDisabled ? `disabled` : ``}
+            >
+            <label class="event__offer-label" for="event-offer-${offer.title}-1">
+              <span class="event__offer-title">${offer.title}</span>
+              &plus;&euro;&nbsp;
+              <span class="event__offer-price">${offer.price}</span>
+            </label>
+          </div>`
+        );
+      })
+      .join(``);
+  }
+
+  _createTripOffersSectionTemplate() {
+    return (
+      `<section class="event__section event__section--offers">
+        <h3 class="event__section-title event__section-title--offers">Offers</h3>
+        <div class="event__available-offers">
+          ${this._createInnardsOfOffersSection()}
+        </div>
+      </section>`
+    );
   }
 
   _createTripDestinationDescriptionTemplate() {
@@ -333,10 +373,15 @@ export default class PointEditView extends SmartView {
   }
 
   _createTripDetailsTemplate() {
-    const {offers, destination, photos} = this._data;
+    const {destination, photos} = this._data;
+
+    const offersExisting = (this._offersByType
+      && this._offersByType.get(this._data.type)
+      && this._offersByType.get(this._data.type).length);
+
     return ((destination && destination.length)
      || (photos && photos.length)
-     || (offers && offers.length))
+     || offersExisting)
       ? (`<section class="event__details">
           ${this._createTripOffersSectionTemplate()}
           ${this._createTripDestinationDescriptionTemplate()}
@@ -346,7 +391,7 @@ export default class PointEditView extends SmartView {
   }
 
   _createTripCityTemplate() {
-    const {type, city} = this._data;
+    const {type, city, isDisabled} = this._data;
 
     return (
       `<div class="event__field-group ${CLASS_CITY}">
@@ -360,6 +405,7 @@ export default class PointEditView extends SmartView {
           name="event-destination"
           value="${city}"
           list="destination-list-1"
+          ${isDisabled ? `disabled` : ``}
         >
         <datalist id="destination-list-1">
           ${Array.from(this._destinations.keys())
@@ -394,7 +440,7 @@ export default class PointEditView extends SmartView {
   _createTypesListTemplate() {
     const checkedType = this._data.type;
 
-    return Array.from(POINTS_TYPE.entries())
+    return Array.from(POINT_TYPES.entries())
       .map(([kind, types]) => {
         return (
           `<fieldset class="event__type-group">
@@ -448,7 +494,7 @@ export default class PointEditView extends SmartView {
   _formSubmitHandler(evt) {
     evt.preventDefault();
     if (this._checkFormValidity()) {
-      this._callback.formSubmit(this._data);
+      this._callback.formSubmit(PointEditView.convertDataToPoint(this._data));
     }
   }
 
@@ -458,7 +504,7 @@ export default class PointEditView extends SmartView {
   }
 
   _favoriteClickHandler() {
-    this.updateDate(
+    this.updateData(
         {
           isFavorite: !this._data.isFavorite
         },
@@ -475,9 +521,7 @@ export default class PointEditView extends SmartView {
 
     this.getElement().querySelector(`.event__type-toggle`).checked = false;
 
-    const offers = this._offers.get(type);
-
-    this.updateDate({type, offers});
+    this.updateData({type});
   }
 
   _pointCityChangeHandler(evt) {
@@ -490,7 +534,7 @@ export default class PointEditView extends SmartView {
 
     if (destination) {
       const {description, photos} = destination;
-      this.updateDate(
+      this.updateData(
           {
             city: newCity,
             destination: description,
@@ -498,7 +542,7 @@ export default class PointEditView extends SmartView {
           }
       );
     } else {
-      this.updateDate(
+      this.updateData(
           {
             city: newCity,
           }
@@ -514,10 +558,19 @@ export default class PointEditView extends SmartView {
     }
 
     const offers = this._data.offers.map((offer) => Object.assign({}, offer));
-    const offer = offers.find((it) => it.title === evt.target.name);
-    offer.checked = !offer.checked;
+    const offerIndex = offers.findIndex((it) => it.title === evt.target.name);
 
-    this.updateDate({offers}, true);
+    if (offerIndex < 0) {
+      const offersList = this._offersByType.get(this._data.type);
+      const newOffer = offersList.find((it) => it.title === evt.target.name);
+      if (newOffer) {
+        offers.push(newOffer);
+      }
+    } else {
+      offers.splice(offerIndex, 1);
+    }
+
+    this.updateData({offers}, true);
   }
 
   _pointPriceChangeHandler(evt) {
@@ -525,7 +578,7 @@ export default class PointEditView extends SmartView {
       return;
     }
 
-    this.updateDate(
+    this.updateData(
         {
           price: parseInt(evt.target.value, 10),
         },
@@ -541,11 +594,11 @@ export default class PointEditView extends SmartView {
 
     this._endDatepicker.set(`minDate`, timeStart);
     this._endDatepicker.setDate(timeEnd);
-    this.updateDate({timeStart, timeEnd}, true);
+    this.updateData({timeStart, timeEnd}, true);
   }
 
   _endDateChangeHandler([userDate]) {
-    this.updateDate(
+    this.updateData(
         {
           timeEnd: new Date(userDate)
         },
@@ -555,6 +608,22 @@ export default class PointEditView extends SmartView {
 
   _deleteButtonClickHandler(evt) {
     evt.preventDefault();
-    this._callback.pointDelete(UserAction.DELETE_POINT, this._data);
+    this._callback.pointDelete(PointEditView.convertDataToPoint(this._data));
+  }
+
+  static convertPointToData(point) {
+    return Object.assign(point, {
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false
+    });
+  }
+
+  static convertDataToPoint(data) {
+    delete data.isDisabled;
+    delete data.isSaving;
+    delete data.isDeleting;
+
+    return data;
   }
 }

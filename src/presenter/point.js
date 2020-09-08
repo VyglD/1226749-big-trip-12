@@ -3,7 +3,7 @@ import PointView from "../view/point.js";
 import PointEditView from "../view/point-edit.js";
 import {replace, append, remove} from "../utils/render.js";
 import {isEscEvent} from "../utils/common.js";
-import {UserAction} from "../data.js";
+import {UserAction, State} from "../data.js";
 
 const Mode = {
   DEFAULT: `DEFAULT`,
@@ -41,7 +41,10 @@ export default class PointPresenter {
     const prevPointComponent = this._pointComponent;
     const prevPointEditComponent = this._pointEditComponent;
 
-    this._pointComponent = new PointView(point);
+    this._pointComponent = new PointView(
+        this._offersModel.getOffers(),
+        point
+    );
     this._pointEditComponent = new PointEditView(
         this._pointsModel.getDestinations(),
         this._offersModel.getOffers(),
@@ -82,6 +85,35 @@ export default class PointPresenter {
     }
   }
 
+  setViewState(state) {
+    const resetFormState = () => {
+      this._pointEditComponent.updateData({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false
+      });
+    };
+
+    switch (state) {
+      case State.SAVING:
+        this._pointEditComponent.updateData({
+          isDisabled: true,
+          isSaving: true
+        });
+        break;
+      case State.DELETING:
+        this._pointEditComponent.updateData({
+          isDisabled: true,
+          isDeleting: true
+        });
+        break;
+      case State.ABORTING:
+        this._pointComponent.shake(resetFormState);
+        this._pointEditComponent.shake(resetFormState);
+        break;
+    }
+  }
+
   _replacePointToForm() {
     replace(this._pointEditComponent, this._pointComponent);
     this._mode = Mode.EDITING;
@@ -108,14 +140,13 @@ export default class PointPresenter {
 
   _formSubmitHandler(newPointData) {
     this._changePointData(UserAction.UPDATE_POINT, newPointData);
-    this._replaceFormToPoint();
   }
 
   _formCloseHandler() {
     this.resetView();
   }
 
-  _deleteClickHandler(userAction, point) {
-    this._changePointData(userAction, point);
+  _deleteClickHandler(point) {
+    this._changePointData(UserAction.DELETE_POINT, point);
   }
 }
