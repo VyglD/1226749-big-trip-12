@@ -1,7 +1,11 @@
 import {filter} from "../utils/filter.js";
 
-export default class PointsPresenter {
+export default class AbstractPointsPresenter {
   constructor(pointsModel, filtersModel) {
+    if (new.target === AbstractPointsPresenter) {
+      throw new Error(`Can't instantiate Abstract, only concrete one.`);
+    }
+
     this._pointsModel = pointsModel;
     this._filtersModel = filtersModel;
   }

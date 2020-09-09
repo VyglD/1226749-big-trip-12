@@ -5,7 +5,7 @@ import PointsListView from "../view/points-list.js";
 import NoPointsView from "../view/no-points.js";
 import LoadingView from "../view/loading.js";
 import PointPresenter from "../presenter/point.js";
-import PointsPresenter from "../presenter/points.js";
+import AbstractPointsPresenter from "../presenter/points.js";
 import NewPointPresenter from "../presenter/new-point.js";
 import {render, RenderPosition, append, remove} from "../utils/render.js";
 import {getTimeInterval} from "../utils/common.js";
@@ -13,7 +13,7 @@ import {SortType, UserAction, EventType, State} from "../data.js";
 
 const SORT_KEY = `sort`;
 
-export default class TripPresenter extends PointsPresenter {
+export default class TripPresenter extends AbstractPointsPresenter {
   constructor(tripContainer, tripHeader, pointsModel, offersModel, filtersModel, api) {
     super(pointsModel, filtersModel);
     this._container = tripContainer;
