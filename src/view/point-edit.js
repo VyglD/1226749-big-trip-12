@@ -38,8 +38,8 @@ const CLASS_PRICE = `event__input--price`;
 export default class PointEditView extends SmartView {
   constructor(destinations, offersByType, point) {
     super();
-    this._destinations = destinations.size > 0 ? destinations : new Map();
-    this._offersByType = offersByType.size > 0 ? offersByType : new Map();
+    this._destinations = destinations.size ? destinations : new Map();
+    this._offersByType = offersByType.size ? offersByType : new Map();
 
     if (!point) {
       point = BLANK_POINT;
@@ -330,7 +330,7 @@ export default class PointEditView extends SmartView {
 
     const offersList = this._offersByType.get(type);
 
-    return offersList
+    return (offersList && offersList.length)
       ? `<section class="event__section event__section--offers">
           <h3 class="event__section-title event__section-title--offers">Offers</h3>
           <div class="event__available-offers">
@@ -480,7 +480,7 @@ export default class PointEditView extends SmartView {
     let priceMessage = ``;
     let validity = true;
 
-    if (!(parseInt(priceNode.value, 10) > 0)) {
+    if (!(parseInt(priceNode.value, 10))) {
       priceMessage = `Стоимость должны быть больше ноля`;
       validity = false;
     }
