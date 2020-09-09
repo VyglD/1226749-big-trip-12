@@ -9,6 +9,7 @@ import {getFormattedTimeString} from "../utils/date.js";
 import SmartView from "./smart.js";
 import flatpickr from "flatpickr";
 import moment from "moment";
+import he from "he";
 
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
@@ -406,7 +407,7 @@ export default class PointEditView extends SmartView {
           id="event-destination-1"
           type="text"
           name="event-destination"
-          value="${city}"
+          value="${he.encode(city)}"
           list="destination-list-1"
           ${isDisabled ? `disabled` : ``}
         >
