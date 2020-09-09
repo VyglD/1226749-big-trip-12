@@ -521,7 +521,7 @@ export default class PointEditView extends SmartView {
 
     this.getElement().querySelector(`.event__type-toggle`).checked = false;
 
-    this.updateData({type});
+    this.updateData({type, offers: []});
   }
 
   _pointCityChangeHandler(evt) {
