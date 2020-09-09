@@ -38,8 +38,8 @@ const CLASS_PRICE = `event__input--price`;
 export default class PointEditView extends SmartView {
   constructor(destinations, offersByType, point) {
     super();
-    this._destinations = destinations;
-    this._offersByType = offersByType;
+    this._destinations = destinations.size > 0 ? destinations : new Map();
+    this._offersByType = offersByType.size > 0 ? offersByType : new Map();
 
     if (!point) {
       point = BLANK_POINT;
@@ -295,10 +295,9 @@ export default class PointEditView extends SmartView {
       : ``;
   }
 
-  _createInnardsOfOffersSection() {
-    const {type, offers, isDisabled} = this._data;
+  _createInnardsOfOffersSection(offersList) {
+    const {offers, isDisabled} = this._data;
 
-    const offersList = this._offersByType.get(type);
     const checkedOffers = offers.reduce((result, offer) => {
       return result.set(offer.title, offer);
     }, new Map());
@@ -327,14 +326,18 @@ export default class PointEditView extends SmartView {
   }
 
   _createTripOffersSectionTemplate() {
-    return (
-      `<section class="event__section event__section--offers">
-        <h3 class="event__section-title event__section-title--offers">Offers</h3>
-        <div class="event__available-offers">
-          ${this._createInnardsOfOffersSection()}
-        </div>
-      </section>`
-    );
+    const {type} = this._data;
+
+    const offersList = this._offersByType.get(type);
+
+    return offersList
+      ? `<section class="event__section event__section--offers">
+          <h3 class="event__section-title event__section-title--offers">Offers</h3>
+          <div class="event__available-offers">
+            ${this._createInnardsOfOffersSection(offersList)}
+          </div>
+        </section>`
+      : ``;
   }
 
   _createTripDestinationDescriptionTemplate() {
