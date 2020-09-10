@@ -18,6 +18,7 @@ const STORE_PREFIX = `bigtrip-localstorage`;
 const STORE_VER = `v12`;
 const STORE_NAME = `${STORE_PREFIX}-${STORE_VER}`;
 const OFFLINE_TITLE = ` [offline]`;
+const SERVICE_WORKER_ERROR_MESSAGE = `ServiceWorker isn't available`;
 
 const headerNode = document.querySelector(`.trip-main`);
 const menuHeaderNode = headerNode.querySelectorAll(`.trip-controls h2`)[0];
@@ -128,7 +129,10 @@ Promise.all([
 });
 
 window.addEventListener(`load`, () => {
-  navigator.serviceWorker.register(`/sw.js`);
+  navigator.serviceWorker.register(`/sw.js`)
+    .catch(() => {
+      console.warn(SERVICE_WORKER_ERROR_MESSAGE); // eslint-disable-line
+    });
 });
 
 window.addEventListener(`online`, () => {
