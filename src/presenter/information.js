@@ -1,11 +1,11 @@
 import InformationView from "../view/information.js";
 import CostView from "../view/cost.js";
 import RouteView from "../view/route.js";
-import PointsPresenter from "./points.js";
+import AbstractPointsPresenter from "./abstract-points.js";
 import {render, RenderPosition, append, replace} from "../utils/render.js";
-import {EventType} from "../data.js";
+import {EventType} from "../const.js";
 
-export default class InformationPresenter extends PointsPresenter {
+export default class InformationPresenter extends AbstractPointsPresenter {
   constructor(informationContainer, pointsModel, filtersModel) {
     super(pointsModel, filtersModel);
     this._container = informationContainer;

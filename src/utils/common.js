@@ -1,4 +1,4 @@
-import {POINT_TYPES} from "../data.js";
+import {POINT_TYPES} from "../const.js";
 
 const ESC_KEYCODE = 27;
 
@@ -37,4 +37,8 @@ export const isATag = (evt) => {
 
 export const transformToCapitalize = (word) => {
   return word[0].toUpperCase() + word.slice(1).toLowerCase();
+};
+
+export const isOnline = () => {
+  return window.navigator.onLine;
 };

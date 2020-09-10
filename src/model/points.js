@@ -1,5 +1,5 @@
 import Observer from "../utils/observer.js";
-import {EventType} from "../data.js";
+import {EventType} from "../const.js";
 import {transformToCapitalize} from "../utils/common.js";
 
 export default class PointsModel extends Observer {

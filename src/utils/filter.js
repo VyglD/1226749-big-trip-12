@@ -1,4 +1,4 @@
-import {FilterType} from "../data.js";
+import {FilterType} from "../const.js";
 import moment from "moment";
 
 export const filter = {

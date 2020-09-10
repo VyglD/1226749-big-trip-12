@@ -7,11 +7,25 @@ import OffersModel from "./model/offers.js";
 import PointsModel from "./model/points.js";
 import FiltersModel from "./model/filters.js";
 import {render, RenderPosition} from "./utils/render.js";
-import {FilterType, MenuItem} from "./data.js";
-import Api from "./api.js";
+import {FilterType, MenuItem} from "./const.js";
+import Api from "./api/index.js";
+import Store from "./api/store.js";
+import Provider from "./api/provider.js";
 
 const AUTHORIZATION = `Basic io380cs93mlfrq1ii8sdfhurdy67k`;
 const END_POINT = `https://12.ecmascript.pages.academy/big-trip/`;
+const STORE_PREFIX = `bigtrip-localstorage`;
+const STORE_VER = `v12`;
+const STORE_NAME = `${STORE_PREFIX}-${STORE_VER}`;
+const OFFLINE_TITLE = ` [offline]`;
+const SERVICE_WORKER_ERROR_MESSAGE = `ServiceWorker isn't available`;
+
+const headerNode = document.querySelector(`.trip-main`);
+const menuHeaderNode = headerNode.querySelectorAll(`.trip-controls h2`)[0];
+const filtersHeaderNode = headerNode.querySelectorAll(`.trip-controls h2`)[1];
+const boardContainerNode = document.querySelector(`.trip-events`);
+const tripHeader = boardContainerNode.querySelector(`h2`);
+const newPointButton = headerNode.querySelector(`.trip-main__event-add-btn`);
 
 const newPointButtonClickHandler = (evt) => {
   evt.preventDefault();
@@ -59,14 +73,9 @@ const enableMenu = () => {
   newPointButton.disabled = false;
 };
 
-const headerNode = document.querySelector(`.trip-main`);
-const menuHeaderNode = headerNode.querySelectorAll(`.trip-controls h2`)[0];
-const filtersHeaderNode = headerNode.querySelectorAll(`.trip-controls h2`)[1];
-const boardContainerNode = document.querySelector(`.trip-events`);
-const tripHeader = boardContainerNode.querySelector(`h2`);
-const newPointButton = headerNode.querySelector(`.trip-main__event-add-btn`);
-
 const api = new Api(END_POINT, AUTHORIZATION);
+const store = new Store(STORE_NAME, window.localStorage);
+const apiWithProvider = new Provider(api, store);
 
 const offersModel = new OffersModel();
 const pointsModel = new PointsModel();
@@ -85,7 +94,7 @@ const tripPresenter = new TripPresenter(
     pointsModel,
     offersModel,
     filtersModel,
-    api
+    apiWithProvider
 );
 const informationPresenter = new InformationPresenter(
     headerNode,
@@ -104,9 +113,9 @@ tripPresenter.init();
 filtersPresenter.init();
 
 Promise.all([
-  api.getOffers(),
-  api.getDestinations(),
-  api.getPoints(),
+  apiWithProvider.getOffers(),
+  apiWithProvider.getDestinations(),
+  apiWithProvider.getPoints(),
 ])
   .then(([offers, destinations, points]) => {
     offersModel.setOffersFromServer(offers);
@@ -117,4 +126,20 @@ Promise.all([
 .catch(() => {
   pointsModel.setPoints([]);
   enableMenu();
+});
+
+window.addEventListener(`load`, () => {
+  navigator.serviceWorker.register(`/sw.js`)
+    .catch(() => {
+      console.warn(SERVICE_WORKER_ERROR_MESSAGE); // eslint-disable-line
+    });
+});
+
+window.addEventListener(`online`, () => {
+  document.title = document.title.replace(OFFLINE_TITLE, ``);
+  apiWithProvider.sync();
+});
+
+window.addEventListener(`offline`, () => {
+  document.title += OFFLINE_TITLE;
 });

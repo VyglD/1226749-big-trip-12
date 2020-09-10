@@ -1,7 +1,7 @@
 import AbstractView from "./abstract.js";
 import {getHumanizeTimeInterval} from "../utils/date.js";
 import {getTimeInterval} from "../utils/common.js";
-import {TypeEmoji, POINT_TYPES, ChartType, PointCategory} from "../data.js";
+import {TypeEmoji, POINT_TYPES, ChartType, PointCategory} from "../const.js";
 import Chart from "chart.js";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 

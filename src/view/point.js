@@ -2,6 +2,8 @@ import {generatePointLabel, getTimeInterval} from "../utils/common.js";
 import {getHumanizeTime, getHumanizeTimeInterval} from "../utils/date.js";
 import AbstractView from "./abstract.js";
 
+const MAX_DISPLAY_OFFERS = 3;
+
 export default class PointView extends AbstractView {
   constructor(offersByType, point) {
     super();
@@ -78,17 +80,20 @@ export default class PointView extends AbstractView {
   }
 
   _createPointOffersTemplate() {
-    return this._point.offers
-      ? this._point.offers.map((offer) => {
-        return offer
-          ? (
-            `<li class="event__offer">
-              <span class="event__offer-title">${offer.title}</span>
-              &plus;&euro;&nbsp;
-              <span class="event__offer-price">${offer.price}</span>
-            </li>`
-          )
-          : ``;
+    const displayOffersNumber = Math.min(
+        this._point.offers.length,
+        MAX_DISPLAY_OFFERS
+    );
+
+    return displayOffersNumber
+      ? this._point.offers.slice(0, displayOffersNumber).map((offer) => {
+        return (
+          `<li class="event__offer">
+            <span class="event__offer-title">${offer.title}</span>
+            &plus;&euro;&nbsp;
+            <span class="event__offer-price">${offer.price}</span>
+          </li>`
+        );
       }).join(``)
       : ``;
   }

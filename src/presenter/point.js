@@ -3,7 +3,7 @@ import PointView from "../view/point.js";
 import PointEditView from "../view/point-edit.js";
 import {replace, append, remove} from "../utils/render.js";
 import {isEscEvent} from "../utils/common.js";
-import {UserAction, State} from "../data.js";
+import {UserAction, State} from "../const.js";
 
 const Mode = {
   DEFAULT: `DEFAULT`,

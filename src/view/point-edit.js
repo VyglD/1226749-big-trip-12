@@ -1,13 +1,15 @@
-import {POINT_TYPES, PointCategory} from "../data.js";
+import {POINT_TYPES, PointCategory} from "../const.js";
 import {
   generatePointLabel,
   isInputTag,
-  transformToCapitalize
+  transformToCapitalize,
+  isOnline
 } from "../utils/common.js";
 import {getFormattedTimeString} from "../utils/date.js";
-import SmartView from "./smart.js";
+import AbstractSmartView from "./abstract-smart.js";
 import flatpickr from "flatpickr";
 import moment from "moment";
+import he from "he";
 
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
@@ -22,7 +24,7 @@ const BLANK_POINT = {
   photos: []
 };
 
-const FLATPICKR_PROPERIES = {
+const FLATPICKR_PROPERTIES = {
   'dateFormat': `DD/MM/YY HH:mm`,
   'enableTime': true,
   'time_24hr': true,
@@ -31,14 +33,16 @@ const FLATPICKR_PROPERIES = {
   },
 };
 
-const CLASS_CITY = `event__field-group--destination`;
-const CLASS_PRICE = `event__input--price`;
+const CLASS_NODE = {
+  CITY: `event__field-group--destination`,
+  PRICE: `event__input--price`,
+};
 
-export default class PointEditView extends SmartView {
+export default class PointEditView extends AbstractSmartView {
   constructor(destinations, offersByType, point) {
     super();
-    this._destinations = destinations;
-    this._offersByType = offersByType;
+    this._destinations = destinations.size ? destinations : new Map();
+    this._offersByType = offersByType.size ? offersByType : new Map();
 
     if (!point) {
       point = BLANK_POINT;
@@ -138,7 +142,7 @@ export default class PointEditView extends SmartView {
             &euro;
           </label>
           <input
-            class="event__input ${CLASS_PRICE}"
+            class="event__input ${CLASS_NODE.PRICE}"
             id="event-price-1"
             type="number"
             name="event-price"
@@ -171,6 +175,17 @@ export default class PointEditView extends SmartView {
     );
   }
 
+  restoreHandlers() {
+    this._setInnerHandlers();
+    this._setDatepickers();
+    this.setFormSubmitHandler(this._callback.formSubmit);
+    this.setDeleteClickHandler(this._callback.pointDelete);
+
+    if (!this._isNew) {
+      this.setFormCloseHandler(this._callback.formClose);
+    }
+  }
+
   setFormCloseHandler(callback) {
     this._callback.formClose = callback;
     this.getElement().querySelector(`.event__rollup-btn`)
@@ -186,17 +201,6 @@ export default class PointEditView extends SmartView {
     this._callback.pointDelete = callback;
     this.getElement().querySelector(`.event__reset-btn`)
       .addEventListener(`click`, this._deleteButtonClickHandler);
-  }
-
-  restoreHandlers() {
-    this._setInnerHandlers();
-    this._setDatepickers();
-    this.setFormSubmitHandler(this._callback.formSubmit);
-    this.setDeleteClickHandler(this._callback.pointDelete);
-
-    if (!this._isNew) {
-      this.setFormCloseHandler(this._callback.formClose);
-    }
   }
 
   reset(point) {
@@ -223,7 +227,7 @@ export default class PointEditView extends SmartView {
               defaultDate: this._data.timeStart,
               onChange: this._startDateChangeHandler
             },
-            FLATPICKR_PROPERIES
+            FLATPICKR_PROPERTIES
         )
     );
 
@@ -235,7 +239,7 @@ export default class PointEditView extends SmartView {
               minDate: this._data.timeStart,
               onChange: this._endDateChangeHandler
             },
-            FLATPICKR_PROPERIES
+            FLATPICKR_PROPERTIES
         )
     );
   }
@@ -243,13 +247,12 @@ export default class PointEditView extends SmartView {
   _setInnerHandlers() {
     this.getElement().querySelector(`.event__type-list`)
       .addEventListener(`click`, this._pointTypeChangeHandler);
-    this.getElement().querySelector(`.${CLASS_CITY}`)
+    this.getElement().querySelector(`.${CLASS_NODE.CITY}`)
       .addEventListener(`change`, this._pointCityChangeHandler);
-    this.getElement().querySelector(`.${CLASS_PRICE}`)
+    this.getElement().querySelector(`.${CLASS_NODE.PRICE}`)
       .addEventListener(`change`, this._pointPriceChangeHandler);
 
-    if (this._offersByType
-      && this._offersByType.get(this._data.type)
+    if (this._offersByType.get(this._data.type)
       && this._offersByType.get(this._data.type).length) {
       this.getElement().querySelector(`.event__available-offers`)
         .addEventListener(`click`, this._offersChangeHandler);
@@ -294,10 +297,9 @@ export default class PointEditView extends SmartView {
       : ``;
   }
 
-  _createInnardsOfOffersSection() {
-    const {type, offers, isDisabled} = this._data;
+  _createInnardsOfOffersSection(offersList) {
+    const {offers, isDisabled} = this._data;
 
-    const offersList = this._offersByType.get(type);
     const checkedOffers = offers.reduce((result, offer) => {
       return result.set(offer.title, offer);
     }, new Map());
@@ -326,14 +328,18 @@ export default class PointEditView extends SmartView {
   }
 
   _createTripOffersSectionTemplate() {
-    return (
-      `<section class="event__section event__section--offers">
-        <h3 class="event__section-title event__section-title--offers">Offers</h3>
-        <div class="event__available-offers">
-          ${this._createInnardsOfOffersSection()}
-        </div>
-      </section>`
-    );
+    const {type} = this._data;
+
+    const offersList = this._offersByType.get(type);
+
+    return (offersList && offersList.length)
+      ? `<section class="event__section event__section--offers">
+          <h3 class="event__section-title event__section-title--offers">Offers</h3>
+          <div class="event__available-offers">
+            ${this._createInnardsOfOffersSection(offersList)}
+          </div>
+        </section>`
+      : ``;
   }
 
   _createTripDestinationDescriptionTemplate() {
@@ -357,14 +363,13 @@ export default class PointEditView extends SmartView {
 
   _createTripDestinationPhotosTemplate() {
     const {photos} = this._data;
-
     return photos.length
       ? (
         `<div class="event__photos-container">
           <div class="event__photos-tape">
-            ${photos.map((photo) => `<img
+            ${photos.map((photo, index) => `<img
                 class="event__photo"
-                src="${photo.src}"
+                src="${isOnline() ? photo.src : `./img/photos/${Math.min(index + 1, 5)}.jpg`}"
                 alt="${photo.description}">`).join(``)}
           </div>
         </div>`
@@ -375,8 +380,7 @@ export default class PointEditView extends SmartView {
   _createTripDetailsTemplate() {
     const {destination, photos} = this._data;
 
-    const offersExisting = (this._offersByType
-      && this._offersByType.get(this._data.type)
+    const offersExisting = (this._offersByType.get(this._data.type)
       && this._offersByType.get(this._data.type).length);
 
     return ((destination && destination.length)
@@ -394,7 +398,7 @@ export default class PointEditView extends SmartView {
     const {type, city, isDisabled} = this._data;
 
     return (
-      `<div class="event__field-group ${CLASS_CITY}">
+      `<div class="event__field-group ${CLASS_NODE.CITY}">
         <label class="event__label event__type-output" for="event-destination-1">
           ${generatePointLabel(type)}
         </label>
@@ -403,7 +407,7 @@ export default class PointEditView extends SmartView {
           id="event-destination-1"
           type="text"
           name="event-destination"
-          value="${city}"
+          value="${he.encode(city)}"
           list="destination-list-1"
           ${isDisabled ? `disabled` : ``}
         >
@@ -454,7 +458,7 @@ export default class PointEditView extends SmartView {
   }
 
   _checkCityValidity() {
-    const cityNode = this.getElement().querySelector(`.${CLASS_CITY} input`);
+    const cityNode = this.getElement().querySelector(`.${CLASS_NODE.CITY} input`);
     let cityMessage = ``;
     let validity = true;
 
@@ -473,11 +477,11 @@ export default class PointEditView extends SmartView {
   }
 
   _checkPriceValidity() {
-    const priceNode = this.getElement().querySelector(`.${CLASS_PRICE}`);
+    const priceNode = this.getElement().querySelector(`.${CLASS_NODE.PRICE}`);
     let priceMessage = ``;
     let validity = true;
 
-    if (!(parseInt(priceNode.value, 10) > 0)) {
+    if (!(parseInt(priceNode.value, 10))) {
       priceMessage = `Стоимость должны быть больше ноля`;
       validity = false;
     }
@@ -521,7 +525,7 @@ export default class PointEditView extends SmartView {
 
     this.getElement().querySelector(`.event__type-toggle`).checked = false;
 
-    this.updateData({type});
+    this.updateData({type, offers: []});
   }
 
   _pointCityChangeHandler(evt) {
@@ -619,11 +623,11 @@ export default class PointEditView extends SmartView {
     });
   }
 
-  static convertDataToPoint(data) {
-    delete data.isDisabled;
-    delete data.isSaving;
-    delete data.isDeleting;
+  static convertDataToPoint(pointData) {
+    delete pointData.isDisabled;
+    delete pointData.isSaving;
+    delete pointData.isDeleting;
 
-    return data;
+    return pointData;
   }
 }

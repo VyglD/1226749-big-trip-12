@@ -1,7 +1,11 @@
 import AbstractView from "./abstract.js";
 
-export default class SmartView extends AbstractView {
+export default class AbstractSmartView extends AbstractView {
   constructor() {
+    if (new.target === AbstractSmartView) {
+      throw new Error(`Can't instantiate Abstract, only concrete one.`);
+    }
+
     super();
     this._data = {};
   }

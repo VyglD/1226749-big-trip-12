@@ -5,15 +5,15 @@ import PointsListView from "../view/points-list.js";
 import NoPointsView from "../view/no-points.js";
 import LoadingView from "../view/loading.js";
 import PointPresenter from "../presenter/point.js";
-import PointsPresenter from "../presenter/points.js";
+import AbstractPointsPresenter from "./abstract-points.js";
 import NewPointPresenter from "../presenter/new-point.js";
 import {render, RenderPosition, append, remove} from "../utils/render.js";
 import {getTimeInterval} from "../utils/common.js";
-import {SortType, UserAction, EventType, State} from "../data.js";
+import {SortType, UserAction, EventType, State} from "../const.js";
 
 const SORT_KEY = `sort`;
 
-export default class TripPresenter extends PointsPresenter {
+export default class TripPresenter extends AbstractPointsPresenter {
   constructor(tripContainer, tripHeader, pointsModel, offersModel, filtersModel, api) {
     super(pointsModel, filtersModel);
     this._container = tripContainer;
@@ -114,33 +114,6 @@ export default class TripPresenter extends PointsPresenter {
     }
   }
 
-  _renderNoPoints() {
-    render(
-        this._container,
-        this._noPointsComponent,
-        RenderPosition.BEFOREEND
-    );
-  }
-
-  _renderSortComponent() {
-    if (this._sortComponent !== null) {
-      this._sortComponent = null;
-    }
-
-    this._sortComponent = new SortView(this._currentSortType);
-    this._sortComponent.setSortTypeChangeHandler(this._changePointsSorting);
-
-    render(
-        this._container,
-        this._sortComponent,
-        RenderPosition.BEFOREEND
-    );
-  }
-
-  _renderLoading() {
-    render(this._header, this._loadingComponent, RenderPosition.AFTEREND);
-  }
-
   _createPointPresenter(container, pointData) {
     const pointPresenter = new PointPresenter(
         container,
@@ -174,6 +147,52 @@ export default class TripPresenter extends PointsPresenter {
     });
   }
 
+  _clearTrip(resetSortType = false) {
+    if (resetSortType) {
+      this._currentSortType = SortType.DEFAULT;
+    }
+
+    this._newPointPresenter.destroy();
+
+    remove(this._noPointsComponent);
+    remove(this._loadingComponent);
+    remove(this._sortComponent);
+
+    Object.values(this._existPointPresenters)
+      .forEach((presenter) => presenter.destroy());
+    this._existPointPresenters = {};
+
+    this._existTripDays.forEach(remove);
+    this._existTripDays = [];
+  }
+
+  _renderNoPoints() {
+    render(
+        this._container,
+        this._noPointsComponent,
+        RenderPosition.BEFOREEND
+    );
+  }
+
+  _renderSortComponent() {
+    if (this._sortComponent !== null) {
+      this._sortComponent = null;
+    }
+
+    this._sortComponent = new SortView(this._currentSortType);
+    this._sortComponent.setSortTypeChangeHandler(this._changePointsSorting);
+
+    render(
+        this._container,
+        this._sortComponent,
+        RenderPosition.BEFOREEND
+    );
+  }
+
+  _renderLoading() {
+    render(this._header, this._loadingComponent, RenderPosition.AFTEREND);
+  }
+
   _renderTripTable() {
     this._createDaysList();
 
@@ -197,26 +216,6 @@ export default class TripPresenter extends PointsPresenter {
 
     this._renderSortComponent();
     this._renderTripTable();
-  }
-
-  _clearTrip(resetSortType = false) {
-    if (resetSortType) {
-      this._currentSortType = SortType.DEFAULT;
-    }
-
-    this._newPointPresenter.destroy();
-
-    remove(this._noPointsComponent);
-    remove(this._loadingComponent);
-    remove(this._sortComponent);
-
-    Object
-      .values(this._existPointPresenters)
-      .forEach((presenter) => presenter.destroy());
-    this._existPointPresenters = {};
-
-    this._existTripDays.forEach(remove);
-    this._existTripDays = [];
   }
 
   _updateViews(eventType) {
@@ -275,8 +274,7 @@ export default class TripPresenter extends PointsPresenter {
 
   _resetDataChanges() {
     this._newPointPresenter.destroy();
-    Object
-      .values(this._existPointPresenters)
+    Object.values(this._existPointPresenters)
       .forEach((presenter) => presenter.resetView());
   }
 

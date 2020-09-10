@@ -28,14 +28,6 @@ export const render = (container, element, place) => {
   }
 };
 
-export const renderTemplate = (container, template, place) => {
-  if (container instanceof AbstractView) {
-    container = container.getElement();
-  }
-
-  container.insertAdjacentHTML(place, template);
-};
-
 export const createElement = (template) => {
   const newElement = document.createElement(`div`);
   newElement.innerHTML = template;

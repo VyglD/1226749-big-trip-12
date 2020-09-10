@@ -10,7 +10,7 @@ export const getTripDateInterval = (points) => {
   }
 
   const start = points[0].timeStart;
-  const end = points[points.length - 1].timeStart;
+  const end = points[points.length - 1].timeEnd;
 
   const endString = start.getMonth() === end.getMonth()
     ? moment(end).format(`DD`)
