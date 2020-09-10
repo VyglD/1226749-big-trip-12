@@ -5,7 +5,7 @@ import PointsListView from "../view/points-list.js";
 import NoPointsView from "../view/no-points.js";
 import LoadingView from "../view/loading.js";
 import PointPresenter from "../presenter/point.js";
-import AbstractPointsPresenter from "../presenter/points.js";
+import AbstractPointsPresenter from "./abstract-points.js";
 import NewPointPresenter from "../presenter/new-point.js";
 import {render, RenderPosition, append, remove} from "../utils/render.js";
 import {getTimeInterval} from "../utils/common.js";
@@ -114,33 +114,6 @@ export default class TripPresenter extends AbstractPointsPresenter {
     }
   }
 
-  _renderNoPoints() {
-    render(
-        this._container,
-        this._noPointsComponent,
-        RenderPosition.BEFOREEND
-    );
-  }
-
-  _renderSortComponent() {
-    if (this._sortComponent !== null) {
-      this._sortComponent = null;
-    }
-
-    this._sortComponent = new SortView(this._currentSortType);
-    this._sortComponent.setSortTypeChangeHandler(this._changePointsSorting);
-
-    render(
-        this._container,
-        this._sortComponent,
-        RenderPosition.BEFOREEND
-    );
-  }
-
-  _renderLoading() {
-    render(this._header, this._loadingComponent, RenderPosition.AFTEREND);
-  }
-
   _createPointPresenter(container, pointData) {
     const pointPresenter = new PointPresenter(
         container,
@@ -174,6 +147,52 @@ export default class TripPresenter extends AbstractPointsPresenter {
     });
   }
 
+  _clearTrip(resetSortType = false) {
+    if (resetSortType) {
+      this._currentSortType = SortType.DEFAULT;
+    }
+
+    this._newPointPresenter.destroy();
+
+    remove(this._noPointsComponent);
+    remove(this._loadingComponent);
+    remove(this._sortComponent);
+
+    Object.values(this._existPointPresenters)
+      .forEach((presenter) => presenter.destroy());
+    this._existPointPresenters = {};
+
+    this._existTripDays.forEach(remove);
+    this._existTripDays = [];
+  }
+
+  _renderNoPoints() {
+    render(
+        this._container,
+        this._noPointsComponent,
+        RenderPosition.BEFOREEND
+    );
+  }
+
+  _renderSortComponent() {
+    if (this._sortComponent !== null) {
+      this._sortComponent = null;
+    }
+
+    this._sortComponent = new SortView(this._currentSortType);
+    this._sortComponent.setSortTypeChangeHandler(this._changePointsSorting);
+
+    render(
+        this._container,
+        this._sortComponent,
+        RenderPosition.BEFOREEND
+    );
+  }
+
+  _renderLoading() {
+    render(this._header, this._loadingComponent, RenderPosition.AFTEREND);
+  }
+
   _renderTripTable() {
     this._createDaysList();
 
@@ -197,25 +216,6 @@ export default class TripPresenter extends AbstractPointsPresenter {
 
     this._renderSortComponent();
     this._renderTripTable();
-  }
-
-  _clearTrip(resetSortType = false) {
-    if (resetSortType) {
-      this._currentSortType = SortType.DEFAULT;
-    }
-
-    this._newPointPresenter.destroy();
-
-    remove(this._noPointsComponent);
-    remove(this._loadingComponent);
-    remove(this._sortComponent);
-
-    Object.values(this._existPointPresenters)
-      .forEach((presenter) => presenter.destroy());
-    this._existPointPresenters = {};
-
-    this._existTripDays.forEach(remove);
-    this._existTripDays = [];
   }
 
   _updateViews(eventType) {

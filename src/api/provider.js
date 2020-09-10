@@ -4,6 +4,11 @@ import {nanoid} from "nanoid";
 
 const SYNC_ERROR_MESSAGE = `Sync data failed`;
 
+const StoreTitle = {
+  OFFERS: `Offers`,
+  DESTINATIONS: `Destinations`,
+};
+
 export default class Provider {
   constructor(api, store) {
     this._api = api;
@@ -78,24 +83,28 @@ export default class Provider {
     if (isOnline()) {
       return this._api.getDestinations()
         .then((destination) => {
-          this._store.setStaticDataByKey(`Destinations`, destination);
+          this._store.setStaticDataByKey(StoreTitle.DESTINATIONS, destination);
           return destination;
         });
     }
 
-    return Promise.resolve(this._store.getStaticDataByKey(`Destinations`));
+    return Promise.resolve(
+        this._store.getStaticDataByKey(StoreTitle.DESTINATIONS)
+    );
   }
 
   getOffers() {
     if (isOnline()) {
       return this._api.getOffers()
         .then((offers) => {
-          this._store.setStaticDataByKey(`Offers`, offers);
+          this._store.setStaticDataByKey(StoreTitle.OFFERS, offers);
           return offers;
         });
     }
 
-    return Promise.resolve(this._store.getStaticDataByKey(`Offers`));
+    return Promise.resolve(
+        this._store.getStaticDataByKey(StoreTitle.OFFERS)
+    );
   }
 
   sync() {

@@ -25,7 +25,7 @@ export default class FiltersPresenter {
 
     this._filterComponent = new FilterView(
         this._filtersModel.getFilter(),
-        this._getFiltersCount(),
+        this._getFiltersNumber(),
         filtersEnabled
     );
 
@@ -42,12 +42,12 @@ export default class FiltersPresenter {
     this._filtersModel.setFilter(filterType);
   }
 
-  _getFiltersCount() {
+  _getFiltersNumber() {
     const points = this._pointsModel.getPoints();
 
     return Object.entries(filter)
     .map(([key, value]) => ({[key]: value(points).length}))
-    .reduce((res, el) => Object.assign(res, el), {});
+    .reduce((result, element) => Object.assign(result, element), {});
   }
 
   _updateView() {

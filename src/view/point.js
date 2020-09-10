@@ -80,13 +80,13 @@ export default class PointView extends AbstractView {
   }
 
   _createPointOffersTemplate() {
-    const countDisplayOffers = Math.min(
+    const displayOffersNumber = Math.min(
         this._point.offers.length,
         MAX_DISPLAY_OFFERS
     );
 
-    return countDisplayOffers
-      ? this._point.offers.slice(0, countDisplayOffers).map((offer) => {
+    return displayOffersNumber
+      ? this._point.offers.slice(0, displayOffersNumber).map((offer) => {
         return (
           `<li class="event__offer">
             <span class="event__offer-title">${offer.title}</span>

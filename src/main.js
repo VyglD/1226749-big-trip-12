@@ -17,6 +17,7 @@ const END_POINT = `https://12.ecmascript.pages.academy/big-trip/`;
 const STORE_PREFIX = `bigtrip-localstorage`;
 const STORE_VER = `v12`;
 const STORE_NAME = `${STORE_PREFIX}-${STORE_VER}`;
+const OFFLINE_TITLE = ` [offline]`;
 
 const headerNode = document.querySelector(`.trip-main`);
 const menuHeaderNode = headerNode.querySelectorAll(`.trip-controls h2`)[0];
@@ -131,10 +132,10 @@ window.addEventListener(`load`, () => {
 });
 
 window.addEventListener(`online`, () => {
-  document.title = document.title.replace(` [offline]`, ``);
+  document.title = document.title.replace(OFFLINE_TITLE, ``);
   apiWithProvider.sync();
 });
 
 window.addEventListener(`offline`, () => {
-  document.title += ` [offline]`;
+  document.title += OFFLINE_TITLE;
 });

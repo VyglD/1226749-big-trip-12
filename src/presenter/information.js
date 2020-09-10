@@ -1,7 +1,7 @@
 import InformationView from "../view/information.js";
 import CostView from "../view/cost.js";
 import RouteView from "../view/route.js";
-import AbstractPointsPresenter from "./points.js";
+import AbstractPointsPresenter from "./abstract-points.js";
 import {render, RenderPosition, append, replace} from "../utils/render.js";
 import {EventType} from "../const.js";
 
