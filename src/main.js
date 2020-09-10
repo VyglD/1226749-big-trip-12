@@ -7,7 +7,7 @@ import OffersModel from "./model/offers.js";
 import PointsModel from "./model/points.js";
 import FiltersModel from "./model/filters.js";
 import {render, RenderPosition} from "./utils/render.js";
-import {FilterType, MenuItem} from "./data.js";
+import {FilterType, MenuItem} from "./const.js";
 import Api from "./api/index.js";
 import Store from "./api/store.js";
 import Provider from "./api/provider.js";
@@ -17,7 +17,6 @@ const END_POINT = `https://12.ecmascript.pages.academy/big-trip/`;
 const STORE_PREFIX = `bigtrip-localstorage`;
 const STORE_VER = `v12`;
 const STORE_NAME = `${STORE_PREFIX}-${STORE_VER}`;
-const SW_ERROR_MESSAGE = `ServiceWorker isn't available`;
 
 const newPointButtonClickHandler = (evt) => {
   evt.preventDefault();
@@ -128,11 +127,7 @@ Promise.all([
 });
 
 window.addEventListener(`load`, () => {
-  navigator.serviceWorker.register(`/sw.js`)
-    .then(() => {})
-    .catch(() => {
-      throw new Error(SW_ERROR_MESSAGE);
-    });
+  navigator.serviceWorker.register(`/sw.js`);
 });
 
 window.addEventListener(`online`, () => {

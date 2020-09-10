@@ -3,7 +3,7 @@ import CostView from "../view/cost.js";
 import RouteView from "../view/route.js";
 import AbstractPointsPresenter from "./points.js";
 import {render, RenderPosition, append, replace} from "../utils/render.js";
-import {EventType} from "../data.js";
+import {EventType} from "../const.js";
 
 export default class InformationPresenter extends AbstractPointsPresenter {
   constructor(informationContainer, pointsModel, filtersModel) {

@@ -1,5 +1,5 @@
 import Observer from "../utils/observer.js";
-import {FilterType, EventType} from "../data.js";
+import {FilterType, EventType} from "../const.js";
 
 export default class FilterModel extends Observer {
   constructor() {

@@ -1,4 +1,4 @@
-import {POINT_TYPES} from "../data.js";
+import {POINT_TYPES} from "../const.js";
 
 const ESC_KEYCODE = 27;
 

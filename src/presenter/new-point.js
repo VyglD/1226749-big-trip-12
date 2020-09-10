@@ -1,7 +1,7 @@
 import PointEditView from "../view/point-edit.js";
 import {render, RenderPosition, remove} from "../utils/render.js";
 import {isEscEvent} from "../utils/common.js";
-import {UserAction, State} from "../data.js";
+import {UserAction, State} from "../const.js";
 
 export default class NewPointPresenter {
   constructor(pointsModel, offersModel, changeData) {

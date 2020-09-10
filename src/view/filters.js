@@ -1,4 +1,4 @@
-import {FilterType} from "../data.js";
+import {FilterType} from "../const.js";
 import AbstractView from "./abstract.js";
 import {isInputTag} from "../utils/common.js";
 

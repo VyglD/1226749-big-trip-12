@@ -9,7 +9,7 @@ import AbstractPointsPresenter from "../presenter/points.js";
 import NewPointPresenter from "../presenter/new-point.js";
 import {render, RenderPosition, append, remove} from "../utils/render.js";
 import {getTimeInterval} from "../utils/common.js";
-import {SortType, UserAction, EventType, State} from "../data.js";
+import {SortType, UserAction, EventType, State} from "../const.js";
 
 const SORT_KEY = `sort`;
 
@@ -210,8 +210,7 @@ export default class TripPresenter extends AbstractPointsPresenter {
     remove(this._loadingComponent);
     remove(this._sortComponent);
 
-    Object
-      .values(this._existPointPresenters)
+    Object.values(this._existPointPresenters)
       .forEach((presenter) => presenter.destroy());
     this._existPointPresenters = {};
 
@@ -275,8 +274,7 @@ export default class TripPresenter extends AbstractPointsPresenter {
 
   _resetDataChanges() {
     this._newPointPresenter.destroy();
-    Object
-      .values(this._existPointPresenters)
+    Object.values(this._existPointPresenters)
       .forEach((presenter) => presenter.resetView());
   }
 

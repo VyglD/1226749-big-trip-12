@@ -1,4 +1,4 @@
-import {POINT_TYPES, PointCategory} from "../data.js";
+import {POINT_TYPES, PointCategory} from "../const.js";
 import {
   generatePointLabel,
   isInputTag,
@@ -623,11 +623,11 @@ export default class PointEditView extends SmartView {
     });
   }
 
-  static convertDataToPoint(data) {
-    delete data.isDisabled;
-    delete data.isSaving;
-    delete data.isDeleting;
+  static convertDataToPoint(pointData) {
+    delete pointData.isDisabled;
+    delete pointData.isSaving;
+    delete pointData.isDeleting;
 
-    return data;
+    return pointData;
   }
 }
