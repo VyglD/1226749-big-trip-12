@@ -18,6 +18,13 @@ const STORE_PREFIX = `bigtrip-localstorage`;
 const STORE_VER = `v12`;
 const STORE_NAME = `${STORE_PREFIX}-${STORE_VER}`;
 
+const headerNode = document.querySelector(`.trip-main`);
+const menuHeaderNode = headerNode.querySelectorAll(`.trip-controls h2`)[0];
+const filtersHeaderNode = headerNode.querySelectorAll(`.trip-controls h2`)[1];
+const boardContainerNode = document.querySelector(`.trip-events`);
+const tripHeader = boardContainerNode.querySelector(`h2`);
+const newPointButton = headerNode.querySelector(`.trip-main__event-add-btn`);
+
 const newPointButtonClickHandler = (evt) => {
   evt.preventDefault();
   handleMenuClick(MenuItem.NEW_POINT);
@@ -63,13 +70,6 @@ const enableMenu = () => {
   newPointButton.addEventListener(`click`, newPointButtonClickHandler);
   newPointButton.disabled = false;
 };
-
-const headerNode = document.querySelector(`.trip-main`);
-const menuHeaderNode = headerNode.querySelectorAll(`.trip-controls h2`)[0];
-const filtersHeaderNode = headerNode.querySelectorAll(`.trip-controls h2`)[1];
-const boardContainerNode = document.querySelector(`.trip-events`);
-const tripHeader = boardContainerNode.querySelector(`h2`);
-const newPointButton = headerNode.querySelector(`.trip-main__event-add-btn`);
 
 const api = new Api(END_POINT, AUTHORIZATION);
 const store = new Store(STORE_NAME, window.localStorage);
