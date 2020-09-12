@@ -464,35 +464,35 @@ export default class PointEditView extends AbstractSmartView {
   }
 
   _checkCityValidity() {
-    const cityNode = this.getElement().querySelector(`.${CLASS_NODE.CITY} input`);
+    const cityField = this.getElement().querySelector(`.${CLASS_NODE.CITY} input`);
     let cityMessage = ``;
     let validity = true;
 
-    if (cityNode.value.length === 0) {
+    if (cityField.value.length === 0) {
       cityMessage = `Не указан пункт назначения`;
       validity = false;
     } else if (this._destinations.size
-      && ![...this._destinations.keys()].includes(cityNode.value)) {
+      && ![...this._destinations.keys()].includes(cityField.value)) {
       cityMessage = `Выбранный пункт назначения отсутсвует в предложенном списке`;
       validity = false;
     }
 
-    cityNode.setCustomValidity(cityMessage);
+    cityField.setCustomValidity(cityMessage);
 
     return validity;
   }
 
   _checkPriceValidity() {
-    const priceNode = this.getElement().querySelector(`.${CLASS_NODE.PRICE}`);
+    const priceField = this.getElement().querySelector(`.${CLASS_NODE.PRICE}`);
     let priceMessage = ``;
     let validity = true;
 
-    if (!(parseInt(priceNode.value, 10))) {
+    if (!(parseInt(priceField.value, 10))) {
       priceMessage = `Стоимость должны быть больше ноля`;
       validity = false;
     }
 
-    priceNode.setCustomValidity(priceMessage);
+    priceField.setCustomValidity(priceMessage);
 
     return validity;
   }

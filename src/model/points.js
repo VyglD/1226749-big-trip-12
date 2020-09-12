@@ -8,8 +8,6 @@ export default class PointsModel extends Observer {
 
     this._points = [];
     this._destinations = new Map();
-
-    window.points = this.getPoints.bind(this);
   }
 
   getPoints() {

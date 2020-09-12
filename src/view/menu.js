@@ -33,12 +33,12 @@ export default class MenuView extends AbstractView {
   }
 
   setMenuItem(menuItem) {
-    const itemNode = this.getElement().querySelector(`[value=${menuItem}]`);
-    const prevActiveNode = this.getElement().querySelector(`.${ACTIVE_CLASS}`);
+    const item = this.getElement().querySelector(`[value=${menuItem}]`);
+    const prevActiveItem = this.getElement().querySelector(`.${ACTIVE_CLASS}`);
 
-    if (itemNode && prevActiveNode && prevActiveNode !== itemNode) {
-      prevActiveNode.classList.remove(ACTIVE_CLASS);
-      itemNode.classList.add(ACTIVE_CLASS);
+    if (item && prevActiveItem && prevActiveItem !== item) {
+      prevActiveItem.classList.remove(ACTIVE_CLASS);
+      item.classList.add(ACTIVE_CLASS);
     }
   }
 
