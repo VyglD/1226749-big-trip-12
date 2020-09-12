@@ -33,15 +33,18 @@ export const SortType = {
 };
 
 export const EventType = {
-  FILTER: `filter`,
-  POINT: `point`,
-  INIT: `init`
+  FILTER: `Filter was changed`,
+  SORT: `Sort type was changed`,
+  POINT: `Point data was changed`,
+  FAVORITE: `Property "Favorite" was changed`,
+  ADD: `New point was added`,
+  DELETE: `Point was deleted`,
+  INIT: `Application init`
 };
 
-export const UserAction = {
-  UPDATE_POINT: `UPDATE_POINT`,
-  ADD_POINT: `ADD_POINT`,
-  DELETE_POINT: `DELETE_POINT`
+export const UpdateType = {
+  PATCH: `PATCH`,
+  MAJOR: `MAJOR`
 };
 
 export const MenuItem = {

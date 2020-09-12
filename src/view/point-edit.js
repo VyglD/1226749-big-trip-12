@@ -1,4 +1,4 @@
-import {POINT_TYPES, PointCategory} from "../const.js";
+import {POINT_TYPES, PointCategory, EventType} from "../const.js";
 import {
   generatePointLabel,
   isInputTag,
@@ -39,12 +39,14 @@ const CLASS_NODE = {
 };
 
 export default class PointEditView extends AbstractSmartView {
-  constructor(destinations, offersByType, point) {
+  constructor(destinations, offersByType, point, originPoint) {
     super();
     this._destinations = destinations.size ? destinations : new Map();
     this._offersByType = offersByType.size ? offersByType : new Map();
 
-    if (!point) {
+    if (point) {
+      this._originData = originPoint ? originPoint : point;
+    } else {
       point = BLANK_POINT;
       this._isNew = true;
     }
@@ -178,7 +180,7 @@ export default class PointEditView extends AbstractSmartView {
   restoreHandlers() {
     this._setInnerHandlers();
     this._setDatepickers();
-    this.setFormSubmitHandler(this._callback.formSubmit);
+    this.setFormSubmitHandler(this._callback.changePointData);
     this.setDeleteClickHandler(this._callback.pointDelete);
 
     if (!this._isNew) {
@@ -193,7 +195,7 @@ export default class PointEditView extends AbstractSmartView {
   }
 
   setFormSubmitHandler(callback) {
-    this._callback.formSubmit = callback;
+    this._callback.changePointData = callback;
     this.getElement().addEventListener(`submit`, this._formSubmitHandler);
   }
 
@@ -207,6 +209,10 @@ export default class PointEditView extends AbstractSmartView {
     this.updateData(
         PointEditView.convertPointToData(point)
     );
+  }
+
+  getUnsavedUserData() {
+    return this._data;
   }
 
   _setDatepickers() {
@@ -498,7 +504,10 @@ export default class PointEditView extends AbstractSmartView {
   _formSubmitHandler(evt) {
     evt.preventDefault();
     if (this._checkFormValidity()) {
-      this._callback.formSubmit(PointEditView.convertDataToPoint(this._data));
+      this._callback.changePointData(
+          PointEditView.convertDataToPoint(this._data),
+          EventType.POINT
+      );
     }
   }
 
@@ -508,11 +517,17 @@ export default class PointEditView extends AbstractSmartView {
   }
 
   _favoriteClickHandler() {
-    this.updateData(
-        {
-          isFavorite: !this._data.isFavorite
-        },
-        true
+    this._callback.changePointData(
+        PointEditView.convertDataToPoint(
+            Object.assign(
+                {},
+                this._originData,
+                {
+                  isFavorite: !this._originData.isFavorite
+                }
+            )
+        ),
+        EventType.FAVORITE
     );
   }
 

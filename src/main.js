@@ -7,7 +7,7 @@ import OffersModel from "./model/offers.js";
 import PointsModel from "./model/points.js";
 import FiltersModel from "./model/filters.js";
 import {render, RenderPosition} from "./utils/render.js";
-import {FilterType, MenuItem} from "./const.js";
+import {FilterType, MenuItem, EventType, UpdateType} from "./const.js";
 import Api from "./api/index.js";
 import Store from "./api/store.js";
 import Provider from "./api/provider.js";
@@ -120,11 +120,11 @@ Promise.all([
   .then(([offers, destinations, points]) => {
     offersModel.setOffersFromServer(offers);
     pointsModel.setDestinations(destinations);
-    pointsModel.setPoints(points);
+    pointsModel.setPoints(EventType.INIT, UpdateType.MAJOR, points);
     enableMenu();
   })
 .catch(() => {
-  pointsModel.setPoints([]);
+  pointsModel.setPoints(EventType.INIT, UpdateType.MAJOR, []);
   enableMenu();
 });
 

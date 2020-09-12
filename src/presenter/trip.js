@@ -9,7 +9,7 @@ import AbstractPointsPresenter from "./abstract-points.js";
 import NewPointPresenter from "../presenter/new-point.js";
 import {render, RenderPosition, append, remove} from "../utils/render.js";
 import {getTimeInterval} from "../utils/common.js";
-import {SortType, UserAction, EventType, State} from "../const.js";
+import {SortType, EventType, UpdateType, State} from "../const.js";
 
 const SORT_KEY = `sort`;
 
@@ -120,7 +120,8 @@ export default class TripPresenter extends AbstractPointsPresenter {
         this._pointsModel,
         this._offersModel,
         this._changePointsData,
-        this._resetDataChanges
+        this._resetDataChanges,
+        pointData
     );
     pointPresenter.init(pointData);
     this._existPointPresenters[pointData.id] = pointPresenter;
@@ -218,11 +219,18 @@ export default class TripPresenter extends AbstractPointsPresenter {
     this._renderTripTable();
   }
 
-  _updateViews(eventType) {
-    if (eventType === EventType.INIT) {
+  _updateViews(event, updatePointData) {
+    if (event.eventType === EventType.INIT) {
       this._isLoading = false;
       remove(this._loadingComponent);
     }
+
+    if (event.updateType === UpdateType.PATCH) {
+      this._existPointPresenters[updatePointData.id]
+        .setPropertyFavorite(updatePointData);
+      return;
+    }
+
     this._clearTrip();
     this._createTripSplit();
     this._renderTrip();
@@ -234,36 +242,67 @@ export default class TripPresenter extends AbstractPointsPresenter {
     }
 
     this._currentSortType = sortType;
-    this._updateViews();
+    this._updateViews(
+        {
+          eventType: EventType.SORT,
+          updateType: UpdateType.MAJOR
+        }
+    );
   }
 
-  _changePointsData(userAction, point) {
-    switch (userAction) {
-      case UserAction.UPDATE_POINT:
+  _changePointsData(eventType, point) {
+    switch (eventType) {
+      case EventType.POINT:
         this._existPointPresenters[point.id].setViewState(State.SAVING);
         this._api.updatePoint(point)
           .then((response) => {
-            this._pointsModel.updatePoint(response);
+            this._pointsModel.updatePoint(
+                EventType.POINT,
+                UpdateType.MAJOR,
+                response
+            );
           })
           .catch(() => {
             this._existPointPresenters[point.id].setViewState(State.ABORTING);
           });
         break;
-      case UserAction.DELETE_POINT:
+      case EventType.FAVORITE:
+        this._existPointPresenters[point.id].setViewState(State.SAVING);
+        this._api.updatePoint(point)
+          .then((response) => {
+            this._pointsModel.updatePoint(
+                EventType.FAVORITE,
+                UpdateType.PATCH,
+                response
+            );
+          })
+          .catch(() => {
+            this._existPointPresenters[point.id].setViewState(State.ABORTING);
+          });
+        break;
+      case EventType.DELETE:
         this._existPointPresenters[point.id].setViewState(State.DELETING);
         this._api.deletePoint(point)
           .then(() => {
-            this._pointsModel.deletePoint(point);
+            this._pointsModel.deletePoint(
+                EventType.DELETE,
+                UpdateType.MAJOR,
+                point
+            );
           })
           .catch(() => {
             this._existPointPresenters[point.id].setViewState(State.ABORTING);
           });
         break;
-      case UserAction.ADD_POINT:
+      case EventType.ADD:
         this._newPointPresenter.setViewState(State.SAVING);
         this._api.addPoint(point)
           .then((response) => {
-            this._pointsModel.addPoint(response);
+            this._pointsModel.addPoint(
+                EventType.ADD,
+                UpdateType.MAJOR,
+                response
+            );
           })
           .catch(() => {
             this._newPointPresenter.setViewState(State.ABORTING);
@@ -278,8 +317,8 @@ export default class TripPresenter extends AbstractPointsPresenter {
       .forEach((presenter) => presenter.resetView());
   }
 
-  _applyNewFilter(eventType) {
+  _applyNewFilter(event) {
     this._currentSortType = SortType.DEFAULT;
-    this._updateViews(eventType);
+    this._updateViews(event);
   }
 }

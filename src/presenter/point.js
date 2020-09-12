@@ -3,7 +3,7 @@ import PointView from "../view/point.js";
 import PointEditView from "../view/point-edit.js";
 import {replace, append, remove} from "../utils/render.js";
 import {isEscEvent} from "../utils/common.js";
-import {UserAction, State} from "../const.js";
+import {EventType, State} from "../const.js";
 
 const Mode = {
   DEFAULT: `DEFAULT`,
@@ -16,13 +16,15 @@ export default class PointPresenter {
       pointsModel,
       offersModel,
       pointDataChangeHandler,
-      resetPointDataChangesHandler
+      resetPointDataChangesHandler,
+      point
   ) {
     this._contaier = container;
     this._pointsModel = pointsModel;
     this._offersModel = offersModel;
     this._changePointData = pointDataChangeHandler;
     this._resetPointDataChanges = resetPointDataChangesHandler;
+    this._point = point;
 
     this._pointComponent = null;
     this._pointEditComponent = null;
@@ -36,19 +38,18 @@ export default class PointPresenter {
   }
 
   init(point) {
-    this._point = point;
-
     const prevPointComponent = this._pointComponent;
     const prevPointEditComponent = this._pointEditComponent;
 
     this._pointComponent = new PointView(
         this._offersModel.getOffers(),
-        point
+        this._point
     );
     this._pointEditComponent = new PointEditView(
         this._pointsModel.getDestinations(),
         this._offersModel.getOffers(),
-        point
+        point,
+        this._point
     );
 
     this._pointComponent.setEditClickHandler(this._editClickHandler);
@@ -114,6 +115,14 @@ export default class PointPresenter {
     }
   }
 
+  setPropertyFavorite(updatedServerDataPoint) {
+    this._point = updatedServerDataPoint;
+
+    const pointData = this._pointEditComponent.getUnsavedUserData();
+    pointData.isFavorite = !pointData.isFavorite;
+    this.init(pointData);
+  }
+
   _replacePointToForm() {
     replace(this._pointEditComponent, this._pointComponent);
     this._mode = Mode.EDITING;
@@ -138,8 +147,8 @@ export default class PointPresenter {
     this._replacePointToForm();
   }
 
-  _formSubmitHandler(newPointData) {
-    this._changePointData(UserAction.UPDATE_POINT, newPointData);
+  _formSubmitHandler(newPointData, eventType) {
+    this._changePointData(eventType, newPointData);
   }
 
   _formCloseHandler() {
@@ -147,6 +156,6 @@ export default class PointPresenter {
   }
 
   _deleteClickHandler(point) {
-    this._changePointData(UserAction.DELETE_POINT, point);
+    this._changePointData(EventType.DELETE, point);
   }
 }

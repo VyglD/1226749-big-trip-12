@@ -1,5 +1,4 @@
 import Observer from "../utils/observer.js";
-import {EventType} from "../const.js";
 import {transformToCapitalize} from "../utils/common.js";
 
 export default class PointsModel extends Observer {
@@ -9,6 +8,8 @@ export default class PointsModel extends Observer {
 
     this._points = [];
     this._destinations = new Map();
+
+    window.points = this.getPoints.bind(this);
   }
 
   getPoints() {
@@ -25,34 +26,34 @@ export default class PointsModel extends Observer {
     });
   }
 
-  setPoints(points) {
+  setPoints(eventType, updateType, points) {
     this._points = this._sortPoints(points);
 
-    this._notify(EventType.INIT, points);
+    this._notify({eventType, updateType}, points);
   }
 
-  updatePoint(update) {
-    const index = this._points.findIndex((point) => point.id === update.id);
+  updatePoint(eventType, updateType, point) {
+    const index = this._points.findIndex((item) => point.id === item.id);
 
     if (index === -1) {
       throw new Error(`Can't update unexisting point`);
     }
 
-    this._points.splice(index, 1, update);
+    this._points.splice(index, 1, point);
     this._points = this._sortPoints(this._points);
 
-    this._notify(EventType.POINT, update);
+    this._notify({eventType, updateType}, point);
   }
 
-  addPoint(update) {
-    this._points.push(update);
+  addPoint(eventType, updateType, point) {
+    this._points.push(point);
     this._points = this._sortPoints(this._points);
 
-    this._notify(EventType.POINT, update);
+    this._notify({eventType, updateType}, point);
   }
 
-  deletePoint(update) {
-    const index = this._points.findIndex((point) => point.id === update.id);
+  deletePoint(eventType, updateType, point) {
+    const index = this._points.findIndex((item) => point.id === item.id);
 
     if (index === -1) {
       throw new Error(`Can't delete unexisting point`);
@@ -60,7 +61,7 @@ export default class PointsModel extends Observer {
 
     this._points.splice(index, 1);
 
-    this._notify(EventType.POINT, update);
+    this._notify({eventType, updateType}, point);
   }
 
   _sortPoints(points) {
