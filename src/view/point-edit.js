@@ -165,7 +165,7 @@ export default class PointEditView extends AbstractSmartView {
           type="reset"
           ${isDisabled ? `disabled` : ``}
         >
-          ${this._isNew ? `Cansel` : nameDeleteButton}
+          ${this._isNew ? `Cancel` : nameDeleteButton}
         </button>
 
         ${this._createTripFavoriteButtonTemplate()}
