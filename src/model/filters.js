@@ -1,5 +1,5 @@
 import Observer from "../utils/observer.js";
-import {FilterType, EventType} from "../const.js";
+import {FilterType, EventType, UpdateType} from "../const.js";
 
 export default class FilterModel extends Observer {
   constructor() {
@@ -9,7 +9,14 @@ export default class FilterModel extends Observer {
 
   setFilter(filter) {
     this._currentFilter = filter;
-    this._notify(EventType.FILTER, filter);
+
+    this._notify(
+        {
+          eventType: EventType.FILTER,
+          updateType: UpdateType.MAJOR
+        },
+        filter
+    );
   }
 
   getFilter() {

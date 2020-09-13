@@ -3,7 +3,7 @@ import CostView from "../view/cost.js";
 import RouteView from "../view/route.js";
 import AbstractPointsPresenter from "./abstract-points.js";
 import {render, RenderPosition, append, replace} from "../utils/render.js";
-import {EventType} from "../const.js";
+import {EventType, UpdateType} from "../const.js";
 
 export default class InformationPresenter extends AbstractPointsPresenter {
   constructor(informationContainer, pointsModel, filtersModel) {
@@ -31,8 +31,12 @@ export default class InformationPresenter extends AbstractPointsPresenter {
     );
   }
 
-  _updateViews(eventType) {
-    if (eventType === EventType.POINT) {
+  _updateViews(event) {
+    if (event.updateType !== UpdateType.MAJOR) {
+      return;
+    }
+
+    if (event.eventType === EventType.POINT) {
       this._updateRoute();
     }
 

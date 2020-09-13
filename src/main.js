@@ -7,7 +7,7 @@ import OffersModel from "./model/offers.js";
 import PointsModel from "./model/points.js";
 import FiltersModel from "./model/filters.js";
 import {render, RenderPosition} from "./utils/render.js";
-import {FilterType, MenuItem} from "./const.js";
+import {FilterType, MenuItem, EventType, UpdateType} from "./const.js";
 import Api from "./api/index.js";
 import Store from "./api/store.js";
 import Provider from "./api/provider.js";
@@ -20,12 +20,12 @@ const STORE_NAME = `${STORE_PREFIX}-${STORE_VER}`;
 const OFFLINE_TITLE = ` [offline]`;
 const SERVICE_WORKER_ERROR_MESSAGE = `ServiceWorker isn't available`;
 
-const headerNode = document.querySelector(`.trip-main`);
-const menuHeaderNode = headerNode.querySelectorAll(`.trip-controls h2`)[0];
-const filtersHeaderNode = headerNode.querySelectorAll(`.trip-controls h2`)[1];
-const boardContainerNode = document.querySelector(`.trip-events`);
-const tripHeader = boardContainerNode.querySelector(`h2`);
-const newPointButton = headerNode.querySelector(`.trip-main__event-add-btn`);
+const header = document.querySelector(`.trip-main`);
+const menuHeader = header.querySelectorAll(`.trip-controls h2`)[0];
+const filtersHeader = header.querySelectorAll(`.trip-controls h2`)[1];
+const boardContainer = document.querySelector(`.trip-events`);
+const tripHeader = boardContainer.querySelector(`h2`);
+const newPointButton = header.querySelector(`.trip-main__event-add-btn`);
 
 const newPointButtonClickHandler = (evt) => {
   evt.preventDefault();
@@ -63,7 +63,7 @@ const handleMenuClick = (menuItem) => {
 
 const enableMenu = () => {
   render(
-      menuHeaderNode,
+      menuHeader,
       siteMenuComponent,
       RenderPosition.AFTEREND
   );
@@ -84,12 +84,12 @@ const filtersModel = new FiltersModel();
 const siteMenuComponent = new MenuView();
 
 const filtersPresenter = new FiltersPresenter(
-    filtersHeaderNode,
+    filtersHeader,
     pointsModel,
     filtersModel
 );
 const tripPresenter = new TripPresenter(
-    boardContainerNode,
+    boardContainer,
     tripHeader,
     pointsModel,
     offersModel,
@@ -97,12 +97,12 @@ const tripPresenter = new TripPresenter(
     apiWithProvider
 );
 const informationPresenter = new InformationPresenter(
-    headerNode,
+    header,
     pointsModel,
     filtersModel
 );
 const statisticsPresenter = new StatisticsPresenter(
-    boardContainerNode,
+    boardContainer,
     pointsModel
 );
 
@@ -120,11 +120,11 @@ Promise.all([
   .then(([offers, destinations, points]) => {
     offersModel.setOffersFromServer(offers);
     pointsModel.setDestinations(destinations);
-    pointsModel.setPoints(points);
+    pointsModel.setPoints(EventType.INIT, UpdateType.MAJOR, points);
     enableMenu();
   })
 .catch(() => {
-  pointsModel.setPoints([]);
+  pointsModel.setPoints(EventType.INIT, UpdateType.MAJOR, []);
   enableMenu();
 });
 

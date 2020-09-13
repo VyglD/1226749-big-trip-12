@@ -1,6 +1,7 @@
 import FilterView from "../view/filters.js";
 import {render, RenderPosition, remove} from "../utils/render.js";
 import {filter} from "../utils/filter.js";
+import {UpdateType} from "../const.js";
 
 export default class FiltersPresenter {
   constructor(filterHeader, pointsModel, filtersModel) {
@@ -50,7 +51,9 @@ export default class FiltersPresenter {
     .reduce((result, element) => Object.assign(result, element), {});
   }
 
-  _updateView() {
-    this.init();
+  _updateView(event) {
+    if (event.updateType === UpdateType.MAJOR) {
+      this.init();
+    }
   }
 }

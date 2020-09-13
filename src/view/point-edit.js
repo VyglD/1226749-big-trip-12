@@ -1,4 +1,4 @@
-import {POINT_TYPES, PointCategory} from "../const.js";
+import {POINT_TYPES, PointCategory, EventType} from "../const.js";
 import {
   generatePointLabel,
   isInputTag,
@@ -39,12 +39,14 @@ const CLASS_NODE = {
 };
 
 export default class PointEditView extends AbstractSmartView {
-  constructor(destinations, offersByType, point) {
+  constructor(destinations, offersByType, point, originPoint) {
     super();
     this._destinations = destinations.size ? destinations : new Map();
     this._offersByType = offersByType.size ? offersByType : new Map();
 
-    if (!point) {
+    if (point) {
+      this._originData = originPoint ? originPoint : point;
+    } else {
       point = BLANK_POINT;
       this._isNew = true;
     }
@@ -163,7 +165,7 @@ export default class PointEditView extends AbstractSmartView {
           type="reset"
           ${isDisabled ? `disabled` : ``}
         >
-          ${this._isNew ? `Cansel` : nameDeleteButton}
+          ${this._isNew ? `Cancel` : nameDeleteButton}
         </button>
 
         ${this._createTripFavoriteButtonTemplate()}
@@ -178,7 +180,7 @@ export default class PointEditView extends AbstractSmartView {
   restoreHandlers() {
     this._setInnerHandlers();
     this._setDatepickers();
-    this.setFormSubmitHandler(this._callback.formSubmit);
+    this.setFormSubmitHandler(this._callback.changePointData);
     this.setDeleteClickHandler(this._callback.pointDelete);
 
     if (!this._isNew) {
@@ -193,7 +195,7 @@ export default class PointEditView extends AbstractSmartView {
   }
 
   setFormSubmitHandler(callback) {
-    this._callback.formSubmit = callback;
+    this._callback.changePointData = callback;
     this.getElement().addEventListener(`submit`, this._formSubmitHandler);
   }
 
@@ -207,6 +209,10 @@ export default class PointEditView extends AbstractSmartView {
     this.updateData(
         PointEditView.convertPointToData(point)
     );
+  }
+
+  getUnsavedUserData() {
+    return this._data;
   }
 
   _setDatepickers() {
@@ -458,35 +464,35 @@ export default class PointEditView extends AbstractSmartView {
   }
 
   _checkCityValidity() {
-    const cityNode = this.getElement().querySelector(`.${CLASS_NODE.CITY} input`);
+    const cityField = this.getElement().querySelector(`.${CLASS_NODE.CITY} input`);
     let cityMessage = ``;
     let validity = true;
 
-    if (cityNode.value.length === 0) {
+    if (cityField.value.length === 0) {
       cityMessage = `Не указан пункт назначения`;
       validity = false;
     } else if (this._destinations.size
-      && ![...this._destinations.keys()].includes(cityNode.value)) {
+      && ![...this._destinations.keys()].includes(cityField.value)) {
       cityMessage = `Выбранный пункт назначения отсутсвует в предложенном списке`;
       validity = false;
     }
 
-    cityNode.setCustomValidity(cityMessage);
+    cityField.setCustomValidity(cityMessage);
 
     return validity;
   }
 
   _checkPriceValidity() {
-    const priceNode = this.getElement().querySelector(`.${CLASS_NODE.PRICE}`);
+    const priceField = this.getElement().querySelector(`.${CLASS_NODE.PRICE}`);
     let priceMessage = ``;
     let validity = true;
 
-    if (!(parseInt(priceNode.value, 10))) {
+    if (!(parseInt(priceField.value, 10))) {
       priceMessage = `Стоимость должны быть больше ноля`;
       validity = false;
     }
 
-    priceNode.setCustomValidity(priceMessage);
+    priceField.setCustomValidity(priceMessage);
 
     return validity;
   }
@@ -498,7 +504,10 @@ export default class PointEditView extends AbstractSmartView {
   _formSubmitHandler(evt) {
     evt.preventDefault();
     if (this._checkFormValidity()) {
-      this._callback.formSubmit(PointEditView.convertDataToPoint(this._data));
+      this._callback.changePointData(
+          PointEditView.convertDataToPoint(this._data),
+          EventType.POINT
+      );
     }
   }
 
@@ -508,11 +517,17 @@ export default class PointEditView extends AbstractSmartView {
   }
 
   _favoriteClickHandler() {
-    this.updateData(
-        {
-          isFavorite: !this._data.isFavorite
-        },
-        true
+    this._callback.changePointData(
+        PointEditView.convertDataToPoint(
+            Object.assign(
+                {},
+                this._originData,
+                {
+                  isFavorite: !this._originData.isFavorite
+                }
+            )
+        ),
+        EventType.FAVORITE
     );
   }
 
