@@ -1,19 +1,19 @@
-import InformationView from "../view/information.js";
-import CostView from "../view/cost.js";
-import RouteView from "../view/route.js";
-import AbstractPointsPresenter from "./abstract-points.js";
+import InformationView from "../view/information-view.js";
+import CostView from "../view/cost-view.js";
+import RouteView from "../view/route-view.js";
+import AbstractPointsPresenter from "./abstract-points-presenter.js";
 import {render, RenderPosition, append, replace} from "../utils/render.js";
 import {EventType, UpdateType} from "../const.js";
 
 export default class InformationPresenter extends AbstractPointsPresenter {
-  constructor(informationContainer, pointsModel, filtersModel) {
-    super(pointsModel, filtersModel);
+  constructor(informationContainer, pointsModel, filterModel) {
+    super(pointsModel, filterModel);
     this._container = informationContainer;
 
     this._updateViews = this._updateViews.bind(this);
 
     this._pointsModel.addObserver(this._updateViews);
-    this._filtersModel.addObserver(this._updateViews);
+    this._filterModel.addObserver(this._updateViews);
   }
 
   init() {

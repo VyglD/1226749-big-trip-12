@@ -1,4 +1,4 @@
-import StatisticsView from "../view/statistics.js";
+import StatisticsView from "../view/statistics-view.js";
 import {render, RenderPosition, remove} from "../utils/render.js";
 
 export default class StatisticsPresenter {

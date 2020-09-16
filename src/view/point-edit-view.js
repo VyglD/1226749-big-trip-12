@@ -5,8 +5,8 @@ import {
   transformToCapitalize,
   isOnline
 } from "../utils/common.js";
-import {getFormattedTimeString} from "../utils/date.js";
-import AbstractSmartView from "./abstract-smart.js";
+import {getFormattedTimeString, getBlankDate} from "../utils/date.js";
+import AbstractSmartView from "./abstract-smart-view.js";
 import flatpickr from "flatpickr";
 import moment from "moment";
 import he from "he";
@@ -17,8 +17,8 @@ const BLANK_POINT = {
   type: POINT_TYPES.get(PointCategory.TRANSFER)[0],
   city: ``,
   offers: [],
-  timeStart: new Date(),
-  timeEnd: new Date(),
+  timeStart: getBlankDate(),
+  timeEnd: getBlankDate(),
   price: 0,
   destination: [],
   photos: []
@@ -177,6 +177,11 @@ export default class PointEditView extends AbstractSmartView {
     );
   }
 
+  removeElement() {
+    super.removeElement();
+    this._destroyDateDatepickers();
+  }
+
   restoreHandlers() {
     this._setInnerHandlers();
     this._setDatepickers();
@@ -215,7 +220,7 @@ export default class PointEditView extends AbstractSmartView {
     return this._data;
   }
 
-  _setDatepickers() {
+  _destroyDateDatepickers() {
     if (this._startDatepicker) {
       this._startDatepicker.destroy();
       this._startDatepicker = null;
@@ -225,6 +230,10 @@ export default class PointEditView extends AbstractSmartView {
       this._endDatepicker.destroy();
       this._endDatepicker = null;
     }
+  }
+
+  _setDatepickers() {
+    this._destroyDateDatepickers();
 
     this._startDatepicker = flatpickr(
         this.getElement().querySelector(`#event-start-time-1`),

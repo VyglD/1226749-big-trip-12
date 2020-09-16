@@ -1,21 +1,22 @@
-import SortView from "../view/sort.js";
-import DaysListView from "../view/days-list.js";
-import DayView from "../view/day.js";
-import PointsListView from "../view/points-list.js";
-import NoPointsView from "../view/no-points.js";
-import LoadingView from "../view/loading.js";
-import PointPresenter from "../presenter/point.js";
-import AbstractPointsPresenter from "./abstract-points.js";
-import NewPointPresenter from "../presenter/new-point.js";
+import SortView from "../view/sort-view.js";
+import DaysListView from "../view/days-list-view.js";
+import DayView from "../view/day-view.js";
+import PointsListView from "../view/points-list-view.js";
+import NoPointsView from "../view/no-points-view.js";
+import LoadingView from "../view/loading-view.js";
+import PointPresenter from "./point-presenter.js";
+import AbstractPointsPresenter from "./abstract-points-presenter.js";
+import NewPointPresenter from "./new-point-presenter.js";
 import {render, RenderPosition, append, remove} from "../utils/render.js";
 import {getTimeInterval} from "../utils/common.js";
+import {getBlankDate} from "../utils/date.js";
 import {SortType, EventType, UpdateType, State} from "../const.js";
 
 const SORT_KEY = `sort`;
 
 export default class TripPresenter extends AbstractPointsPresenter {
-  constructor(tripContainer, tripHeader, pointsModel, offersModel, filtersModel, api) {
-    super(pointsModel, filtersModel);
+  constructor(tripContainer, tripHeader, pointsModel, offersModel, filterModel, api) {
+    super(pointsModel, filterModel);
     this._container = tripContainer;
     this._header = tripHeader;
     this._offersModel = offersModel;
@@ -46,7 +47,7 @@ export default class TripPresenter extends AbstractPointsPresenter {
 
   init() {
     this._pointsModel.addObserver(this._updateViews);
-    this._filtersModel.addObserver(this._applyNewFilter);
+    this._filterModel.addObserver(this._applyNewFilter);
 
     this._createTripSplit();
     this._renderTrip();
@@ -59,7 +60,7 @@ export default class TripPresenter extends AbstractPointsPresenter {
     remove(this._sortComponent);
 
     this._pointsModel.removeObserver(this._updateViews);
-    this._filtersModel.removeObserver(this._applyNewFilter);
+    this._filterModel.removeObserver(this._applyNewFilter);
   }
 
   createPoint(callback) {
@@ -89,7 +90,7 @@ export default class TripPresenter extends AbstractPointsPresenter {
     const tripDays = new Map();
 
     for (const point of this._getPoints()) {
-      const date = new Date(point.timeStart).setHours(0, 0, 0, 0);
+      const date = getBlankDate(point.timeStart).valueOf();
 
       if (tripDays.has(date)) {
         tripDays.get(date).push(point);

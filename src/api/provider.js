@@ -1,4 +1,4 @@
-import PointsModel from "../model/points.js";
+import PointsModel from "../model/points-model.js";
 import {isOnline} from "../utils/common.js";
 import {nanoid} from "nanoid";
 

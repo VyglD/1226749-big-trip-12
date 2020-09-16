@@ -1,6 +1,6 @@
 
-import PointView from "../view/point.js";
-import PointEditView from "../view/point-edit.js";
+import PointView from "../view/point-view.js";
+import PointEditView from "../view/point-edit-view.js";
 import {replace, append, remove} from "../utils/render.js";
 import {isEscEvent} from "../utils/common.js";
 import {EventType, State} from "../const.js";
