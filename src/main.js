@@ -14,8 +14,8 @@ import Provider from "./api/provider.js";
 
 const AUTHORIZATION = `Basic io380cs93mlrfrq1ii8sdfhurdy67k`;
 const END_POINT = `https://12.ecmascript.pages.academy/big-trip/`;
-const STORE_PREFIX = `bigTrip-localstorage`;
-const STORE_VER = `v13`;
+const STORE_PREFIX = `bigtrip-localstorage`;
+const STORE_VER = `v12.0`;
 const STORE_NAME = `${STORE_PREFIX}-${STORE_VER}`;
 const OFFLINE_TITLE = ` [offline]`;
 
