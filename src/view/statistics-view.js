@@ -1,4 +1,4 @@
-import AbstractView from "./abstract.js";
+import AbstractView from "./abstract-view.js";
 import {getHumanizeTimeInterval} from "../utils/date.js";
 import {getTimeInterval} from "../utils/common.js";
 import {TypeEmoji, POINT_TYPES, ChartType, PointCategory} from "../const.js";

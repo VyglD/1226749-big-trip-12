@@ -6,7 +6,7 @@ import {
   isOnline
 } from "../utils/common.js";
 import {getFormattedTimeString, getBlankDate} from "../utils/date.js";
-import AbstractSmartView from "./abstract-smart.js";
+import AbstractSmartView from "./abstract-smart-view.js";
 import flatpickr from "flatpickr";
 import moment from "moment";
 import he from "he";

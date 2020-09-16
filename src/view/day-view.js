@@ -1,5 +1,5 @@
 import {getSystemFormattedDate, getDateAtShortFormat} from "../utils/date";
-import AbstractView from "./abstract.js";
+import AbstractView from "./abstract-view.js";
 
 export default class DayView extends AbstractView {
   constructor(date, index, visible) {

@@ -1,20 +1,20 @@
-import FilterView from "../view/filters.js";
+import FiltersView from "../view/filters-view.js";
 import {render, RenderPosition, remove} from "../utils/render.js";
 import {filter} from "../utils/filter.js";
 import {UpdateType} from "../const.js";
 
 export default class FiltersPresenter {
-  constructor(filterHeader, pointsModel, filtersModel) {
+  constructor(filterHeader, pointsModel, filterModel) {
     this._header = filterHeader;
     this._pointsModel = pointsModel;
-    this._filtersModel = filtersModel;
+    this._filterModel = filterModel;
 
     this._filterComponent = null;
 
     this._changeTypeFilter = this._changeTypeFilter.bind(this);
     this._updateView = this._updateView.bind(this);
 
-    this._filtersModel.addObserver(this._updateView);
+    this._filterModel.addObserver(this._updateView);
     this._pointsModel.addObserver(this._updateView);
   }
 
@@ -24,8 +24,8 @@ export default class FiltersPresenter {
       this._filterComponent = null;
     }
 
-    this._filterComponent = new FilterView(
-        this._filtersModel.getFilter(),
+    this._filterComponent = new FiltersView(
+        this._filterModel.getFilter(),
         this._getFiltersNumber(),
         filtersEnabled
     );
@@ -40,7 +40,7 @@ export default class FiltersPresenter {
   }
 
   _changeTypeFilter(filterType) {
-    this._filtersModel.setFilter(filterType);
+    this._filterModel.setFilter(filterType);
   }
 
   _getFiltersNumber() {

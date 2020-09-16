@@ -1,14 +1,14 @@
-import MenuView from "./view/menu.js";
-import TripPresenter from "./presenter/trip.js";
-import FiltersPresenter from "./presenter/filters.js";
-import InformationPresenter from "./presenter/information.js";
-import StatisticsPresenter from "./presenter/statistics.js";
-import OffersModel from "./model/offers.js";
-import PointsModel from "./model/points.js";
-import FiltersModel from "./model/filters.js";
+import MenuView from "./view/menu-view.js";
+import TripPresenter from "./presenter/trip-presenter.js";
+import FiltersPresenter from "./presenter/filters-presenter.js";
+import InformationPresenter from "./presenter/information-presenter.js";
+import StatisticsPresenter from "./presenter/statistics-presenter.js";
+import OffersModel from "./model/offers-model.js";
+import PointsModel from "./model/points-model.js";
+import FilterModel from "./model/filter-model.js";
 import {render, RenderPosition} from "./utils/render.js";
 import {FilterType, MenuItem, EventType, UpdateType} from "./const.js";
-import Api from "./api/index.js";
+import Api from "./api/api.js";
 import Store from "./api/store.js";
 import Provider from "./api/provider.js";
 
@@ -41,7 +41,7 @@ const handleMenuClick = (menuItem) => {
     case MenuItem.NEW_POINT:
       statisticsPresenter.destroy();
       tripPresenter.destroy();
-      filtersModel.setFilter(FilterType.EVERYTHING);
+      filterModel.setFilter(FilterType.EVERYTHING);
       tripPresenter.init();
       filtersPresenter.init();
       tripPresenter.createPoint(newPointFormCloseHandler);
@@ -54,7 +54,7 @@ const handleMenuClick = (menuItem) => {
       break;
     case MenuItem.STATS:
       tripPresenter.destroy();
-      filtersModel.setFilter(FilterType.EVERYTHING);
+      filterModel.setFilter(FilterType.EVERYTHING);
       filtersPresenter.init(false);
       statisticsPresenter.init();
   }
@@ -78,27 +78,27 @@ const apiWithProvider = new Provider(api, store);
 
 const offersModel = new OffersModel();
 const pointsModel = new PointsModel();
-const filtersModel = new FiltersModel();
+const filterModel = new FilterModel();
 
 const siteMenuComponent = new MenuView();
 
 const filtersPresenter = new FiltersPresenter(
     filtersHeader,
     pointsModel,
-    filtersModel
+    filterModel
 );
 const tripPresenter = new TripPresenter(
     boardContainer,
     tripHeader,
     pointsModel,
     offersModel,
-    filtersModel,
+    filterModel,
     apiWithProvider
 );
 const informationPresenter = new InformationPresenter(
     header,
     pointsModel,
-    filtersModel
+    filterModel
 );
 const statisticsPresenter = new StatisticsPresenter(
     boardContainer,

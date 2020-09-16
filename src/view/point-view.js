@@ -1,6 +1,6 @@
 import {generatePointLabel, getTimeInterval} from "../utils/common.js";
 import {getHumanizeTime, getHumanizeTimeInterval} from "../utils/date.js";
-import AbstractView from "./abstract.js";
+import AbstractView from "./abstract-view.js";
 
 const MAX_DISPLAY_OFFERS = 3;
 

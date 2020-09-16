@@ -1,4 +1,4 @@
-import AbstractView from "./abstract.js";
+import AbstractView from "./abstract-view.js";
 import {isATag} from "../utils/common.js";
 import {MenuItem} from "../const.js";
 
