@@ -5,7 +5,7 @@ import {
   transformToCapitalize,
   isOnline
 } from "../utils/common.js";
-import {getFormattedTimeString} from "../utils/date.js";
+import {getFormattedTimeString, getBlankDate} from "../utils/date.js";
 import AbstractSmartView from "./abstract-smart.js";
 import flatpickr from "flatpickr";
 import moment from "moment";
@@ -17,8 +17,8 @@ const BLANK_POINT = {
   type: POINT_TYPES.get(PointCategory.TRANSFER)[0],
   city: ``,
   offers: [],
-  timeStart: new Date(),
-  timeEnd: new Date(),
+  timeStart: getBlankDate(),
+  timeEnd: getBlankDate(),
   price: 0,
   destination: [],
   photos: []

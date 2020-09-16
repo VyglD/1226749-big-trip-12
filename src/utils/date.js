@@ -31,15 +31,16 @@ export const getHumanizeTimeInterval = (interval) => {
   const duration = moment.duration(interval);
 
   return [
-    [duration.days(), `D`],
+    [Math.floor(duration.asDays()), `D`],
     [duration.hours(), `H`],
-    [duration.minutes(), `M`],
+    [duration.minutes(), `M`]
   ]
-  .map(([number, letter]) => {
-    return number ? `${String(number).padStart(2, `0`)}${letter}` : ``;
-  })
-  .filter(Boolean)
-  .join(` `);
+  .reduce((result, [number, letter], index, durations) => {
+    return (number || result.length || (index === (durations.length - 1) && !result.length))
+      ? `${result} ${String(number).padStart(2, `0`)}${letter}`
+      : result;
+  }, ``)
+  .trim();
 };
 
 export const getFormattedTimeString = (time) => {
@@ -48,4 +49,10 @@ export const getFormattedTimeString = (time) => {
   }
 
   return moment(time).format(`DD/MM/YY HH:mm`);
+};
+
+export const getBlankDate = (existingDate = new Date()) => {
+  const blankDate = new Date(existingDate);
+  blankDate.setHours(0, 0, 0, 0);
+  return blankDate;
 };

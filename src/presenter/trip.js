@@ -9,6 +9,7 @@ import AbstractPointsPresenter from "./abstract-points.js";
 import NewPointPresenter from "../presenter/new-point.js";
 import {render, RenderPosition, append, remove} from "../utils/render.js";
 import {getTimeInterval} from "../utils/common.js";
+import {getBlankDate} from "../utils/date.js";
 import {SortType, EventType, UpdateType, State} from "../const.js";
 
 const SORT_KEY = `sort`;
@@ -89,7 +90,7 @@ export default class TripPresenter extends AbstractPointsPresenter {
     const tripDays = new Map();
 
     for (const point of this._getPoints()) {
-      const date = new Date(point.timeStart).setHours(0, 0, 0, 0);
+      const date = getBlankDate(point.timeStart).valueOf();
 
       if (tripDays.has(date)) {
         tripDays.get(date).push(point);
