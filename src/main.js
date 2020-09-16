@@ -12,10 +12,10 @@ import Api from "./api/api.js";
 import Store from "./api/store.js";
 import Provider from "./api/provider.js";
 
-const AUTHORIZATION = `Basic io380cs93mlfrq1ii8sdfhurdy67k`;
+const AUTHORIZATION = `Basic io380cs93mlrfrq1ii8sdfhurdy67k`;
 const END_POINT = `https://12.ecmascript.pages.academy/big-trip/`;
 const STORE_PREFIX = `bigtrip-localstorage`;
-const STORE_VER = `v12`;
+const STORE_VER = `v12.0`;
 const STORE_NAME = `${STORE_PREFIX}-${STORE_VER}`;
 const OFFLINE_TITLE = ` [offline]`;
 
