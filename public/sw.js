@@ -31,7 +31,12 @@ self.addEventListener(`install`, (evt) => {
             `img/icons/sightseeing.png`,
             `img/icons/taxi.png`,
             `img/icons/train.png`,
-            `img/icons/transport.png`
+            `img/icons/transport.png`,
+            `https://fonts.gstatic.com/s/montserrat/v15/JTURjIg1_i6t8kCHKm45_dJE3gnD_g.woff2`,
+            `https://fonts.gstatic.com/s/montserrat/v15/JTURjIg1_i6t8kCHKm45_bZF3gnD_g.woff2`,
+            `https://fonts.gstatic.com/s/montserrat/v15/JTURjIg1_i6t8kCHKm45_ZpC3gnD_g.woff2`,
+            `https://fonts.gstatic.com/s/montserrat/v15/JTURjIg1_i6t8kCHKm45_c5H3gnD_g.woff2`,
+            `https://fonts.gstatic.com/s/montserrat/v15/JTUSjIg1_i6t8kCHKm459Wlhyw.woff2`
           ]);
         })
   );

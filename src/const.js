@@ -77,3 +77,8 @@ export const State = {
   DELETING: `DELETING`,
   ABORTING: `ABORTING`
 };
+
+export const PROTOCOL = {
+  HTTP: `http`,
+  HTTPS: `https`,
+};
