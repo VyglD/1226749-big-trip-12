@@ -1,5 +1,5 @@
 const CACHE_PREFIX = `bigtrip-cache`;
-const CACHE_VER = `v12.0`;
+const CACHE_VER = `v12.3`;
 const CACHE_NAME = `${CACHE_PREFIX}-${CACHE_VER}`;
 
 const HTTP_STATUS_OK = 200;
@@ -31,7 +31,13 @@ self.addEventListener(`install`, (evt) => {
             `img/icons/sightseeing.png`,
             `img/icons/taxi.png`,
             `img/icons/train.png`,
-            `img/icons/transport.png`
+            `img/icons/transport.png`,
+            `https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700,800&display=swap`,
+            `https://fonts.gstatic.com/s/montserrat/v15/JTURjIg1_i6t8kCHKm45_dJE3gnD_g.woff2`,
+            `https://fonts.gstatic.com/s/montserrat/v15/JTURjIg1_i6t8kCHKm45_bZF3gnD_g.woff2`,
+            `https://fonts.gstatic.com/s/montserrat/v15/JTURjIg1_i6t8kCHKm45_ZpC3gnD_g.woff2`,
+            `https://fonts.gstatic.com/s/montserrat/v15/JTURjIg1_i6t8kCHKm45_c5H3gnD_g.woff2`,
+            `https://fonts.gstatic.com/s/montserrat/v15/JTUSjIg1_i6t8kCHKm459Wlhyw.woff2`
           ]);
         })
   );

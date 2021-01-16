@@ -128,7 +128,16 @@ Promise.all([
 });
 
 window.addEventListener(`load`, () => {
-  navigator.serviceWorker.register(`/sw.js`);
+  if (`serviceWorker` in navigator) {
+    navigator.serviceWorker.register(`sw.js`)
+      .then(() => {
+        return navigator.serviceWorker.ready
+          .then((worker) => {
+            worker.sync.register(`syncdata`);
+          });
+      })
+      .catch((err) => window.console.error(err));
+  }
 });
 
 window.addEventListener(`online`, () => {

@@ -1,5 +1,6 @@
 import Observer from "../utils/observer.js";
 import {transformToCapitalize} from "../utils/common.js";
+import {PROTOCOL} from "../const";
 
 export default class PointsModel extends Observer {
   constructor(offersModel) {
@@ -67,6 +68,15 @@ export default class PointsModel extends Observer {
   }
 
   static adaptToClient(point) {
+    const photos = point.destination.pictures
+    .map((photo) => {
+      if (!photo.src.includes(PROTOCOL.HTTPS)) {
+        photo.src = photo.src.replace(PROTOCOL.HTTP, PROTOCOL.HTTPS);
+      }
+
+      return photo;
+    });
+
     return {
       id: point.id,
       type: transformToCapitalize(point.type),
@@ -77,7 +87,7 @@ export default class PointsModel extends Observer {
       price: point.base_price,
       isFavorite: point.is_favorite,
       destination: point.destination.description,
-      photos: point.destination.pictures,
+      photos,
     };
   }
 
